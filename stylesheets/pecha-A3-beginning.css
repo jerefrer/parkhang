@@ -1,0 +1,72 @@
+.pecha-a3 .pecha-beginning-page {
+  width: 968pt;
+  height: 170pt;
+  margin: calc((210.36pt - 170pt) / 2) calc((1048.92pt - 968pt) / 2);
+  padding: 3pt;
+  border-width: 2px 1px 1px 2px;
+  border-style: solid;
+  border-color: white;
+}
+.pecha-a3 .pecha-beginning-page-inner {
+  float: left;
+  width: calc(100% - (17.52pt * 2));
+  height: 100%;
+  padding: 18pt 0;
+}
+.pecha-a3 .pecha-beginning-page-inner-inner {
+  height: 100%;
+  padding: 3pt;
+  border-width: 2px 1px 1px 2px;
+  border-style: solid;
+  border-color: white;
+}
+.pecha-a3 .pecha-beginning-page .pecha-left-margin,
+.pecha-a3 .pecha-beginning-page .pecha-right-margin {
+  border: none;
+}
+.pecha-a3 .pecha-beginning-left-box,
+.pecha-a3 .pecha-beginning-right-box,
+.pecha-a3 .pecha-beginning-left-gap,
+.pecha-a3 .pecha-beginning-right-gap {
+  float: left;
+  height: 100%;
+  padding: 3pt 0;
+  border-width: 1px 2px 2px 1px;
+  border-style: solid;
+  border-color: white;
+}
+.pecha-a3 .pecha-beginning-left-box,
+.pecha-a3 .pecha-beginning-right-box {
+  width: 66pt;
+}
+.pecha-a3 .pecha-beginning-left-gap,
+.pecha-a3 .pecha-beginning-right-gap {
+  width: 10pt;
+  margin: 0 3pt;
+}
+.pecha-a3 .pecha-beginning-left-gap {
+  line-height: 1.1em;
+  border-width: 1px 2px 2px 1px;
+}
+.pecha-a3 .pecha-beginning-right-gap {
+  line-height: 1.2em;
+  border-width: 2px 1px 1px 2px;
+  transform: rotate(180deg);
+}
+.pecha-a3 .pecha-beginning-page .pecha-content {
+  float: left;
+  width: calc(100% - (10pt * 2) - (66pt * 2) - (3px * 4) - (2 * 3pt) + 3px);
+  height: 100%;
+  padding: 2pt 10pt;
+  border-width: 1px 2px 2px 1px;
+  border-style: solid;
+  border-color: white;
+}
+
+.pecha-a3 .pecha-beginning-page .pecha-content .line .tibetan td {
+  line-height: 0.95em;
+}
+.pecha-a3 .pecha-beginning-page .pecha-content .line .translation td {
+  position: relative;
+  top: -2px;
+}

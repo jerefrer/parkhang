@@ -1,0 +1,56 @@
+.line:first-child {
+  margin-top: 0 !important;
+}
+.line td {
+  background: transparent;
+}
+.line td span {
+  display: inline-block;
+  background: transparent !important;
+}
+.line td.small-writings {
+  color: rgba(255, 255, 255, 0.5);
+}
+.line .tibetan td {
+  font-family: Tibetan;
+  line-height: 1em;
+  white-space: nowrap;
+  vertical-align: top;
+}
+.line .tibetan td.page-beginning {
+  white-space: pre !important;
+}
+.line .tibetan td.small-writings {
+  position: relative;
+}
+.line .tibetan td[rowspan="2"] {
+  font-family: Arial;
+  font-style: italic;
+  text-align: right;
+  white-space: pre-wrap;
+}
+
+.line .tibetan td .space {
+  display: inline-block;
+}
+
+.line .translation td {
+  font-family: Arial;
+  vertical-align: top;
+  white-space: pre-wrap;
+}
+.line .translation td.small-writings {
+  position: relative;
+  font-style: italic;
+}
+.pecha-title-content .line .translation td {
+  font-family: Lato;
+}
+
+.pecha-left-margin,
+.pecha-right-margin {
+  float: left;
+  height: 100%;
+  font-family: Tibetan;
+  writing-mode: vertical-lr;
+}

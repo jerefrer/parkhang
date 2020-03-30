@@ -1,0 +1,51 @@
+.pecha-a4 .pecha-standard-page {
+  width: 786pt;
+  height: 167pt;
+  margin: calc((198.50pt - 167pt) / 2) calc((842.04pt - 786pt) / 2);
+  padding: 3pt;
+  border-width: 2px 1px 1px 2px;
+  border-style: solid;
+  border-color: white;
+}
+.pecha-a4 .pecha-left-margin,
+.pecha-a4 .pecha-right-margin {
+  width: 17.52pt;
+  height: calc(167pt - (3pt * 2) - 3px);
+  padding: 3pt 0;
+  border-style: solid;
+  border-color: white;
+  font-size: 16px;
+}
+.pecha-a4 .pecha-standard-page .pecha-content {
+  float: left;
+  width: calc(100% - (17.52pt * 2) - (3px * 3) + 1px);
+  height: 100%;
+  margin: 0 3pt;
+  padding: 6pt 10pt;
+  border-width: 1px 2px 2px 1px;
+  border-style: solid;
+  border-color: white;
+}
+.pecha-a4 .pecha-left-margin {
+  line-height: 1.1em;
+  border-width: 1px 2px 2px 1px;
+}
+.pecha-a4 .pecha-right-margin {
+  line-height: 1.2em;
+  border-width: 2px 1px 1px 2px;
+  transform: rotate(180deg);
+}
+.pecha-a4 .pecha-left-margin-first,
+.pecha-a4 .pecha-right-margin-first {
+  float: left;
+  text-align: left;
+}
+.pecha-a4 .pecha-left-margin-last,
+.pecha-a4 .pecha-right-margin-last {
+  float: right;
+  text-align: right;
+}
+.pecha-a4 .pecha-left-margin-center,
+.pecha-a4 .pecha-right-margin-center {
+  text-align: center;
+}

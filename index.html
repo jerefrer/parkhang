@@ -1,0 +1,82 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" href="vendor/stylesheets/semantic.min.css">
+  <link rel="stylesheet" href="stylesheets/layout.css">
+  <link rel="stylesheet" href="stylesheets/scrollbar.css">
+  <link rel="stylesheet" href="stylesheets/input-form.css">
+  <link rel="stylesheet" href="stylesheets/A4.css">
+  <link rel="stylesheet" href="stylesheets/pecha-all.css">
+  <link rel="stylesheet" href="stylesheets/pecha-A3-all.css">
+  <link rel="stylesheet" href="stylesheets/pecha-A3-title.css">
+  <link rel="stylesheet" href="stylesheets/pecha-A3-beginning.css">
+  <link rel="stylesheet" href="stylesheets/pecha-A3-standard.css">
+  <link rel="stylesheet" href="stylesheets/pecha-A4-all.css">
+  <link rel="stylesheet" href="stylesheets/pecha-A4-title.css">
+  <link rel="stylesheet" href="stylesheets/pecha-A4-beginning.css">
+  <link rel="stylesheet" href="stylesheets/pecha-A4-standard.css">
+  <link rel="stylesheet" href="stylesheets/pecha-screen-all.css">
+  <link rel="stylesheet" href="stylesheets/pecha-screen-title.css">
+  <link rel="stylesheet" href="stylesheets/pecha-screen-beginning.css">
+  <link rel="stylesheet" href="stylesheets/pecha-screen-standard.css">
+  <link rel="stylesheet" href="stylesheets/effects.css" id="effects">
+  <link rel="stylesheet" href="stylesheets/print.css">
+  <script src="vendor/javascripts/howler.min.js"></script>
+  <script src="vendor/javascripts/jquery-3.2.0.min.js"></script>
+  <script src="vendor/javascripts/jquery.scrollTo.js"></script>
+  <script src="vendor/javascripts/clipboard.min.js"></script>
+  <script src="vendor/javascripts/moment.js"></script>
+  <script src="vendor/javascripts/papaparse.min.js"></script>
+  <script src="vendor/javascripts/semantic.min.js"></script>
+  <script src="vendor/javascripts/underscore.min.js"></script>
+  <script src="javascripts/navigation.js"></script>
+  <script src="javascripts/color-mode.js"></script>
+  <script src="javascripts/input-form.js"></script>
+  <script src="javascripts/import-csv.js"></script>
+  <script src="javascripts/generate-pecha.js"></script>
+  <script src="javascripts/generate-pages.js"></script>
+  <script src="javascripts/printing.js"></script>
+  <script src="javascripts/fading-buttons.js"></script>
+  <script src="javascripts/zoom-on-click.js"></script>
+  <script>
+    var delay = 0;
+    var autoloadPreviousPecha = false;
+
+    $(function() {
+      if (autoloadPreviousPecha) {
+        $('body').addClass(localStorage['pechanator.layout']);
+        textId = JSON.parse(localStorage['pechanator.textId']);
+        language = localStorage['pechanator.language'];
+        if (textId) {
+          pecha = localStorage['pechanator.texts.'+textId];
+          $('#file-input').remove();
+          $('#loading-overlay').show();
+          beginGeneration();
+        }
+      } else {
+        renderInputForm();
+      }
+    })
+  </script>
+  <body>
+    <div id="masking-overlay"></div>
+    <div id="loading-overlay">
+      <div class="ui active loader"></div>
+    </div>
+    <div class="ui left demo vertical inverted sidebar labeled icon menu">
+      <a class="item" id="home"><i class="home icon"></i>Home</a>
+      <a class="item" id="discover"><i class="search icon"></i>Discover mode</a>
+    </div>
+    <div class="ui page dimmer" data-opacity=1>
+      <div class="content"></div>
+    </div>
+    <div class="pusher">
+      <button id="print-button" class="circular ui black icon button">
+        <i class="print icon"></i>
+      </button>
+      <button id="color-mode-button" class="circular ui black icon button">
+        <i class="adjust icon"></i>
+      </button>
+      <div id="main"></div>
+  </body>
+</html>

@@ -1,0 +1,8 @@
+@media print {  
+
+  #print-button,
+  #color-mode-button {
+    display: none !important;
+  }
+
+}

@@ -1,0 +1,50 @@
+.pecha-screen .pecha-standard-page {
+  width: 90vw;
+  height: 325px;
+  margin: calc((385px - 325px) / 2) calc((100vw - 90vw) / 2);
+  padding: 3pt;
+  border-width: 2px 1px 1px 2px;
+  border-style: solid;
+  border-color: white;
+}
+.pecha-screen .pecha-left-margin,
+.pecha-screen .pecha-right-margin {
+  width: 17.52pt;
+  padding: 3pt 0;
+  border-style: solid;
+  border-color: white;
+  font-size: 24px;
+}
+.pecha-screen .pecha-standard-page .pecha-content {
+  float: left;
+  width: calc(100% - (17.52pt * 2) - (3px * 3) + 1px);
+  height: 100%;
+  margin: 0 3pt;
+  padding: 6pt 10pt;
+  border-width: 1px 2px 2px 1px;
+  border-style: solid;
+  border-color: white;
+}
+.pecha-screen .pecha-left-margin {
+  line-height: 0.7em;
+  border-width: 1px 2px 2px 1px;
+}
+.pecha-screen .pecha-right-margin {
+  line-height: 0.6em;
+  border-width: 2px 1px 1px 2px;
+  transform: rotate(180deg);
+}
+.pecha-screen .pecha-left-margin-first,
+.pecha-screen .pecha-right-margin-first {
+  float: left;
+  text-align: left;
+}
+.pecha-screen .pecha-left-margin-last,
+.pecha-screen .pecha-right-margin-last {
+  float: right;
+  text-align: right;
+}
+.pecha-screen .pecha-left-margin-center,
+.pecha-screen .pecha-right-margin-center {
+  text-align: center;
+}

@@ -1,0 +1,64 @@
+.pecha-screen .pecha-beginning-page {
+  width: 90vw;
+  height: 325px;
+  margin: calc((385px - 325px) / 2) calc((100vw - 90vw) / 2);
+  padding: 3pt;
+  border-width: 2px 1px 1px 2px;
+  border-style: solid;
+  border-color: white;
+}
+.pecha-screen .pecha-beginning-page-inner {
+  float: left;
+  width: calc(100% - (17.52pt * 2));
+  height: 100%;
+  padding: 18pt 0;
+}
+.pecha-screen .pecha-beginning-page-inner-inner {
+  height: 100%;
+  padding: 3pt;
+  border-width: 2px 1px 1px 2px;
+  border-style: solid;
+  border-color: white;
+}
+.pecha-screen .pecha-beginning-page .pecha-left-margin,
+.pecha-screen .pecha-beginning-page .pecha-right-margin {
+  border: none;
+}
+.pecha-screen .pecha-beginning-left-box,
+.pecha-screen .pecha-beginning-right-box,
+.pecha-screen .pecha-beginning-left-gap,
+.pecha-screen .pecha-beginning-right-gap {
+  float: left;
+  height: 100%;
+  padding: 3pt 0;
+  border-width: 1px 2px 2px 1px;
+  border-style: solid;
+  border-color: white;
+}
+.pecha-screen .pecha-beginning-left-box,
+.pecha-screen .pecha-beginning-right-box {
+  width: 38pt;
+}
+.pecha-screen .pecha-beginning-left-gap,
+.pecha-screen .pecha-beginning-right-gap {
+  width: 10pt;
+  margin: 0 3pt;
+}
+.pecha-screen .pecha-beginning-left-gap {
+  line-height: 1.1em;
+  border-width: 1px 2px 2px 1px;
+}
+.pecha-screen .pecha-beginning-right-gap {
+  line-height: 1.2em;
+  border-width: 2px 1px 1px 2px;
+  transform: rotate(180deg);
+}
+.pecha-screen .pecha-beginning-page .pecha-content {
+  float: left;
+  width: calc(100% - (10pt * 2) - (38pt * 2) - (3px * 4) - (2 * 3pt) + 3px);
+  height: 100%;
+  padding: 6pt 10pt;
+  border-width: 1px 2px 2px 1px;
+  border-style: solid;
+  border-color: white;
+}

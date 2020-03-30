@@ -1,0 +1,31 @@
+@media screen {
+
+  .zoom-on-click {
+    cursor: pointer;
+  }
+  body.no-pointer {
+    cursor: none;
+  }
+  body.no-pointer .zoom-on-click {
+    cursor: none;
+  }
+
+  .glowing {
+    text-shadow: 0 0 3px;
+  }
+  .glowing.zoomed-syllable {
+    text-shadow: 0 0 3px, 0 0 6px;
+  }
+  .glowing.white {
+    text-shadow: 0 0 3px white, 0 0 2px black, 0 0 2px black, 0 0 2px black, 0 0 2px black;
+  }
+  .glowing.white.zoomed-syllable {
+    text-shadow: 0 0 3px white, 0 0 6px white, 0 0 2px black, 0 0 2px black, 0 0 2px black, 0 0 2px black;
+  }
+  .line td span.white,  .glowing.white  { color: white  !important; }
+  .line td span.red,    .glowing.red    { color: red    !important; }
+  .line td span.blue,   .glowing.blue   { color: blue   !important; }
+  .line td span.yellow, .glowing.yellow { color: yellow !important; }
+  .line td span.green,  .glowing.green  { color: green  !important; }
+
+}

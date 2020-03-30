@@ -1,0 +1,17 @@
+.pecha-page-container {
+  background-image: url(../images/pattern.jpg);
+  background-blend-mode: color;
+  background-color: #010119;
+}
+*:not(.pecha-page-container) {
+  border-color: #ac9100 !important;
+}
+* {
+  color: #a98f00;
+  text-shadow: 0 0 3px rgba(231, 195, 0, 0.4);
+}
+.line td.small-writings,
+.line td.small-writings span {
+  color: rgba(169, 143, 0, 0.5) !important;
+  text-shadow: 0 0 3px rgba(231, 195, 0, 0.2) !important;
+}

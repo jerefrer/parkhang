@@ -1,0 +1,24 @@
+* {
+  background: white;
+  color: black !important;
+  border-color: black !important;
+}
+.line td.small-writings,
+.line td.small-writings span {
+  color: rgba(0, 0, 0, 0.5) !important;
+}
+body,
+body.pushable .pusher {
+  background: white;
+}
+#loading-overlay {
+  background: white;
+}
+#file-input input {
+  background: white;
+}
+#print-button i,
+#color-mode-button i {
+  color: #fff !important;
+  background: transparent !important;
+}

@@ -1,0 +1,59 @@
+@font-face {
+  font-family: Tibetan;
+  src: url("../vendor/fonts/TibetanChogyalUnicode-170221.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: Lato;
+  src: url("../vendor/fonts/Lato-Regular.ttf") format("truetype");
+}
+
+body,
+body.pushable>.pusher {
+  background: #001211;
+  color: white;
+}
+
+body {
+}
+
+#masking-overlay,
+#loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #001211;
+  z-index: 999;
+  display: none;
+}
+#masking-overlay {
+  background: rgba(0, 0, 0, 0.95);
+}
+
+#menu-button {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  opacity: 1;
+  transition: opacity 0.5s ease-in-out;
+}
+
+#menu-button.hidden {
+  opacity: 0;
+}
+
+#print-button {
+  display: none;
+  position: fixed;
+  top: 20px;
+  left: 20px;
+}
+
+#color-mode-button {
+  display: none;
+  position: fixed;
+  top: 65px;
+  left: 20px;
+}

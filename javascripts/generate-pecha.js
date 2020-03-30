@@ -1,0 +1,353 @@
+var pechaContentWidth;
+var numberOfLinesPerPage;
+var lineWidth = 0;
+var pageNumber = 1;
+var physicalPageNumber = 1;
+var groupIndex = 0;
+var translationIndex = 0;
+var pageBeginningMarker = '༄༅།  །';
+var spaceBetweenGroups = '<span class="space"></span>';
+
+var tibetanNumber = function(number) {
+  if (typeof(number) == 'number') {
+    var digits = number.toString().split();
+    return _.chain(digits).map(tibetanNumber).join().value();
+  } else {
+    switch(number) {
+      case '0': return '༠'; break;
+      case '1': return '༡'; break;
+      case '2': return '༢'; break;
+      case '3': return '༣'; break;
+      case '4': return '༤'; break;
+      case '5': return '༥'; break;
+      case '6': return '༦'; break;
+      case '7': return '༧'; break;
+      case '8': return '༨'; break;
+      case '9': return '༩'; break;
+    }
+  }
+}
+
+var pechaLeftMargin = function() {
+  var margin = $('<div class="pecha-left-margin">');
+  margin.append('<div class="pecha-left-margin-first">དང་པོ་པ་ནི།</div>');
+  margin.append('<div class="pecha-left-margin-last">དང་པོ་པ་ནི།</div>');
+  margin.append('<div class="pecha-left-margin-center">དང་པོ་པ་ནི།</div>');
+  return margin;
+}
+
+var pechaRightMargin = function() {
+  var margin = $('<div class="pecha-right-margin">');
+  if (pageNumber % 2 == 1) { // Even page
+    margin.append('<div class="pecha-right-margin-first">དང་པོ་པ་ནི།</div>');
+    margin.append('<div class="pecha-right-margin-last">དང་པོ་པ་ནི།</div>');
+    margin.append('<div class="pecha-right-margin-center">'+tibetanNumber(physicalPageNumber)+'</div>');
+  } else { // Odd page
+    margin.append('<div class="pecha-right-margin-first"></div>');
+    margin.append('<div class="pecha-right-margin-last"></div>');
+    margin.append('<div class="pecha-right-margin-center">དང་པོ་པ་ནི་དང་པོ་པ་ནི།</div>');
+  }
+  return margin;
+}
+
+var addPechaTitlePage = function() {
+  var translation = pecha.title[selectedLanguage];
+  var titlePage = '\
+    <div class="pecha-page-container">\
+      <div class="pecha-title-page">\
+        <div class="pecha-title-page-inner">\
+          <div class="pecha-title-page-inner-inner">\
+            <div class="pecha-title-left-box"></div>\
+            <div class="pecha-title-left-gap"></div>\
+            <div class="pecha-title-content">\
+              <table class="line">\
+                <tbody>\
+                  <tr class="tibetan">\
+                    <td>'+pecha.title.tibetan.full+'</td>\
+                  </tr>\
+                  <tr class="translation">\
+                    <td>\
+                      <div class="title">'+translation.title+'</div>'+
+                      (translation.subtitle && '<div class="subtitle">'+translation.subtitle+'</div>' || '')+'\
+                    </td>\
+                  </tr>\
+                </tbody>\
+              </table>\
+            </div>\
+            <div class="pecha-title-right-gap"></div>\
+            <div class="pecha-title-right-box"></div>\
+          </div>\
+        </div>\
+      </div>\
+    </div>\
+  ';
+  $('#main').append(titlePage);
+  setTimeout(function() {
+    var pageHeight = $('.pecha-page-container').height();
+    var contentHeight = $('.pecha-title-content').height();
+    $('.pecha-title-page').css({height: 'calc('+contentHeight+'px + (3px * 6) + (3 * 3pt) + (2 * 6pt) + (2 * 17.52pt) - 0.5px)' });
+    $('.pecha-title-page').css({'margin-top': 'calc(('+pageHeight+'px - '+$('.pecha-title-page').outerHeight()+'px) / 2)'});
+    $('.pecha-title-page').css({'margin-bottom': 'calc(('+pageHeight+'px - '+$('.pecha-title-page').outerHeight()+'px) / 2)'});
+  }, 200);
+  pageNumber++;
+}
+
+var renderBeginningPage = function() {
+  var pechaPage = $('<div class="pecha-beginning-page pecha-page">');
+  pechaPage.append(pechaLeftMargin());
+  pechaPage.append('\
+    <div class="pecha-beginning-page-inner">\
+      <div class="pecha-beginning-page-inner-inner">\
+        <div class="pecha-beginning-left-box"></div>\
+        <div class="pecha-beginning-left-gap"></div>\
+        <div class="pecha-content"></div>\
+        <div class="pecha-beginning-right-gap"></div>\
+        <div class="pecha-beginning-right-box"></div>\
+      </div>\
+    </div>\
+  ');
+  pechaPage.append(pechaRightMargin());
+  return pechaPage;
+}
+
+var renderStandardPage = function() {
+  var pechaPage = $('<div class="pecha-standard-page pecha-page">');
+  pechaPage.append(pechaLeftMargin());
+  pechaPage.append('<div class="pecha-content"></div>');
+  pechaPage.append(pechaRightMargin());
+  return pechaPage;
+}
+
+var evenPage = function() {
+  return pageNumber % 2 == 0;
+}
+
+var oddPage = function() {
+  return pageNumber % 2 == 1;
+}
+
+var addNextPechaPage = function() {
+  var pechaPageContainer = $('<div class="pecha-page-container">');
+  if (pageNumber <= 3) {
+    pechaPageContainer.html(renderBeginningPage());
+    numberOfLinesPerPage = 3;
+  } else {
+    pechaPageContainer.html(renderStandardPage());
+    numberOfLinesPerPage = 4;
+  }
+  $('#main').append(pechaPageContainer);
+  pechaContentWidth = $('.pecha-page:last .pecha-content').width();
+  addNewEmptyLine();
+  if (oddPage() || pageNumber <= 3) {
+    $('tr.tibetan:last').append('<td class="page-beginning">'+pageBeginningMarker+'</td>');
+    $('tr.translation:last').append('<td class="page-beginning"></td>');
+    lineWidth = $('tr.tibetan:last td:last').width();
+  } else {
+    lineWidth = 0;
+  }
+  pageNumber++;
+  if (evenPage()) physicalPageNumber++;
+  if (delay) $(window).scrollTop(pechaPageContainer.offset().top);
+}
+
+var addNewEmptyLine = function() {
+  $('.pecha-page:last .pecha-content').append('\
+    <table class="line">\
+      <tbody>\
+        <tr class="tibetan"></tr>\
+        <tr class="translation"></tr>\
+      </tbody>\
+    </table>\
+  ');
+}
+
+var continueOnNewLineStartingWith = function(remainingWords) {
+  if ($('.pecha-page:last .line').length == numberOfLinesPerPage)
+    addNextPechaPage();
+  else {
+    addNewEmptyLine();
+    lineWidth = 0;
+  }
+  setTimeout(function() {
+    addNextGroup(remainingWords);
+  }, delay);
+}
+
+var newTibetanCell = function(index) {
+  var line = pecha.groups[index];
+  var td = $('<td>');
+  td.attr('data-index', index);
+  if (line.smallWritings) td.addClass('small-writings');
+  return td;
+}
+
+var addRowspanCell = function(td, text) {
+  var fontSize = 10;
+  var ratioPerCharacterPerFontPixel = 0.45;
+  var width = text.length * fontSize * ratioPerCharacterPerFontPixel / 2.5;
+  td.attr('rowspan', 2).css({
+    'min-width': width,
+    width: width
+  });
+  td.html(text);
+}
+
+var addNextGroup = function(remainingWords) {
+  var group = pecha.groups[groupIndex];
+  if (remainingWords || group) {
+    var td = newTibetanCell(groupIndex);
+    var text = remainingWords || group.tibetan;
+    if (!group.tibetan) {
+      text = group[selectedLanguage];
+      addRowspanCell(td, text);
+    } else {
+      if ($('.pecha-page tr.tibetan:last td:not(.page-beginning)').length)
+        td.html(spaceBetweenGroups + text);
+      else
+        td.html(text);
+    }
+    $('.pecha-page tr.tibetan:last').append(td);
+    if (lineWidth + td.width() <= pechaContentWidth) { // If group fits then add next group
+      lineWidth += td.width();
+      groupIndex++;
+      setTimeout(function() {
+        addNextGroup();
+      }, delay);
+    } else { // If group overflows
+      td.html(spaceBetweenGroups);
+      if (lineWidth + td.width() + 50 <= pechaContentWidth) { // And there is some space left (with some margin)
+        var wordIndex = 0;
+        var words = text.split('་');
+        var addNextWord = function() { 
+          var td = $('.pecha-page tr.tibetan td:last');
+          var word = words[wordIndex];
+          if (word) { // Then if there is more words
+            td.append('<span>'+word+(words[wordIndex+1] && '་' || '')+'</span>');
+            if (lineWidth + td.width() <= pechaContentWidth) { // And the next ones fits, add it
+              wordIndex++;
+              setTimeout(function() {
+                addNextWord();
+              }, delay);
+            } else { // If it doesn't fit then start a new line with it
+              td.find('span:last').remove();
+              if (!td.find('span:not(.space)').length) td.remove();
+              fitWidth($('table:last'), pechaContentWidth);
+              var remainingWords = _(words).rest(wordIndex).join('་');
+              continueOnNewLineStartingWith(remainingWords);
+            }
+          } else {
+            lineWidth += td.width();
+            groupIndex++;
+            addNextGroup(); 
+          }
+        }
+        addNextWord();
+      } else { // If there isn't enough space at the end of the line start a new line
+        td.remove();
+        fitWidth($('table:last'), pechaContentWidth);
+        continueOnNewLineStartingWith('');
+      }
+    }
+  } else { // If all groups have been processed
+    addNextTranslation();
+  }
+}
+
+var newTranslationCell = function(tibetanTd) {
+  var width = tibetanTd.width();
+  var space = tibetanTd.find('.space') && tibetanTd.find('.space').width();
+  var line = pecha.groups[translationIndex];
+  var td = $('<td>');
+  if (space) td.css({'padding-left': space+'px'});
+  if (line.smallWritings) td.addClass('small-writings');
+  return td;
+}
+
+var addTranslationCell = function(tibetanTd, text) {
+  var table = tibetanTd.parents('table');
+  var td = newTranslationCell(tibetanTd);
+  td.html(text);
+  table.find('tr.translation').append(td);
+  translationIndex++;
+  if (delay) $(window).scrollTop(table.parents('.pecha-page-container').offset().top);
+}
+
+var addNextTranslation = function() {
+  var tibetanTd = $('.tibetan [data-index='+translationIndex+']:first');
+  var tibetanWidth = tibetanTd.width(); 
+  var space = tibetanTd.find('.space') && tibetanTd.find('.space').width()
+  var groupIsSplit = $('.tibetan [data-index='+translationIndex+']').length > 1;
+  var group = pecha.groups[translationIndex];
+  if (group != undefined) {
+    var translation = group[selectedLanguage];
+    if (!group.tibetan) {
+      translationIndex++;
+      setTimeout(addNextTranslation, delay);
+      return;
+    }
+    if (groupIsSplit) {
+      var table = tibetanTd.parents('table');
+      var td = newTranslationCell(tibetanTd);
+      td.css({'padding-left': space});
+      table.find('tr.translation').append(td);
+      var height = td.height();
+      var wordIndex = 0;
+      var words = translation.split(' ');
+      var addNextWord = function() {
+        var word = words[wordIndex];
+        if (word != undefined) {
+          td.append('<span>'+word+' </span>');
+          if (td.height() <= height) { // If the word fits try the next one
+            wordIndex++;
+            setTimeout(function() {
+              addNextWord();
+            }, delay);
+          } else { // If the word  doesn't fit then continue in the next cell
+            td.find('span').last().remove();
+            var tibetan = $('.tibetan [data-index='+translationIndex+']:last');
+            var remainingWords = _(words).rest(wordIndex).join(' ');
+            addTranslationCell(tibetan, remainingWords);
+            setTimeout(addNextTranslation, delay);
+          }
+        } else {
+          var tibetan = $('.tibetan [data-index='+translationIndex+']:last');
+          addTranslationCell(tibetan, '');
+          setTimeout(addNextTranslation, delay);
+        }
+      }
+      addNextWord();
+    } else {
+      addTranslationCell(tibetanTd, translation);
+      setTimeout(addNextTranslation, delay);
+    }
+  } else { // If all translations have been added
+    revealTranslationsThatAreTooTall();
+    $('#print-button').show();
+    $('#color-mode-button').show();
+    $('#loading-overlay').fadeOut(500);
+  }
+}
+
+var revealTranslationsThatAreTooTall = function() {
+  var height;
+  if ($('body').hasClass('a3')) height = 19.3;
+  if ($('body').hasClass('a4')) height = 19.3;
+  if ($('body').hasClass('screen')) height = 32.73;
+  $('.pecha-content tr.translation').each(function() {
+    if ($(this).height() > height) $(this).css({background: 'rgba(255,0,0,0.5)'});
+  })
+}
+
+var fitWidth = function(table, maxWidth) {
+  var spacing = 0.01;
+  var setWidth = function() {
+    table.css({'letter-spacing': spacing+'px'});
+    if (table.width() > maxWidth)
+      table.css({'letter-spacing': (spacing-0.01)+'px'});
+    else {
+      spacing += 0.01;
+      setTimeout(setWidth, delay/10);
+    }
+  }
+  setWidth();
+}

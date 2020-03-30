@@ -1,0 +1,38 @@
+.a4 #main {
+  width: calc(21cm - 2cm - 2px);
+  margin: 0 auto;
+}
+
+.a4 .line .tibetan {
+  font-family: TibetanChogyalUnicode-170221;
+  font-size: 23pt;
+  line-height: 1em;
+}
+.a4 .line .tibetan.small-writings {
+  font-size: 18pt;
+}
+.a4 .line .tibetan .space {
+  display: inline-block;
+  width: 20px;
+}
+
+.a4 .line .translation {
+  font-size: 16px;
+  line-height: 1em;
+  margin-bottom: 1em;
+}
+.a4 .line .translation.small-writings {
+  font-size: 14px;
+  font-style: italic;
+}
+
+@media print {
+  body, .a4 * {
+    color: black;
+    background: white;
+  }
+
+  .a4 .line {
+    page-break-inside: avoid;
+  }
+}

@@ -1,0 +1,58 @@
+#input-form {
+  display: block;
+  padding-top: 70px;
+}
+
+#input-form .layouts.cards {
+  width: 960px;
+  margin: 0 auto;
+}
+
+#input-form .card {
+  width: 145px;
+  background: #222 !important;
+  border-color: rgba(34,36,38,.1) !important;
+  box-shadow: 0 1px 3px 0 rgba(34,36,38,.1), 0 0 0 1px rgba(34,36,38,1) !important;
+}
+#input-form .card.selected {
+  box-shadow: 0 0 7px #2185d0 !important;
+}
+#input-form .card .image {
+  background-color: black !important;
+}
+#input-form .card .image .name {
+  position: absolute;
+  top: calc(50% - 10px);
+  left: calc(50% - 9px);
+  font-weight: bold;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+#input-form .card .header {
+  color: rgba(255, 255, 255, 0.5);
+  text-align: center;
+}
+
+#input-form .divider,
+#input-form .file.field {
+  width: 280px;
+  margin: 25px auto;
+  color: rgba(255, 255, 255, 0.5);
+}
+#input-form .languages {
+  width: 220px;
+  margin: 20px auto;
+}
+
+#input-form .language label {
+  color: rgba(255, 255, 255, 0.9);
+}
+#input-form .language.selected label {
+  color: #2185d0;
+}
+
+#file-input input {
+  background: #222;
+  color: white;
+  border-color: #333;
+}
