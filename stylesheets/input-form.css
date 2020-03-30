@@ -1,20 +1,31 @@
 #input-form {
   display: block;
-  padding-top: 70px;
+  padding-top: 4.5vh;
 }
 
 #input-form .layouts.cards {
-  width: 960px;
+  width: 60vh;
   margin: 0 auto;
 }
 
 #input-form .card {
-  width: 145px;
+  width: 15vh;
+  margin: .5em;
+  font-size: 1.5vh;
   background: #222 !important;
   border-color: rgba(34,36,38,.1) !important;
   box-shadow: 0 1px 3px 0 rgba(34,36,38,.1), 0 0 0 1px rgba(34,36,38,1) !important;
 }
-#input-form .card.selected {
+#input-form .card.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  user-select: none;
+}
+#input-form .card.disabled:hover {
+  transform: none;
+}
+#input-form .card.selected,
+#input-form .file.field.selected {
   box-shadow: 0 0 7px #2185d0 !important;
 }
 #input-form .card .image {
@@ -23,9 +34,11 @@
 #input-form .card .image .name {
   position: absolute;
   top: calc(50% - 10px);
-  left: calc(50% - 9px);
+  width: 100%;
+  text-align: center;
   font-weight: bold;
   color: rgba(255, 255, 255, 0.5);
+  text-shadow: 0 0 2px rgba(255, 255, 255, 0.25), 0 0 3px rgba(0, 0, 0, 1);
 }
 
 #input-form .card .header {
@@ -36,19 +49,29 @@
 #input-form .divider,
 #input-form .file.field {
   width: 280px;
-  margin: 25px auto;
+  margin: 15px auto;
   color: rgba(255, 255, 255, 0.5);
 }
 #input-form .languages {
-  width: 220px;
-  margin: 20px auto;
+  width: 206px;
+  margin: 0 auto;
 }
 
+#input-form .language {
+  padding: 0.5em 0.7em;
+  border-radius: 4px;
+  background: #222;
+}
 #input-form .language label {
+  padding-left: 0;
   color: rgba(255, 255, 255, 0.9);
 }
-#input-form .language.selected label {
-  color: #2185d0;
+#input-form .language label:before,
+#input-form .language label:after {
+  display: none;
+}
+#input-form .language.selected {
+  box-shadow: 0 0 7px #2185d0 !important;
 }
 
 #file-input input {

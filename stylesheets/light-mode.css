@@ -5,7 +5,7 @@
 }
 .line td.small-writings,
 .line td.small-writings span {
-  color: rgba(0, 0, 0, 0.5) !important;
+  color: rgba(0, 0, 0, 0.7) !important;
 }
 body,
 body.pushable .pusher {

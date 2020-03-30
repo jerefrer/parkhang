@@ -2,7 +2,7 @@ var firstTime = true;
 
 var groupFor = function(origin) {
   if (origin.data('group')) return $('.zoom-on-click[data-group='+origin.data('group')+']');
-  else                      return [origin];
+  else                      return $([origin]);
 }
 
 $(document).on('mouseenter', '.zoom-on-click', function(event) {
@@ -54,6 +54,7 @@ $(document).on('click', '.zoom-on-click', function(event) {
     syllable.animate({
       top: $('.zoomed-syllable').length == 1 && '50vh' || syllable.data('offset-top')+'vh',
       left: ($(window).width() / 2 - 150)+'px',
+      'margin-left': syllable.data('offset-left') && syllable.data('offset-left')+'vh' || null,
       'font-size': syllable.data('font-size') || '20vh',
       opacity: 1
     });

@@ -24,12 +24,15 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background: #001211;
   z-index: 999;
-  display: none;
 }
 #masking-overlay {
+  display: none;
   background: rgba(0, 0, 0, 0.95);
+}
+#loading-overlay {
+  display: block;
+  background: #001211;
 }
 
 #menu-button {

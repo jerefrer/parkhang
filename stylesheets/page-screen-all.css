@@ -1,0 +1,43 @@
+.page-screen .pecha-page-container {
+  width: 90vw;
+  margin: 30px auto;
+}
+
+.page-screen .line {
+  margin-top: 8px;
+}
+
+.page-screen .line .tibetan td {
+  font-size: 36px;
+  line-height: 1em;
+}
+.page-screen .line .tibetan td.small-writings {
+  top: 1.7px;
+  font-size: 29px;
+}
+.line .tibetan td[rowspan="2"] {
+  top: 2px;
+  padding: 2px 0 0 20px;
+  font-weight: bold;
+  font-size: 10px !important;
+  line-height: 11px;
+  letter-spacing: -0.3px;
+}
+.page-screen .line .tibetan td span.space {
+  width: 20px;
+}
+
+.page-screen .line .translation { /* Don't forget to keep in sync with revealTranslationsThatAreTooTall */
+  height: 32.73px;
+}
+.page-screen .line .translation td {
+  font-weight: bold;
+  font-size: 11px;
+  line-height: 11px;
+  letter-spacing: -0.4px;
+}
+.page-screen .line .translation td.small-writings { /* Don't forget to keep in sync with mimicTranslationCellInTibetanCell */
+  font-size: 10px;
+  letter-spacing: -0.1px;
+  font-weight: normal;
+}

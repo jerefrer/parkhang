@@ -5,4 +5,19 @@
     display: none !important;
   }
 
+  body,
+  body.pushable .pusher {
+    background: white;
+  }
+
+  .pecha-page-container {
+    margin: 0 auto !important;
+  }
+
+  * {
+    background: white;
+    color: black !important;
+    border-color: black !important;
+  }
+
 }

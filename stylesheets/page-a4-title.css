@@ -1,0 +1,27 @@
+.page-a4 .pecha-title-page {
+  width: 16cm;
+  height: calc(29.7cm - 2 * 4cm);
+  margin: 0 auto;
+  text-align: center;
+}
+.page-a4 .pecha-title-page .tibetan {
+  font-family: Tibetan;
+  font-size: 50px;
+  line-height: 1em;
+  white-space: normal;
+}
+.page-a4 .pecha-title-page .translation {
+  margin-top: 30px;
+  font-size: 20px;
+  font-variant: small-caps;
+  vertical-align: middle;
+}
+.page-a4 .pecha-title-page .translation .title {
+  font-weight: bold;
+  font-size: 1.1em;
+  line-height: 1.2em;
+}
+.page-a4 .pecha-title-page .translation .subtitle {
+  margin-top: 15px;
+  line-height: 1.2em;
+}

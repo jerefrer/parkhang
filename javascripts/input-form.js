@@ -1,10 +1,35 @@
 var layouts = [
-  { id: 'a4',           name: 'A4', imageName: 'page-big.png'     },
-  { id: 'pecha-a3',     name: 'A3', imageName: 'pecha-big.png'    },
-  { id: 'pecha-a4',     name: 'A4', imageName: 'pecha-small.png'  },
-  { id: 'page-screen',  name:   '', imageName: 'page-screen.png'  },
-  { id: 'pecha-screen', name:   '', imageName: 'pecha-screen.png' }
+  { id: 'pecha-a3',       name:         'A3', imageName: 'pecha-big.png'                       },
+  { id: 'pecha-a4',       name:         'A4', imageName: 'pecha-small.png'                     },
+  { id: 'pecha-screen',   name:           '', imageName: 'pecha-screen.png'                    },
+  { id: 'page-a4',        name:         'A4', imageName: 'page-big.png'                        },
+  { id: 'page-a5',        name:         'A5', imageName: 'page-small.png'                      },
+  { id: 'page-screen',    name:           '', imageName: 'page-screen.png'                     },
+  { id: 'classic-a4',     name: 'Classic A4', imageName: 'page-big.png'                        },
+  { id: 'classic-a5',     name: 'Classic A5', imageName: 'page-small.png'                      },
+  { id: 'classic-screen', name:    'Classic', imageName: 'page-screen.png'                     },
+  { id: 'booklet-a4',     name:   'Split A4', imageName: 'page-dual-big.png',   disabled: true },
+  { id: 'booklet-a5',     name:   'Split A5', imageName: 'page-dual-small.png', disabled: true }
 ]
+
+var isAPecha = function() {
+  return !!$('body').attr('class').match(/pecha/);
+}
+var isAPage = function() {
+  return !!$('body').attr('class').match(/page/);
+}
+var isPageA4 = function() {
+  return !!$('body').attr('class').match(/page-a4/);
+}
+var isPageA5 = function() {
+  return !!$('body').attr('class').match(/page-a5/);
+}
+var isPageScreen = function() {
+  return !!$('body').attr('class').match(/page-screen/);
+}
+var isAClassicPage = function() {
+  return !!$('body').attr('class').match(/classic/);
+}
 
 var selectedLanguage;
 var languages = [
@@ -18,7 +43,7 @@ var layoutSelect = function() {
       <div class="ui centered layouts cards">'+
         _(layouts).map(function(layout) {
           return ('\
-            <div class="ui layout link card" data-id="'+layout.id+'">\
+            <div class="ui layout link card '+(layout.disabled && 'disabled' || '')+'" data-id="'+layout.id+'">\
               <div class="image">\
                 <img src="images/layouts/'+layout.imageName+'"</div>\
                 <div class="name">'+layout.name+'</div>\
@@ -69,10 +94,8 @@ var textSelect = function() {
 
 var renderInputForm = function() {
   var form = $('<div id="input-form" class="ui form">');
-  form.append(layoutSelect);
-  if (localStorage['pechanator.texts'].length) form.append('<div class="ui inverted divider" style="margin: 18px auto 30px"></div>');
   form.append(textSelect);
-  if (localStorage['pechanator.texts'].length) form.append('<div class="ui horizontal inverted divider">or</div>');
+  if (localStorage['pechanator.texts'].length) form.append('<div class="ui horizontal inverted divider" style="width: 220px; margin-top: 25px">or</div>');
   form.append('\
     <div class="ui file field">\
       <div class="ui input" id="file-input">\
@@ -83,7 +106,9 @@ var renderInputForm = function() {
   if (localStorage['pechanator.texts'].length) form.append('<div class="ui inverted divider"></div>');
   form.append(languageSelect);
   if (localStorage['pechanator.texts'].length) form.append('<div class="ui inverted divider"></div>');
-  form.append('<div class="file field"><button class="ui fluid blue button" id="render-button">Render!</button></div>');
+  form.append(layoutSelect);
+  if (localStorage['pechanator.texts'].length) form.append('<div class="ui inverted divider" style="margin: 15px auto 20px"></div>');
+  form.append('<div class="file field"><button class="ui fluid green button" id="render-button">Render!</button></div>');
   $('#main').html(form);
   $('#layout').dropdown({showOnFocus: false});
   $('.ui.checkbox').checkbox();
@@ -95,7 +120,7 @@ var renderInputForm = function() {
   if (language) $('input[name=language][value='+language+']').click();
 }
 
-$(document).on('click', '.layout', function(event) {
+$(document).on('click', '.layout:not(.disabled)', function(event) {
   $('.layout').removeClass('selected');
   $(event.currentTarget).addClass('selected');
 });
@@ -107,10 +132,12 @@ $(document).on('change', 'input[type=radio]', function(event) {
 
 $(document).on('change', '#file-input input', function(event) {
   $('.text').removeClass('selected');
+  $(event.currentTarget).parents('.file.field').addClass('selected');
 });
 
 $(document).on('click', '.text', function(event) {
   $('.text').removeClass('selected');
+  $('#file-input').parents('.file.field').removeClass('selected');
   $('#file-input input').val('');
   $(event.currentTarget).addClass('selected');
 });

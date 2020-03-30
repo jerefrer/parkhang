@@ -10,6 +10,10 @@
     cursor: none;
   }
 
+  .zoomed-syllable {
+    background: transparent;
+  }
+
   .glowing {
     text-shadow: 0 0 3px;
   }

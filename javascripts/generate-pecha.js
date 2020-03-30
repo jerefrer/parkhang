@@ -118,6 +118,38 @@ var renderStandardPage = function() {
   return pechaPage;
 }
 
+var addPageTitlePage = function() {
+  var translation = pecha.title[selectedLanguage];
+  var titlePage = '\
+    <div class="pecha-page-container">\
+      <div class="pecha-title-page">\
+        <div class="pecha-title-page-content">\
+          <div class="tibetan">\
+            '+pecha.title.tibetan.full+'\
+          </div>\
+          <div class="translation">\
+            <div class="title">'+translation.title+'</div>'+
+            (translation.subtitle && '<div class="subtitle">'+translation.subtitle+'</div>' || '')+'\
+          </div>\
+        </div>\
+      </div>\
+    </div>\
+  ';
+  $('#main').append(titlePage);
+  setTimeout(function() {
+    var pageHeight = $('.pecha-title-page').height();
+    var contentHeight = $('.pecha-title-page-content').height();
+    $('.pecha-title-page').css({'margin-top': 'calc(('+pageHeight+'px - '+contentHeight+'px) / 2)'});
+  }, 200);
+  pageNumber++;
+}
+
+var renderSimplePage = function() {
+  var pechaPage = $('<div class="pecha-simple-page pecha-page">');
+  pechaPage.append('<div class="pecha-content"></div>');
+  return pechaPage;
+}
+
 var evenPage = function() {
   return pageNumber % 2 == 0;
 }
@@ -128,17 +160,24 @@ var oddPage = function() {
 
 var addNextPechaPage = function() {
   var pechaPageContainer = $('<div class="pecha-page-container">');
-  if (pageNumber <= 3) {
-    pechaPageContainer.html(renderBeginningPage());
-    numberOfLinesPerPage = 3;
+  if (isAPage()) {
+    pechaPageContainer.html(renderSimplePage());
+    if      (isPageA4())     numberOfLinesPerPage =       15;
+    else if (isPageA5())     numberOfLinesPerPage =       10;
+    else if (isPageScreen()) numberOfLinesPerPage = Infinity;
   } else {
-    pechaPageContainer.html(renderStandardPage());
-    numberOfLinesPerPage = 4;
+    if (pageNumber <= 3) {
+      pechaPageContainer.html(renderBeginningPage());
+      numberOfLinesPerPage = 3;
+    } else {
+      pechaPageContainer.html(renderStandardPage());
+      numberOfLinesPerPage = 4;
+    }
   }
   $('#main').append(pechaPageContainer);
   pechaContentWidth = $('.pecha-page:last .pecha-content').width();
   addNewEmptyLine();
-  if (oddPage() || pageNumber <= 3) {
+  if (isAPage() || oddPage() || pageNumber <= 3) {
     $('tr.tibetan:last').append('<td class="page-beginning">'+pageBeginningMarker+'</td>');
     $('tr.translation:last').append('<td class="page-beginning"></td>');
     lineWidth = $('tr.tibetan:last td:last').width();
@@ -272,12 +311,41 @@ var addTranslationCell = function(tibetanTd, text) {
   if (delay) $(window).scrollTop(table.parents('.pecha-page-container').offset().top);
 }
 
+var rowSpansSum = function(table, position) {
+  return _(table.find('tr.tibetan td').toArray().slice(0, position)).inject(function(sum, cell) {
+    if ($(cell).attr('rowspan')) sum += 1;
+    return sum;
+  }, 0);
+}
+
+var findFirstTibetanForGroupWhereTranslationIsEmpty = function() {
+  var tibetanTd = _($('.tibetan [data-index='+translationIndex+']')).find(function(td) {
+    var table = $(td).parents('table');
+    var position = table.find('tr.tibetan td').toArray().indexOf(td);
+    var text = table.find('.translation td').eq(position - rowSpansSum(table, position)).text();
+    return text == '';
+  });
+  return $(tibetanTd);
+}
+
+var addEmptyTdsIfNeeded = function(table, td) {
+  var position = table.find('tr.tibetan td').toArray().indexOf(td.get(0));
+  if (position > 0) {
+    missingTds = position - table.find('tr.translation td').length - rowSpansSum(table, position);
+    _(missingTds).times(function() {
+      table.find('tr.translation').append('<td></td>');
+    });
+  }
+}
+
 var addNextTranslation = function() {
-  var tibetanTd = $('.tibetan [data-index='+translationIndex+']:first');
+  var tibetanTd = findFirstTibetanForGroupWhereTranslationIsEmpty();
   var tibetanWidth = tibetanTd.width(); 
   var space = tibetanTd.find('.space') && tibetanTd.find('.space').width()
   var groupIsSplit = $('.tibetan [data-index='+translationIndex+']').length > 1;
   var group = pecha.groups[translationIndex];
+  var table = tibetanTd.parents('table');
+  addEmptyTdsIfNeeded(table, tibetanTd);
   if (group != undefined) {
     var translation = group[selectedLanguage];
     if (!group.tibetan) {
@@ -286,7 +354,6 @@ var addNextTranslation = function() {
       return;
     }
     if (groupIsSplit) {
-      var table = tibetanTd.parents('table');
       var td = newTranslationCell(tibetanTd);
       td.css({'padding-left': space});
       table.find('tr.translation').append(td);
@@ -304,7 +371,7 @@ var addNextTranslation = function() {
             }, delay);
           } else { // If the word  doesn't fit then continue in the next cell
             td.find('span').last().remove();
-            var tibetan = $('.tibetan [data-index='+translationIndex+']:last');
+            var tibetan = findFirstTibetanForGroupWhereTranslationIsEmpty();
             var remainingWords = _(words).rest(wordIndex).join(' ');
             addTranslationCell(tibetan, remainingWords);
             setTimeout(addNextTranslation, delay);

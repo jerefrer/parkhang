@@ -94,11 +94,22 @@ var importCSV = function() {
 
 var beginGeneration = function() {
   if (delay) $('#loading-overlay').remove();
-  if ($('body').attr('class').match(/pecha/)) {
+  if (isAPecha()) {
     if (pecha.title.tibetan.full) addPechaTitlePage();
-    addNextPechaPage();
-    addNextGroup();
-  } else {
-    generatePages();
+    setTimeout(function() {
+      addNextPechaPage();
+      addNextGroup();
+    }, 100);
+  } else if (isAPage()) {
+    if (pecha.title.tibetan.full) {
+      if (isPageScreen()) addPechaTitlePage()
+      else                addPageTitlePage();
+    }
+    setTimeout(function() {
+      addNextPechaPage();
+      addNextGroup();
+    }, 100);
+  } else if (isAClassicPage()) {
+    generateClassicPages();
   }
 }

@@ -15,3 +15,12 @@
   color: rgba(169, 143, 0, 0.5) !important;
   text-shadow: 0 0 3px rgba(231, 195, 0, 0.2) !important;
 }
+
+body[class*=page] .pecha-page-container {
+  background: none;
+}
+body[class*=page] {
+  background-image: url(../images/pattern.jpg);
+  background-blend-mode: color;
+  background-color: #010119;
+}

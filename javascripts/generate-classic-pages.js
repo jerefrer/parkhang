@@ -32,6 +32,6 @@ var addNextPageLine = function() {
   }
 }
 
-var generatePages = function() {
+var generateClassicPages = function() {
   addNextPageLine();
 }
