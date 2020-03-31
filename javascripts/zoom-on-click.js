@@ -42,7 +42,7 @@ $(document).on('click', '.zoom-on-click', function(event) {
       'font-family': span.css('font-family'),
       'text-align': 'center',
       opacity: 0,
-      'z-index': 9999
+      'z-index': 999999999
     });
     $('body').append(fixedDiv);
   })
