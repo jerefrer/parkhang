@@ -53,7 +53,7 @@ var pechaRightMargin = function() {
 var addPechaTitlePage = function() {
   var translation = pecha.title[selectedLanguage];
   var titlePage = '\
-    <div class="pecha-page-container">\
+    <div class="pecha-page-container" id="title-page">\
       <div class="pecha-title-page">\
         <div class="pecha-title-page-inner">\
           <div class="pecha-title-page-inner-inner">\
@@ -121,7 +121,7 @@ var renderStandardPage = function() {
 var addPageTitlePage = function() {
   var translation = pecha.title[selectedLanguage];
   var titlePage = '\
-    <div class="pecha-page-container">\
+    <div class="pecha-page-container" id="title-page">\
       <div class="pecha-title-page">\
         <div class="pecha-title-page-content">\
           <div class="tibetan">\
