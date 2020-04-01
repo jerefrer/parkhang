@@ -49,6 +49,7 @@ var importCSV = function() {
           console.log(err);
         },
         step:  function(line, parser) {
+          if (line.data.length == 1 && line.data[0] == '') return; // Skip empty lines
           var cells = line.data[0];
           if (lineIndex == 0) {
             pecha.id = parameterize(cells[1]);
