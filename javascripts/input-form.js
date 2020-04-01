@@ -139,9 +139,15 @@ var renderInputForm = function() {
   var textId = localStorage['pechanator.textId'];
   var layout = localStorage['pechanator.layout'];
   var language = localStorage['pechanator.language'];
+  var selectedExtraTexts = localStorage['pechanator.selected-extra-texts'];
   if (textId) $('.text[data-id='+textId+']').click();
   if (layout) $('.layout[data-id='+layout+']').click();
   if (language) $('input[name=language][value='+language+']').click();
+  if (selectedExtraTexts && selectedExtraTexts.length) {
+    _(JSON.parse(selectedExtraTexts)).each(function(extraTextId) {
+      $('.extra-text[data-id='+extraTextId+']').click();
+    })
+  }
 }
 
 $(document).on('click', '.layout:not(.disabled)', function(event) {
@@ -176,7 +182,8 @@ $(document).on('click', '#render-button', function() {
   var textId = localStorage['pechanator.textId'] = $('.text.selected').data('id');
   var layout = localStorage['pechanator.layout'] = $('.layout.selected').data('id');
   selectedLanguage = localStorage['pechanator.language'] = $('input[name=language]:checked').val();
-  selectedExtraTexts = localStorage['pechanator.extra-texts'] = _($('.extra-text.selected')).map(function(text) { return $(text).data('id') });
+  selectedExtraTexts = _($('.extra-text.selected')).map(function(text) { return $(text).data('id') });
+  localStorage['pechanator.selected-extra-texts'] = JSON.stringify(selectedExtraTexts);
   $('body').addClass(layout);
   if (textId) {
     pecha = JSON.parse(localStorage['pechanator.texts.'+textId]);
