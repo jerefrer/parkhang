@@ -5,7 +5,10 @@ var beginGeneration = function() {
     _(selectedExtraTexts).each(function(textId, index) {
       var extraText = JSON.parse(localStorage['pechanator.extra-texts.'+textId]);
       var groups = extraText.groups;
-      if (index == 0) groups[0].tibetan = groups[0].tibetan.replace(/༄༅། །/, '');
+      if (index > 0) {
+        addedGroups = addedGroups.concat({tibetan: '༄༅།', smallWritings: true});
+        groups[0].tibetan = '།' + groups[0].tibetan;
+      }
       addedGroups = addedGroups.concat(groups);
     })
     pecha.groups = addedGroups.
