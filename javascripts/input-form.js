@@ -124,9 +124,9 @@ var renderInputForm = function() {
       </div>\
     </div>\
   ')
-  form.append('<div class="ui inverted divider"></div>');
+  form.append('<div class="ui inverted divider" style="margin-bottom: 25px;"></div>');
   form.append(extraTextsSelect);
-  form.append('<div class="ui inverted divider"></div>');
+  form.append('<div class="ui inverted divider" style="margin-top: 25px;"></div>');
   form.append(languageSelect);
   form.append('<div class="ui inverted divider"></div>');
   form.append(layoutSelect);
