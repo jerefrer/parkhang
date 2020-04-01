@@ -12,23 +12,26 @@ var layouts = [
   { id: 'booklet-a5',     name:   'Split A5', imageName: 'page-dual-small.png', disabled: true }
 ]
 
+var bodyHasClass = function(cssClass) {
+  return ($('body').attr('class') || '').match(cssClass);
+}
 var isAPecha = function() {
-  return !!$('body').attr('class').match(/pecha/);
+  return !!bodyHasClass('pecha');
 }
 var isAPage = function() {
-  return !!$('body').attr('class').match(/page/);
+  return !!bodyHasClass('page');
 }
 var isPageA4 = function() {
-  return !!$('body').attr('class').match(/page-a4/);
+  return !!bodyHasClass('page-a4');
 }
 var isPageA5 = function() {
-  return !!$('body').attr('class').match(/page-a5/);
+  return !!bodyHasClass('page-a5');
 }
 var isPageScreen = function() {
-  return !!$('body').attr('class').match(/page-screen/);
+  return !!bodyHasClass('page-screen');
 }
 var isAClassicPage = function() {
-  return !!$('body').attr('class').match(/classic/);
+  return !!bodyHasClass('classic');
 }
 
 var selectedLanguage;

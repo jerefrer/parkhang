@@ -41,7 +41,7 @@ var scroll = function(numberOfPages) {
 }
 
 $(document).on('keydown', function(event) {
-  if (steps().length) {
+  if (stepsClass()) {
     if      (event.keyCode == 33) { event.preventDefault(); scroll(-999); } // Page Up
     else if (event.keyCode == 34) { event.preventDefault(); scroll( 999); } // Page Down
     else if (event.keyCode == 36) { event.preventDefault(); scroll(-999); } // Origin
