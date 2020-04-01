@@ -92,25 +92,3 @@ var importCSV = function() {
     reader.readAsText(file);
   }, 100);
 }
-
-var beginGeneration = function() {
-  if (delay) $('#loading-overlay').remove();
-  if (isAPecha()) {
-    if (pecha.title.tibetan.full) addPechaTitlePage();
-    setTimeout(function() {
-      addNextPechaPage();
-      addNextGroup();
-    }, 100);
-  } else if (isAPage()) {
-    if (pecha.title.tibetan.full) {
-      if (isPageScreen()) addPechaTitlePage()
-      else                addPageTitlePage();
-    }
-    setTimeout(function() {
-      addNextPechaPage();
-      addNextGroup();
-    }, 100);
-  } else if (isAClassicPage()) {
-    generateClassicPages();
-  }
-}

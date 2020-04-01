@@ -34,7 +34,6 @@ var isAClassicPage = function() {
   return !!bodyHasClass('classic');
 }
 
-var selectedLanguage;
 var languages = [
   { id: 'english', name: '<i class="gb flag"></i> English'},
   { id: 'french',  name: '<i class="france flag"></i> French' }
@@ -95,6 +94,25 @@ var textSelect = function() {
   ';
 }
 
+var extraTexts = JSON.parse(localStorage['pechanator.extra-texts']);
+var extraTextsSelect = function() {
+  return '\
+    <div class="ui field">\
+      <div class="ui centered cards">'+
+        _(extraTexts).map(function(extraText) {
+          return ('\
+            <div class="ui extra-text link card" data-id="'+extraText.id+'">\
+              <div class="content">\
+                <div class="header">Include '+extraText.name+'</div>\
+              </div>\
+            </div>\
+          ')
+        }).join('')+'\
+      </div>\
+    </div>\
+  ';
+}
+
 var renderInputForm = function() {
   var form = $('<div id="input-form" class="ui form">');
   form.append(textSelect);
@@ -106,15 +124,18 @@ var renderInputForm = function() {
       </div>\
     </div>\
   ')
-  if (localStorage['pechanator.texts'].length) form.append('<div class="ui inverted divider"></div>');
+  form.append('<div class="ui inverted divider"></div>');
+  form.append(extraTextsSelect);
+  form.append('<div class="ui inverted divider"></div>');
   form.append(languageSelect);
-  if (localStorage['pechanator.texts'].length) form.append('<div class="ui inverted divider"></div>');
+  form.append('<div class="ui inverted divider"></div>');
   form.append(layoutSelect);
-  if (localStorage['pechanator.texts'].length) form.append('<div class="ui inverted divider" style="margin: 15px auto 20px"></div>');
+  form.append('<div class="ui inverted divider" style="margin: 15px auto 20px"></div>');
   form.append('<div class="file field"><button class="ui fluid green button" id="render-button">Render!</button></div>');
   $('#main').html(form);
   $('#layout').dropdown({showOnFocus: false});
-  $('.ui.checkbox').checkbox();
+  $('.extra-text.checkbox').checkbox();
+  $('.language.checkbox').checkbox();
   var textId = localStorage['pechanator.textId'];
   var layout = localStorage['pechanator.layout'];
   var language = localStorage['pechanator.language'];
@@ -145,10 +166,17 @@ $(document).on('click', '.text', function(event) {
   $(event.currentTarget).addClass('selected');
 });
 
+$(document).on('click', '.extra-text', function(event) {
+  $(event.currentTarget).toggleClass('selected');
+});
+
+var selectedLanguage;
+var selectedExtraTexts;
 $(document).on('click', '#render-button', function() {
   var textId = localStorage['pechanator.textId'] = $('.text.selected').data('id');
   var layout = localStorage['pechanator.layout'] = $('.layout.selected').data('id');
   selectedLanguage = localStorage['pechanator.language'] = $('input[name=language]:checked').val();
+  selectedExtraTexts = localStorage['pechanator.extra-texts'] = _($('.extra-text.selected')).map(function(text) { return $(text).data('id') });
   $('body').addClass(layout);
   if (textId) {
     pecha = JSON.parse(localStorage['pechanator.texts.'+textId]);
