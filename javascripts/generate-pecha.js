@@ -378,8 +378,11 @@ var addNextTranslation = function() {
       setTimeout(addNextTranslation, delay);
     }
   } else { // If all translations have been added
-    revealTranslationsThatAreTooTall();
-    endGeneration();
+    fitLinesTooWide();
+    setTimeout(function() {
+      revealTranslationsThatAreTooTall();
+      endGeneration();
+    }, 500)
   }
 }
 
@@ -393,16 +396,24 @@ var revealTranslationsThatAreTooTall = function() {
   })
 }
 
-var fitWidth = function(table, maxWidth) {
-  if      (table.width() < maxWidth) increaseUntilItFits(table, maxWidth);
-  else if (table.width() > maxWidth) decreaseUntilItFits(table, maxWidth);
+// Happens that lines become wider after adding a translation (since no hyhenation for now)
+// So we adjust in case it happens
+var fitLinesTooWide = function(maxWidth) {
+  _($('.line')).each(function(line) { 
+    if ($(line).width() > pechaContentWidth) fitWidth($(line))
+  });
 }
 
-var increaseUntilItFits = function(table, maxWidth) {
+var fitWidth = function(table) {
+  if      (table.width() < pechaContentWidth) increaseUntilItFits(table);
+  else if (table.width() > pechaContentWidth) decreaseUntilItFits(table);
+}
+
+var increaseUntilItFits = function(table) {
   var spacing = 0.01;
   var setWidth = function() {
     table.css({'letter-spacing': spacing+'px'});
-    if (table.width() > maxWidth)
+    if (table.width() > pechaContentWidth)
       table.css({'letter-spacing': (spacing-0.01)+'px'});
     else {
       spacing += 0.01;
@@ -412,11 +423,11 @@ var increaseUntilItFits = function(table, maxWidth) {
   setWidth();
 }
 
-var decreaseUntilItFits = function(table, maxWidth) {
+var decreaseUntilItFits = function(table) {
   var spacing = 0.01;
   var setWidth = function() {
     table.css({'letter-spacing': spacing+'px'});
-    if (table.width() < maxWidth)
+    if (table.width() < pechaContentWidth)
       table.css({'letter-spacing': (spacing-0.01)+'px'});
     else {
       spacing -= 0.01;
