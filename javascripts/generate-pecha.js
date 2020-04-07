@@ -234,7 +234,7 @@ var addNextGroup = function(remainingWords) {
       }, delay);
     } else { // If group overflows
       td.html(spaceBetweenGroups);
-      if (lineWidth + td.width() + 50 <= pechaContentWidth) { // And there is some space left (with some margin)
+      if (lineWidth + td.width() + 120 <= pechaContentWidth) { // And there is some space left (with some margin)
         var wordIndex = 0;
         var words = text.split('་');
         var addNextWord = function() { 
