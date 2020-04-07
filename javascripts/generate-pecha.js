@@ -184,7 +184,7 @@ var pageOverflows = function() {
 }
 
 var continueOnNewLineStartingWith = function(remainingWords) {
-  fitWidth($('table:last'), pechaContentWidth);
+  fitWidth($('table:last'));
   if (isAPage() && !isPageScreen() && pageOverflows())
     addNextPechaPage();
   else if ($('.pecha-page:last .line').length == numberOfLinesPerPage)
@@ -401,24 +401,28 @@ var revealTranslationsThatAreTooTall = function() {
   })
 }
 
+var pechaContentWidthFor = function(line) {
+  return $(line).parents('.pecha-content').width();
+}
+
 // Happens that lines become wider after adding a translation (since no hyhenation for now)
 // So we adjust in case it happens
-var fitLinesTooWide = function(maxWidth) {
+var fitLinesTooWide = function() {
   _($('.line')).each(function(line) { 
-    if ($(line).width() > pechaContentWidth) fitWidth($(line))
+    if ($(line).width() > pechaContentWidthFor(line)) decreaseUntilItFits($(line));
   });
 }
 
 var fitWidth = function(table) {
-  if      (table.width() < pechaContentWidth) increaseUntilItFits(table);
-  else if (table.width() > pechaContentWidth) decreaseUntilItFits(table);
+  if      (table.width() < pechaContentWidthFor(table)) increaseUntilItFits(table);
+  else if (table.width() > pechaContentWidthFor(table)) decreaseUntilItFits(table);
 }
 
 var increaseUntilItFits = function(table) {
   var spacing = 0.01;
   var setWidth = function() {
     table.css({'letter-spacing': spacing+'px'});
-    if (table.width() > pechaContentWidth)
+    if (table.width() > pechaContentWidthFor(table))
       table.css({'letter-spacing': (spacing-0.01)+'px'});
     else {
       spacing += 0.01;
@@ -432,8 +436,8 @@ var decreaseUntilItFits = function(table) {
   var spacing = 0.01;
   var setWidth = function() {
     table.css({'letter-spacing': spacing+'px'});
-    if (table.width() < pechaContentWidth)
-      table.css({'letter-spacing': (spacing-0.01)+'px'});
+    if (table.width() <= pechaContentWidthFor(table))
+      table.css({'letter-spacing': spacing+'px'});
     else {
       spacing -= 0.01;
       setTimeout(setWidth, delay/10);
