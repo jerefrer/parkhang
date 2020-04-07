@@ -181,6 +181,7 @@ var addNewEmptyLine = function() {
 }
 
 var continueOnNewLineStartingWith = function(remainingWords) {
+  fitWidth($('table:last'), pechaContentWidth);
   if ($('.pecha-page:last .line').length == numberOfLinesPerPage)
     addNextPechaPage();
   else {
@@ -247,10 +248,11 @@ var addNextGroup = function(remainingWords) {
               setTimeout(function() {
                 addNextWord();
               }, delay);
-            } else { // If it doesn't fit then start a new line with it
+            } else if (words.slice(wordIndex).length == 1) { // And there is just one word left, tighten the line to make it fit
+              continueOnNewLineStartingWith('');
+            } else { // And there is at least two and they don't fit, start a new line with them
               td.find('span:last').remove();
               if (!td.find('span:not(.space)').length) td.remove();
-              fitWidth($('table:last'), pechaContentWidth);
               var remainingWords = _(words).rest(wordIndex).join('་');
               continueOnNewLineStartingWith(remainingWords);
             }
@@ -263,7 +265,6 @@ var addNextGroup = function(remainingWords) {
         addNextWord();
       } else { // If there isn't enough space at the end of the line start a new line
         td.remove();
-        fitWidth($('table:last'), pechaContentWidth);
         continueOnNewLineStartingWith('');
       }
     }
@@ -393,6 +394,11 @@ var revealTranslationsThatAreTooTall = function() {
 }
 
 var fitWidth = function(table, maxWidth) {
+  if      (table.width() < maxWidth) increaseUntilItFits(table, maxWidth);
+  else if (table.width() > maxWidth) decreaseUntilItFits(table, maxWidth);
+}
+
+var increaseUntilItFits = function(table, maxWidth) {
   var spacing = 0.01;
   var setWidth = function() {
     table.css({'letter-spacing': spacing+'px'});
@@ -400,6 +406,20 @@ var fitWidth = function(table, maxWidth) {
       table.css({'letter-spacing': (spacing-0.01)+'px'});
     else {
       spacing += 0.01;
+      setTimeout(setWidth, delay/10);
+    }
+  }
+  setWidth();
+}
+
+var decreaseUntilItFits = function(table, maxWidth) {
+  var spacing = 0.01;
+  var setWidth = function() {
+    table.css({'letter-spacing': spacing+'px'});
+    if (table.width() < maxWidth)
+      table.css({'letter-spacing': (spacing-0.01)+'px'});
+    else {
+      spacing -= 0.01;
       setTimeout(setWidth, delay/10);
     }
   }
