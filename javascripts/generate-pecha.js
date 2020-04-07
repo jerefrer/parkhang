@@ -318,6 +318,15 @@ var addEmptyTdsIfNeeded = function(table, td) {
   }
 }
 
+var splitTranslationWords = function(text) {
+  var words = [];
+  text.split(/(\<span[^\/]*\/span\>)/).map(function(subtext) {
+    if (subtext.match('<span')) words = words.concat([subtext]);
+    else words = words.concat(subtext.split(' '));
+  })
+  return words;
+}
+
 var addNextTranslation = function() {
   var tibetanTd = findFirstTibetanForGroupWhereTranslationIsEmpty();
   var tibetanWidth = tibetanTd.width(); 
@@ -339,7 +348,7 @@ var addNextTranslation = function() {
       table.find('tr.translation').append(td);
       var height = td.height();
       var wordIndex = 0;
-      var words = translation.split(' ');
+      var words = splitTranslationWords(translation);
       var addNextWord = function() {
         var word = words[wordIndex];
         if (word != undefined) {
