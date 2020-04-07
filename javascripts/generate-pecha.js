@@ -378,9 +378,7 @@ var addNextTranslation = function() {
     }
   } else { // If all translations have been added
     revealTranslationsThatAreTooTall();
-    $('#print-button').show();
-    $('#color-mode-button').show();
-    $('#loading-overlay').fadeOut(500);
+    endGeneration();
   }
 }
 
