@@ -1,6 +1,8 @@
 .page-a4 .pecha-page-container {
-  width: 21cm;
+  width: 21.006cm;
+  height: 29.693cm;
   margin: 90px auto;
+  padding: 1.5cm 3cm 1.5cm;
   page-break-after: always;
 }
 

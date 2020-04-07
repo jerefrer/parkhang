@@ -142,9 +142,6 @@ var addNextPechaPage = function() {
   var pechaPageContainer = $('<div class="pecha-page-container">');
   if (isAPage()) {
     pechaPageContainer.html(renderSimplePage());
-    if      (isPageA4())     numberOfLinesPerPage =       15;
-    else if (isPageA5())     numberOfLinesPerPage =       10;
-    else if (isPageScreen()) numberOfLinesPerPage = Infinity;
   } else {
     if (pageNumber <= 3) {
       pechaPageContainer.html(renderBeginningPage());
@@ -180,9 +177,17 @@ var addNewEmptyLine = function() {
   ');
 }
 
+var pageOverflows = function() {
+  var pageHeightWithOnMoreLine = $('.pecha-page:last').height() + $('.line:last').height();
+  var pageMaxHeight = parseFloat($('.pecha-page-container:last').height());
+  return pageHeightWithOnMoreLine > pageMaxHeight;
+}
+
 var continueOnNewLineStartingWith = function(remainingWords) {
   fitWidth($('table:last'), pechaContentWidth);
-  if ($('.pecha-page:last .line').length == numberOfLinesPerPage)
+  if (isAPage() && !isPageScreen() && pageOverflows())
+    addNextPechaPage();
+  else if ($('.pecha-page:last .line').length == numberOfLinesPerPage)
     addNextPechaPage();
   else {
     addNewEmptyLine();
