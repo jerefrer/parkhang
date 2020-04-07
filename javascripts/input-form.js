@@ -1,15 +1,15 @@
 var layouts = [
-  { id: 'pecha-a3',       name:         'A3', imageName: 'pecha-big.png'                       },
-  { id: 'pecha-a4',       name:         'A4', imageName: 'pecha-small.png'                     },
-  { id: 'pecha-screen',   name:           '', imageName: 'pecha-screen.png'                    },
-  { id: 'page-a4',        name:         'A4', imageName: 'page-big.png'                        },
-  { id: 'page-a5',        name:         'A5', imageName: 'page-small.png'                      },
-  { id: 'page-screen',    name:           '', imageName: 'page-screen.png'                     },
-  { id: 'classic-a4',     name: 'Classic A4', imageName: 'page-big.png'                        },
-  { id: 'classic-a5',     name: 'Classic A5', imageName: 'page-small.png'                      },
-  { id: 'classic-screen', name:    'Classic', imageName: 'page-screen.png'                     },
-  { id: 'booklet-a4',     name:   'Split A4', imageName: 'page-dual-big.png',   disabled: true },
-  { id: 'booklet-a5',     name:   'Split A5', imageName: 'page-dual-small.png', disabled: true }
+  { id: 'pecha-a3',       name:         'A3', imageName: 'pecha-big.png'       },
+  { id: 'pecha-a4',       name:         'A4', imageName: 'pecha-small.png'     },
+  { id: 'pecha-screen',   name:           '', imageName: 'pecha-screen.png'    },
+  { id: 'page-a4',        name:         'A4', imageName: 'page-big.png'        },
+  { id: 'page-a5',        name:         'A5', imageName: 'page-small.png'      },
+  { id: 'page-screen',    name:           '', imageName: 'page-screen.png'     },
+  { id: 'classic-a4',     name: 'Classic A4', imageName: 'page-big.png'        },
+  { id: 'classic-a5',     name: 'Classic A5', imageName: 'page-small.png'      },
+  { id: 'classic-screen', name:    'Classic', imageName: 'page-screen.png'     },
+  { id: 'split-a4',       name:   'Split A4', imageName: 'page-dual-big.png'   },
+  { id: 'split-a5',       name:   'Split A5', imageName: 'page-dual-small.png' }
 ]
 
 var bodyHasClass = function(cssClass) {
@@ -32,6 +32,9 @@ var isPageScreen = function() {
 }
 var isAClassicPage = function() {
   return !!bodyHasClass('classic');
+}
+var isASplitPage = function() {
+  return !!bodyHasClass('split');
 }
 
 var languages = [
@@ -178,6 +181,7 @@ $(document).on('click', '.extra-text', function(event) {
 
 var selectedLanguage;
 var selectedExtraTexts;
+var includeTransliteration = true;
 $(document).on('click', '#render-button', function() {
   var textId = localStorage['pechanator.textId'] = $('.text.selected').data('id');
   var layout = localStorage['pechanator.layout'] = $('.layout.selected').data('id');
@@ -185,6 +189,7 @@ $(document).on('click', '#render-button', function() {
   selectedExtraTexts = _($('.extra-text.selected')).map(function(text) { return $(text).data('id') });
   localStorage['pechanator.selected-extra-texts'] = JSON.stringify(selectedExtraTexts);
   $('body').addClass(layout);
+  if (includeTransliteration) $('body').addClass('with-transliteration');
   if (textId) {
     pecha = JSON.parse(localStorage['pechanator.texts.'+textId]);
     beginGeneration()

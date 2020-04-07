@@ -1,38 +1,47 @@
-.a4 #main {
-  width: calc(21cm - 2cm - 2px);
-  margin: 0 auto;
+.classic-a4 .classic-page-container {
+  margin: 90px auto;
+  page-break-after: always;
 }
 
-.a4 .line .tibetan {
+.classic-a4 .line .tibetan {
   font-family: TibetanChogyalUnicode-170221;
-  font-size: 23pt;
+  font-size: 30pt;
   line-height: 1em;
 }
-.a4 .line .tibetan.small-writings {
-  font-size: 18pt;
+.classic-a4 .line .tibetan.small-writings {
+  font-size: 25pt;
 }
-.a4 .line .tibetan .space {
+.classic-a4 .line .space {
   display: inline-block;
   width: 20px;
 }
 
-.a4 .line .translation {
+.classic-a4 .line .transliteration,
+.classic-a4 .line .translation {
   font-size: 16px;
   line-height: 1em;
   margin-bottom: 1em;
 }
-.a4 .line .translation.small-writings {
+.classic-a4 .line .transliteration.small-writings,
+.classic-a4 .line .translation.small-writings {
   font-size: 14px;
   font-style: italic;
 }
 
+.classic-a4.with-transliteration .line .translation {
+  margin-left: 12px;
+  font-size: 14px;
+}
+.classic-a4.with-transliteration .line .translation.small-writings {
+  font-size: 12px;
+}
+
 @media print {
-  body, .a4 * {
+  .classic-a4 * {
     color: black;
     background: white;
   }
-
-  .a4 .line {
-    page-break-inside: avoid;
+  .classic-a4 .classic-page-container {
+    margin: 0 auto;
   }
 }

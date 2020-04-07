@@ -6,7 +6,7 @@ var beginGeneration = function() {
       var extraText = JSON.parse(localStorage['pechanator.extra-texts.'+textId]);
       var groups = extraText.groups;
       if (index > 0) {
-        addedGroups = addedGroups.concat({tibetan: '༄༅།', smallWritings: true});
+        addedGroups = addedGroups.concat({tibetan: '༄༅།', smallWritings: true, mergeNext: true});
         groups[0].tibetan = '།' + groups[0].tibetan;
       }
       addedGroups = addedGroups.concat(groups);
@@ -37,5 +37,15 @@ var beginGeneration = function() {
     }, 100);
   } else if (isAClassicPage()) {
     generateClassicPages();
+  } else if (isASplitPage()) {
+    generateSplitPages();
   }
+}
+
+var endGeneration = function() {
+  setTimeout(function() {
+    $('#print-button').show();
+    $('#color-mode-button').show();
+    $('#loading-overlay').fadeOut(500);
+  }, 500);
 }

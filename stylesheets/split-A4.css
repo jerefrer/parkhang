@@ -1,0 +1,65 @@
+.split-a4 .split-page-container {
+  position: relative;
+  margin: 90px auto;
+  page-break-after: always;
+}
+
+.split-a4 .line .tibetan {
+  font-family: TibetanChogyalUnicode-170221;
+  font-size: 34pt;
+  line-height: 1.2em;
+}
+.split-a4 .line .tibetan.small-writings {
+  font-size: 28pt;
+}
+.split-a4 .line .space {
+  display: inline-block;
+  width: 20px;
+}
+
+.split-a4 .line .transliteration,
+.split-a4 .line .translation {
+  font-size: 15.5px;
+  line-height: 1em;
+  margin-bottom: 1em;
+}
+.split-a4 .line .transliteration.small-writings,
+.split-a4 .line .translation.small-writings {
+  font-size: 14px;
+  font-style: italic;
+}
+
+.split-a4.with-transliteration .line .translation {
+  margin-left: 12px;
+  font-size: 14px;
+}
+.split-a4.with-transliteration .line .translation.small-writings {
+  font-size: 12px;
+}
+
+.split-a4 .split-page-container .page-number {
+  position: absolute;
+  width: 100%;
+  text-align: center;
+}
+
+.split-a4 .tibetan-page .page-number {
+  bottom: 0.7cm;
+  font-family: TibetanChogyalUnicode-170221;
+  font-size: 28pt;
+}
+
+.split-a4 .translation-page .page-number {
+  bottom: 0.8cm;
+  font-size: 11pt;
+}
+
+@media print {
+  .split-a4 * {
+    color: black;
+    background: white;
+  }
+  .split-a4 .split-page-container {
+    margin: 0 auto;
+  }
+}

@@ -1,6 +1,8 @@
 var languageIndexes = {
-  'english': 1,
-  'french': 2
+  'tibetan': 0,
+  'transliteration': 1,
+  'english': 2,
+  'french': 3
 }
 
 var translationIndexFor = function(language) {
@@ -66,9 +68,8 @@ var importCSV = function() {
           }
           if (lineIndex != 0 && (!titlePage || lineIndex > 6)) {
             var hash = {
-              tibetan: cells[0],
-              smallWritings: cells[3].match(/smallWritings/),
-              mergeNext: cells[3].match(/mergeNext/)
+              smallWritings: cells[4].match(/smallWritings/),
+              mergeNext: cells[4].match(/mergeNext/)
             };
             _(languageIndexes).each(function(index, language) {
               hash[language] = cells[index];
