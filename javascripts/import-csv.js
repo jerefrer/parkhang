@@ -79,11 +79,11 @@ var importCSV = function() {
           lineIndex++;
         },
         complete: function(response) {
-          var texts = localStorage['pechanator.texts'] && JSON.parse(localStorage['pechanator.texts']) || {};
+          var texts = localStorage[appName+'.texts'] && JSON.parse(localStorage[appName+'.texts']) || {};
           texts[pecha.id] = pecha.shortName;
-          localStorage['pechanator.texts'] = JSON.stringify(texts);
-          localStorage['pechanator.texts.'+pecha.id] = JSON.stringify(pecha);
-          localStorage['pechanator.textId'] = pecha.id;
+          localStorage[appName+'.texts'] = JSON.stringify(texts);
+          localStorage[appName+'.texts.'+pecha.id] = JSON.stringify(pecha);
+          localStorage[appName+'.textId'] = pecha.id;
           beginGeneration();
         }
       }

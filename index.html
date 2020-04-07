@@ -1,6 +1,7 @@
 <html>
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>པར་ཁང་</title>
   <link rel="stylesheet" href="vendor/stylesheets/semantic.min.css">
   <link rel="stylesheet" href="stylesheets/layout.css">
   <link rel="stylesheet" href="stylesheets/scrollbar.css">
@@ -34,8 +35,8 @@
   <script src="vendor/javascripts/papaparse.min.js"></script>
   <script src="vendor/javascripts/semantic.min.js"></script>
   <script src="vendor/javascripts/underscore.min.js"></script>
-  <script src="pechas/extra-texts-starter-pack.js"></script>
   <script src="javascripts/globals.js"></script>
+  <script src="pechas/extra-texts-starter-pack.js"></script>
   <script src="javascripts/navigation.js"></script>
   <script src="javascripts/color-mode.js"></script>
   <script src="javascripts/input-form.js"></script>
@@ -53,11 +54,11 @@
 
     $(function() {
       if (autoloadPreviousPecha) {
-        $('body').addClass(localStorage['pechanator.layout']);
-        textId = JSON.parse(localStorage['pechanator.textId']);
-        language = localStorage['pechanator.language'];
+        $('body').addClass(localStorage[appName+'.layout']);
+        textId = JSON.parse(localStorage[appName+'.textId']);
+        language = localStorage[appName+'.language'];
         if (textId) {
-          pecha = localStorage['pechanator.texts.'+textId];
+          pecha = localStorage[appName+'.texts.'+textId];
           $('#file-input').remove();
           beginGeneration();
         }

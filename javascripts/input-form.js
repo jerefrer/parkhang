@@ -78,8 +78,8 @@ var languageSelect = function() {
   ');
 }
 
+var texts = localStorage[appName+'.texts'] && JSON.parse(localStorage[appName+'.texts']) || {};
 var textSelect = function() {
-  var texts = localStorage['pechanator.texts'] && JSON.parse(localStorage['pechanator.texts']) || {};
   return '\
     <div class="ui field">\
       <div class="ui centered cards">'+
@@ -97,7 +97,7 @@ var textSelect = function() {
   ';
 }
 
-var extraTexts = JSON.parse(localStorage['pechanator.extra-texts']);
+var extraTexts = localStorage[appName+'.extra-texts'] && JSON.parse(localStorage[appName+'.extra-texts']) || [];
 var extraTextsSelect = function() {
   return '\
     <div class="ui field">\
@@ -119,7 +119,7 @@ var extraTextsSelect = function() {
 var renderInputForm = function() {
   var form = $('<div id="input-form" class="ui form">');
   form.append(textSelect);
-  if (localStorage['pechanator.texts'].length) form.append('<div class="ui horizontal inverted divider" style="width: 220px; margin-top: 25px">or</div>');
+  if (texts.length) form.append('<div class="ui horizontal inverted divider" style="width: 220px; margin-top: 25px">or</div>');
   form.append('\
     <div class="ui file field">\
       <div class="ui input" id="file-input">\
@@ -139,10 +139,10 @@ var renderInputForm = function() {
   $('#layout').dropdown({showOnFocus: false});
   $('.extra-text.checkbox').checkbox();
   $('.language.checkbox').checkbox();
-  var textId = localStorage['pechanator.textId'];
-  var layout = localStorage['pechanator.layout'];
-  var language = localStorage['pechanator.language'];
-  var selectedExtraTexts = localStorage['pechanator.selected-extra-texts'];
+  var textId = localStorage[appName+'.textId'];
+  var layout = localStorage[appName+'.layout'];
+  var language = localStorage[appName+'.language'];
+  var selectedExtraTexts = localStorage[appName+'.selected-extra-texts'];
   if (textId) $('.text[data-id='+textId+']').click();
   if (layout) $('.layout[data-id='+layout+']').click();
   if (language) $('input[name=language][value='+language+']').click();
@@ -183,15 +183,15 @@ var selectedLanguage;
 var selectedExtraTexts;
 var includeTransliteration = true;
 $(document).on('click', '#render-button', function() {
-  var textId = localStorage['pechanator.textId'] = $('.text.selected').data('id');
-  var layout = localStorage['pechanator.layout'] = $('.layout.selected').data('id');
-  selectedLanguage = localStorage['pechanator.language'] = $('input[name=language]:checked').val();
+  var textId = localStorage[appName+'.textId'] = $('.text.selected').data('id');
+  var layout = localStorage[appName+'.layout'] = $('.layout.selected').data('id');
+  selectedLanguage = localStorage[appName+'.language'] = $('input[name=language]:checked').val();
   selectedExtraTexts = _($('.extra-text.selected')).map(function(text) { return $(text).data('id') });
-  localStorage['pechanator.selected-extra-texts'] = JSON.stringify(selectedExtraTexts);
+  localStorage[appName+'.selected-extra-texts'] = JSON.stringify(selectedExtraTexts);
   $('body').addClass(layout);
   if (includeTransliteration) $('body').addClass('with-transliteration');
   if (textId) {
-    pecha = JSON.parse(localStorage['pechanator.texts.'+textId]);
+    pecha = JSON.parse(localStorage[appName+'.texts.'+textId]);
     beginGeneration()
   } else
     importCSV();

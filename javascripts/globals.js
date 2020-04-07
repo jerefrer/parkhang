@@ -1,3 +1,5 @@
+var appName = 'parkhang';
+
 var tibetanNumber = function(number) {
   if (typeof(number) == 'number') {
     var digits = number.toString().split();

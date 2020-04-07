@@ -3,7 +3,7 @@ var beginGeneration = function() {
   if (selectedExtraTexts.length) {
     var addedGroups = [];
     _(selectedExtraTexts).each(function(textId, index) {
-      var extraText = JSON.parse(localStorage['pechanator.extra-texts.'+textId]);
+      var extraText = JSON.parse(localStorage[appName+'.extra-texts.'+textId]);
       var groups = extraText.groups;
       if (index > 0) {
         addedGroups = addedGroups.concat({tibetan: '༄༅།', smallWritings: true, mergeNext: true});
