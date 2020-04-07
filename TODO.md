@@ -1,5 +1,11 @@
 # TODO
 
+* Proper sizes for pechas and make everything fit
+* Proper font-sizes for A4/A5 according to Padmakara booklets
+* Styling for split pages headers
+* Index with links
+* Add transliteration option for pechas
+* Make transliteration optional for split pages?
 * Add unbreakable groups (for Om Ah Hung mantra for instance)
 * Remove the bar at the beginning of a group if it starts on a new page with a yigo
 * Find out what would be the best way to handle the spaces between groups
@@ -13,7 +19,3 @@
 
 * Use & instead of "and" if space is missing. Make it automatic?
 * Don't move Tibetan small writings after a prayer but rather just move the translation before.
-
-# Cases to check
-
-* When the last cell of a tibetan line is very thin, what happens with the translation?
