@@ -239,7 +239,10 @@ var addNextGroup = function(remainingWords) {
         addNextGroup();
       }, delay);
     } else { // If group overflows
-      td.html(spaceBetweenGroups);
+      if ($('.pecha-page tr.tibetan:last td').length == 1) // If it's a new line (just one group) don't add space at the beginning
+        td.html('');
+      else
+        td.html(spaceBetweenGroups);
       if (lineWidth + td.width() + 120 <= pechaContentWidth) { // And there is some space left (with some margin)
         var wordIndex = 0;
         var words = text.split('་');
