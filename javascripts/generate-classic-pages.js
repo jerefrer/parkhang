@@ -17,7 +17,7 @@ var ClassicPage = {
   pageHeight: function() {
     if      (bodyHasClass('a4'))     return cmToPixel(29.693)
     else if (bodyHasClass('a5'))     return cmToPixel(20.997)
-    else if (bodyHasClass('screen')) return Infinite;
+    else if (bodyHasClass('screen')) return Infinity;
   },
   innerPageWidth: function() {
     return this.pageWidth() - this.margins * 2;
