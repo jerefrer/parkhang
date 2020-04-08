@@ -11,12 +11,12 @@ var SplitPages = {
   },
   pageWidth: function() {
     if      (bodyHasClass('a4'))     return cmToPixel(21.006)
-    else if (bodyHasClass('a5'))     return cmToPixel(14.800)
+    else if (bodyHasClass('a5'))     return cmToPixel(21.006)
     else if (bodyHasClass('screen')) return 0.9 * $(window).width();
   },
   pageHeight: function() {
     if      (bodyHasClass('a4'))     return cmToPixel(29.693)
-    else if (bodyHasClass('a5'))     return cmToPixel(20.997)
+    else if (bodyHasClass('a5'))     return cmToPixel(29.693)
     else if (bodyHasClass('screen')) return Infinite;
   },
   innerPageWidth: function() {
@@ -130,22 +130,23 @@ var SplitPages = {
       this.addNextTranslationLine();
     }
   },
+  setLine: function(line, text, group) {
+    line.html(text);
+    if (group.smallWritings) line.addClass('small-writings');
+    if (group.practiceTitle) line.addClass('practice-title');
+  },
   addNextTranslationLine: function() {
     var group = pecha.groups[this.translationGroupIndex];
     if (group) {
       var line = $('<div class="line" data-group-index='+this.translationGroupIndex+'>');
       var transliterationLine = $('<div class="transliteration">');
       var translationLine = $('<div class="translation">');
-      transliterationLine.html(group.transliteration);
-      translationLine.html(group[selectedLanguage]);
-      if (group.smallWritings) {
-        translationLine.addClass('small-writings');
-        transliterationLine.addClass('small-writings');
-      }
+      this.setLine(transliterationLine, group.transliteration, group);
+      this.setLine(translationLine, group[selectedLanguage], group);
       if (group.mergeNext) {
         this.translationGroupIndex++;
         var nextGroup = pecha.groups[this.translationGroupIndex];
-        translationLine.append('<span class="space"></span>'+nextGroup[selectedLanguage]);
+        this.setLine(translationLine, '<span class="space"></span>'+nextGroup[selectedLanguage], nextGroup);
       }
       if (group.transliteration) line.append(transliterationLine);
       line.append(translationLine);

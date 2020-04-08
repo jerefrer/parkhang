@@ -1,81 +1,81 @@
-.split-a4 .split-page-container {
+.split-a5 .split-page-container {
   position: relative;
   margin: 90px auto;
   page-break-after: always;
 }
 
-.split-a4 #title-page {
+.split-a5 #title-page {
   text-align: center;
 }
 
-.split-a4 #title-page .tibetan {
+.split-a5 #title-page .tibetan {
   font-family: Tibetan;
   font-size: 50px;
   line-height: 1em;
   white-space: normal;
 }
-.split-a4 #title-page .translation {
+.split-a5 #title-page .translation {
   margin-top: 30px;
   font-size: 20px;
   font-variant: small-caps;
   vertical-align: middle;
 }
-.split-a4 #title-page .translation .title {
+.split-a5 #title-page .translation .title {
   font-weight: bold;
   font-size: 1.1em;
   line-height: 1.2em;
 }
-.split-a4 #title-page .translation .subtitle {
+.split-a5 #title-page .translation .subtitle {
   margin-top: 15px;
   line-height: 1.2em;
 }
 
-.split-a4 .line .tibetan {
+.split-a5 .line .tibetan {
   font-family: TibetanChogyalUnicode-170221;
   font-size: 34pt;
   line-height: 1.2em;
 }
-.split-a4 .line .tibetan.small-writings {
+.split-a5 .line .tibetan.small-writings {
   font-size: 28pt;
 }
-.split-a4 .line .space {
+.split-a5 .line .space {
   display: inline-block;
   width: 20px;
 }
 
-.split-a4 .line .transliteration {
+.split-a5 .line .transliteration {
   margin-top: 0.30cm;
   margin-left: 0.55cm;
   font-size: 16pt;
   font-family: Calibri;
 }
-.split-a4 .line .translation {
+.split-a5 .line .translation {
   margin-left: 1.05cm;
   font-size: 14pt;
   font-family: "Times New Roman";
 }
-.split-a4 .line .transliteration,
-.split-a4 .line .translation {
+.split-a5 .line .transliteration,
+.split-a5 .line .translation {
   line-height: 1em;
 }
-.split-a4 .line .transliteration.small-writings,
-.split-a4 .line .translation.small-writings {
+.split-a5 .line .transliteration.small-writings,
+.split-a5 .line .translation.small-writings {
   margin-left: 0;
   font-size: 13pt;
   font-family: "Times New Roman";
   font-style: italic;
 }
 
-.split-a4:not(.with-transliteration) .line .translation {
+.split-a5:not(.with-transliteration) .line .translation {
   margin-left: 0;
   font-size: 16pt;
   font-family: Calibri;
 }
-.split-a4:not(.with-transliteration) .line .translation.small-writings {
+.split-a5:not(.with-transliteration) .line .translation.small-writings {
   font-size: 14pt;
 }
 
-.split-a4 .line .translation.practice-title {
+.split-a5 .line .translation.practice-title {
   margin-top: 0.90cm;
   margin-bottom: 0.90cm;
   font-size: 19pt;
@@ -85,33 +85,33 @@
   text-align: center;
 }
 
-.split-a4 .line .translation.practice-title .space {
+.split-a5 .line .translation.practice-title .space {
   width: 0;
 }
 
-.split-a4 .split-page-container .page-number {
+.split-a5 .split-page-container .page-number {
   position: absolute;
   width: 100%;
   text-align: center;
 }
 
-.split-a4 .tibetan-page .page-number {
+.split-a5 .tibetan-page .page-number {
   bottom: 0.7cm;
   font-family: TibetanChogyalUnicode-170221;
   font-size: 28pt;
 }
 
-.split-a4 .translation-page .page-number {
+.split-a5 .translation-page .page-number {
   bottom: 0.8cm;
   font-size: 11pt;
 }
 
 @media print {
-  .split-a4 * {
+  .split-a5 * {
     color: black;
     background: white;
   }
-  .split-a4 .split-page-container {
+  .split-a5 .split-page-container {
     margin: 0 auto;
   }
 }

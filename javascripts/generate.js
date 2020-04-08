@@ -5,7 +5,7 @@ var beginGeneration = function() {
     _(selectedExtraTexts).each(function(textId, index) {
       var extraText = JSON.parse(localStorage[appName+'.extra-texts.'+textId]);
       var groups = extraText.groups;
-      if (index > 0) {
+      if (index > 0 || isASplitPage() || isAClassicPage()) {
         addedGroups = addedGroups.concat({tibetan: '༄༅།', smallWritings: true, mergeNext: true});
         groups[0].tibetan = '།' + groups[0].tibetan;
       }
@@ -16,7 +16,8 @@ var beginGeneration = function() {
         tibetan: pecha.title.tibetan.full,
         english: pecha.title.english.title,
         french: pecha.title.french.title,
-        smallWritings: true
+        smallWritings: true,
+        practiceTitle: true
       }).
       concat(pecha.groups);
   }
