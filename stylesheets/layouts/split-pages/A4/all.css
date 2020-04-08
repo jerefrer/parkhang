@@ -95,15 +95,16 @@
   text-align: center;
 }
 
-.split-a4 .tibetan-page .page-number {
+.split-a5 .tibetan-page .page-number {
   bottom: 0.7cm;
   font-family: TibetanChogyalUnicode-170221;
-  font-size: 28pt;
+  font-size: 32pt;
 }
 
-.split-a4 .translation-page .page-number {
+.split-a5 .translation-page .page-number {
   bottom: 0.8cm;
-  font-size: 11pt;
+  font-family: Calibri;
+  font-size: 16pt;
 }
 
 @media print {
