@@ -14,11 +14,11 @@ $(document).on('click', '#color-mode-button', function() {
       break;
     case 1:
       $('#lapis-lazuli-mode').remove();
-      $('head').append('<link id="light-mode" rel="stylesheet" href="stylesheets/light-mode.css">');
+      $('head').append('<link id="light-mode" rel="stylesheet" href="stylesheets/color-modes/light-mode.css">');
       break;
     case 2:
       $('#light-mode').remove();
-      $('head').append('<link id="lapis-lazuli-mode" rel="stylesheet" href="stylesheets/gold-on-lapis-lazuli.css">');
+      $('head').append('<link id="lapis-lazuli-mode" rel="stylesheet" href="stylesheets/color-modes/gold-on-lapis-lazuli.css">');
       break;
   }
   $('#effects').remove();

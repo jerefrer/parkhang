@@ -1,0 +1,41 @@
+.pecha-a4 .pecha-page-container {
+  width: 842.04pt;
+  height: 198.5pt;
+  margin: 0 auto;
+  border: 1px solid #333;
+}
+
+.pecha-a4 .line {
+  margin-top: 2px;
+}
+
+.pecha-a4 .line .tibetan td {
+  font-size: 31px;
+  line-height: 27px;
+  text-shadow: 0 0 1px black;
+}
+.pecha-a4 .line .tibetan td.small-writings,
+.pecha-a4 .line .tibetan td span.small-writings {
+  font-size: 25px;
+  line-height: 27px;
+}
+.pecha-a4 .line .tibetan td span.space {
+  width: 20px;
+}
+
+.pecha-a4 .line .translation {
+  height: 19.2px;
+}
+.pecha-a4 .line .translation td {
+  font-size: 9.5px;
+  line-height: 8px;
+  letter-spacing: -0.1px;
+  position: relative;
+  top: 3px;
+  z-index: -1;
+}
+.pecha-a4 .line .translation td.small-writings,
+.pecha-a4 .line .translation td span.small-writings {
+  font-size: 8px;
+  letter-spacing: -0.2px;
+}
