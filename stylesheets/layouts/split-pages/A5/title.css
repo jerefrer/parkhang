@@ -1,0 +1,44 @@
+.split-a5 #title-page .split-title-page-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  text-align: center;
+}
+
+.split-a5 #title-page .tibetan,
+.split-a5 #title-page .translation,
+.split-a5 #title-page .logo {
+  display: flex;
+  flex: 1;
+  align-items: center;
+}
+
+.split-a5 #title-page .tibetan {
+  font-family: Tibetan;
+  font-size: 36pt;
+  line-height: 1em;
+  white-space: normal;
+}
+.split-a5 #title-page .translation {
+  flex-direction: column;
+  margin-top: 30px;
+  font-family: "Linux Libertine Display G";
+  font-variant: small-caps;
+  vertical-align: middle;
+}
+.split-a5 #title-page .translation .title {
+  display: block;
+  font-weight: bold;
+  font-size: 30pt;
+  line-height: 1.2em;
+}
+.split-a5 #title-page .translation .subtitle {
+  margin-top: 15px;
+  font-size: 22pt;
+  line-height: 1.2em;
+}
+.split-a5 #title-page .logo {
+  max-width: 5.5cm;
+  max-height: 5.5cm;
+  margin: 0 auto;
+}

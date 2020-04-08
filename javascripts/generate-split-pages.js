@@ -67,6 +67,7 @@ var SplitPages = {
           <div class="title">'+translation.title+'</div>'+
           (translation.subtitle && '<div class="subtitle">'+translation.subtitle+'</div>' || '')+'\
         </div>\
+        <img class="logo" src="images/padmakara-logo.png">\
       </div>\
     ');
     $('#main').append(titlePage);

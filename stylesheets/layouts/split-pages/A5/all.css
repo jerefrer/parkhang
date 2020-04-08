@@ -4,32 +4,6 @@
   page-break-after: always;
 }
 
-.split-a5 #title-page {
-  text-align: center;
-}
-
-.split-a5 #title-page .tibetan {
-  font-family: Tibetan;
-  font-size: 50px;
-  line-height: 1em;
-  white-space: normal;
-}
-.split-a5 #title-page .translation {
-  margin-top: 30px;
-  font-size: 20px;
-  font-variant: small-caps;
-  vertical-align: middle;
-}
-.split-a5 #title-page .translation .title {
-  font-weight: bold;
-  font-size: 1.1em;
-  line-height: 1.2em;
-}
-.split-a5 #title-page .translation .subtitle {
-  margin-top: 15px;
-  line-height: 1.2em;
-}
-
 .split-a5 .line .tibetan {
   font-family: TibetanChogyalUnicode-170221;
   font-size: 34pt;
