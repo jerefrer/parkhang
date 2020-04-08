@@ -5,7 +5,8 @@ var SplitPages = {
   translationGroupIndex: 0,
   pageNumber: 0,
   initialize: function() {
-    this.addPages();
+    this.addTitlePage();
+    this.addTwoPages();
     this.addNextTibetanLine();
   },
   pageWidth: function() {
@@ -40,23 +41,48 @@ var SplitPages = {
   translationPageNumber: function() {
     return this.pageNumber;
   },
-  addPages: function() {
-    this.pageNumber++;
-    var tibetanPage = $('<div class="split-page-container tibetan-page">');
-    var translationPage = $('<div class="split-page-container translation-page">');
-    var pageStyle = {
-      width: this.pageWidth(),
-      height: this.pageHeight(),
+  newPage: function() {
+    var page = $('<div class="split-page-container">');
+    page.css({
+      width:   this.pageWidth()+'px',
+      height:  this.pageHeight()+'px',
       padding: this.margins[0]+'px '+
                this.margins[1]+'px '+
                this.margins[2]+'px '+
                this.margins[3]+'px'
-    };
-    $(tibetanPage).css(pageStyle);
-    $(translationPage).css(pageStyle);
+    });
+    return page;
+  },
+  addTitlePage: function() {
+    var that = this;
+    var translation = pecha.title[selectedLanguage];
+    var titlePage = this.newPage();
+    titlePage.attr('id', 'title-page');
+    titlePage.html('\
+      <div class="split-title-page-content">\
+        <div class="tibetan">\
+          '+pecha.title.tibetan.full+'\
+        </div>\
+        <div class="translation">\
+          <div class="title">'+translation.title+'</div>'+
+          (translation.subtitle && '<div class="subtitle">'+translation.subtitle+'</div>' || '')+'\
+        </div>\
+      </div>\
+    ');
+    $('#main').append(titlePage);
+    setTimeout(function() {
+      var contentHeight = $('.split-title-page-content').height();
+      $('.split-title-page-content').css({'margin-top': 'calc(('+that.innerPageHeight()+'px - '+contentHeight+'px) / 2)'});
+    }, 200);
+    this.pageNumber++;
+  },
+  addTwoPages: function() {
+    this.pageNumber++;
+    var tibetanPage     = this.newPage().addClass('tibetan-page');
+    var translationPage = this.newPage().addClass('translation-page');
     tibetanPage.append(this.pageNumberDiv({tibetan: true}));
-    translationPage.append(this.pageNumberDiv());
     tibetanPage.append('<div class="page-inner"></div>');
+    translationPage.append(this.pageNumberDiv());
     translationPage.append('<div class="page-inner"></div>');
     $('#main').append(tibetanPage);
     $('#main').append(translationPage);
@@ -128,7 +154,7 @@ var SplitPages = {
         $(line).remove();
         this.translationGroupIndex--;
         this.makePagesEven();
-        this.addPages();
+        this.addTwoPages();
         this.addNextTibetanLine();
       } else {
         this.translationGroupIndex++;
