@@ -1,7 +1,3 @@
-var cmToPixel = function(value) {
-  return value * 39.36970389412549; // 100dpi
-}
-
 var SplitPages = {
   isTibetanPage: true,
   margins: [cmToPixel(1.5), cmToPixel(3), cmToPixel(1.5), cmToPixel(3)],

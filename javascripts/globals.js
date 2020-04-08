@@ -19,3 +19,7 @@ var tibetanNumber = function(number) {
     }
   }
 }
+
+var cmToPixel = function(value) {
+  return value * 39.36970389412549; // 100dpi
+}
