@@ -2,8 +2,8 @@ var appName = 'parkhang';
 
 var tibetanNumber = function(number) {
   if (typeof(number) == 'number') {
-    var digits = number.toString().split();
-    return _.chain(digits).map(tibetanNumber).join().value();
+    var digits = number.toString().split('');
+    return _.chain(digits).map(tibetanNumber).join('').value();
   } else {
     switch(number) {
       case '0': return '༠'; break;
