@@ -1,5 +1,9 @@
 var currentPageIndex = 0;
 
+var textHasBeenRendered = function() {
+  return !!stepsClass();
+}
+
 var stepsClass = function() {
   if      (isAPecha()       ) return '.pecha-page-container'
   else if (isAPage()        ) return '.line'
@@ -14,9 +18,13 @@ var steps = function() {
     return $('#title-page, '+stepsClass());
 }
 
+var scrollOffset = function() {
+  return stepsClass() == '.line' && -8 || 0;
+}
+
 var scrollToElement = function(element) {
   $('iframe, #document, html, body').stop();
-  $.scrollTo(element, 400, {offset: stepsClass() == '.line' && -8 || 0});
+  $.scrollTo(element, 400, {offset: scrollOffset()});
 }
 
 var maxIndex = function() {
@@ -41,7 +49,7 @@ var scroll = function(numberOfPages) {
 }
 
 $(document).on('keydown', function(event) {
-  if (stepsClass()) {
+  if (textHasBeenRendered()) {
     if      (event.keyCode == 33) { event.preventDefault(); scroll(-999); } // Page Up
     else if (event.keyCode == 34) { event.preventDefault(); scroll( 999); } // Page Down
     else if (event.keyCode == 36) { event.preventDefault(); scroll(-999); } // Origin
@@ -52,3 +60,12 @@ $(document).on('keydown', function(event) {
     else if (event.keyCode == 39) { event.preventDefault(); scroll(   2); } // Right
   }
 });
+
+$(document).on('scroll', function(event) {
+  if (textHasBeenRendered()) {
+    var element = _($(stepsClass())).find(function(element) {
+      if ($(element).offset().top + scrollOffset() > $(window).scrollTop()) return element;
+    });
+    currentPageIndex = $(stepsClass()).index(element) - 1;
+  }
+})
