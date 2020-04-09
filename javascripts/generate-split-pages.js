@@ -107,6 +107,11 @@ var SplitPages = {
   addNextTibetanLine: function() {
     var group = pecha.groups[this.tibetanGroupIndex];
     if (group) {
+      if (group.newPage) console.log('tibetan:'+$('.tibetan-page:last .line').length);
+      if (group.newPage && $('.tibetan-page:last .line').length) {
+        this.addNextTranslationLine();
+        return;
+      }
       var line = $('<div class="line" data-group-index='+this.tibetanGroupIndex+'>');
       var tibetanLine = $('<div class="tibetan">');
       tibetanLine.html(group.tibetan);
@@ -139,6 +144,13 @@ var SplitPages = {
   addNextTranslationLine: function() {
     var group = pecha.groups[this.translationGroupIndex];
     if (group) {
+      if (group.newPage) console.log('translation:'+$('.translation-page:last .line').length);
+      if (group.newPage && $('.translation-page:last .line').length) {
+        this.makePagesEven();
+        this.addTwoPages();
+        this.addNextTibetanLine();
+        return;
+      }
       var line = $('<div class="line" data-group-index='+this.translationGroupIndex+'>');
       var transliterationLine = $('<div class="transliteration">');
       var translationLine = $('<div class="translation">');

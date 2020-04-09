@@ -69,7 +69,8 @@ var importCSV = function() {
           if (lineIndex != 0 && (!titlePage || lineIndex > 6)) {
             var hash = {
               smallWritings: cells[4].match(/smallWritings/),
-              mergeNext: cells[4].match(/mergeNext/)
+              mergeNext: cells[4].match(/mergeNext/),
+              newPage: cells[4].match(/newPage/)
             };
             _(languageIndexes).each(function(index, language) {
               hash[language] = cells[index];
