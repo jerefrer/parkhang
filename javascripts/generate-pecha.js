@@ -246,7 +246,7 @@ var addNextGroup = function(remainingWords) {
       if (lineWidth + td.width() + 120 <= pechaContentWidth) { // And there is some space left (with some margin)
         var wordIndex = 0;
         var words = text.split('་');
-        var addNextWord = function() { 
+        var addNextWord = function() {
           var td = $('.pecha-page tr.tibetan td:last');
           var word = words[wordIndex];
           if (word) { // Then if there is more words
@@ -267,7 +267,7 @@ var addNextGroup = function(remainingWords) {
           } else {
             lineWidth += td.width();
             groupIndex++;
-            addNextGroup(); 
+            addNextGroup();
           }
         }
         addNextWord();
@@ -338,7 +338,7 @@ var splitTranslationWords = function(text) {
 
 var addNextTranslation = function() {
   var tibetanTd = findFirstTibetanForGroupWhereTranslationIsEmpty();
-  var tibetanWidth = tibetanTd.width(); 
+  var tibetanWidth = tibetanTd.width();
   var space = tibetanTd.find('.space') && tibetanTd.find('.space').width()
   var groupIsSplit = $('.tibetan [data-index='+translationIndex+']').length > 1;
   var group = pecha.groups[translationIndex];
@@ -411,7 +411,7 @@ var pechaContentWidthFor = function(line) {
 // Happens that lines become wider after adding a translation (since no hyhenation for now)
 // So we adjust in case it happens
 var fitLinesTooWide = function() {
-  _($('.line')).each(function(line) { 
+  _($('.line')).each(function(line) {
     if ($(line).width() > pechaContentWidthFor(line)) decreaseUntilItFits($(line));
   });
 }
