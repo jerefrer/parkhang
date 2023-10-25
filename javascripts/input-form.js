@@ -189,12 +189,12 @@ $(document).on('click', '#render-button', function() {
   selectedExtraTexts = _($('.extra-text.selected')).map(function(text) { return $(text).data('id') });
   localStorage[appName+'.selected-extra-texts'] = JSON.stringify(selectedExtraTexts);
   $('body').addClass(layout);
-  if (includeTransliteration) $('body').addClass('with-transliteration');
+  if (includeTransliteration) $('body').addClass('with-phonetics');
   if (textId) {
     pecha = JSON.parse(localStorage[appName+'.texts.'+textId]);
     beginGeneration()
   } else
-    importCSV();
+    importFile();
   $('#input-form').remove();
   $('#loading-overlay').show();
 })

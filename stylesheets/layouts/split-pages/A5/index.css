@@ -1,0 +1,46 @@
+.split-a5 .index-page {
+  font-family: "Linux Libertine G";
+}
+
+.split-a5 .index-page .header {
+  margin: 1.80cm 0;
+  font-size: 20pt;
+  font-variant: small-caps;
+  text-align: center;
+}
+
+.split-a5 .index-page .ui.list .item {
+  margin-bottom: 0.85cm;
+  padding-bottom: .21428571em !important;
+  font-size: 14pt;
+  font-variant: small-caps;
+  color: white;
+  border-bottom: 1px dotted white;
+}
+
+.split-a5 .index-page .ui.list .title,
+.split-a5 .index-page .ui.list .page {
+  display: inline-block;
+  vertical-align: bottom;
+}
+.split-a5 .index-page .ui.list .title {
+  width: 92%;
+}
+.split-a5 .index-page .ui.list .page {
+  text-align: right;
+  width: 4%;
+  margin-left: 4%;
+}
+
+.split-a5 .index-page .ui.list .item:hover {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.split-a5 .index-page .list .item.index-level-2 { margin-left: 0.50cm; }
+.split-a5 .index-page .list .item.index-level-3 { margin-left: 1.00cm; }
+.split-a5 .index-page .list .item.index-level-4 { margin-left: 1.50cm; }
+.split-a5 .index-page .list .item.index-level-5 { margin-left: 2.00cm; }
+.split-a5 .index-page .list .item.index-level-6 { margin-left: 2.50cm; }
+.split-a5 .index-page .list .item.index-level-7 { margin-left: 3.00cm; }
+.split-a5 .index-page .list .item.index-level-8 { margin-left: 3.50cm; }
+.split-a5 .index-page .list .item.index-level-9 { margin-left: 4.00cm; }

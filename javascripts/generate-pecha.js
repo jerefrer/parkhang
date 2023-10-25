@@ -346,6 +346,11 @@ var addNextTranslation = function() {
   addEmptyTdsIfNeeded(table, tibetanTd);
   if (group != undefined) {
     var translation = group[selectedLanguage];
+    if (!translation) {
+      addTranslationCell(tibetanTd, '');
+      setTimeout(addNextTranslation, delay);
+      return;
+    }
     if (!group.tibetan) {
       translationIndex++;
       setTimeout(addNextTranslation, delay);

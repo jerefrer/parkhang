@@ -43,7 +43,7 @@
   width: 20px;
 }
 
-.split-a4 .line .transliteration {
+.split-a4 .line .phonetics {
   margin-top: 0.30cm;
   margin-left: 0.55cm;
   font-size: 16pt;
@@ -54,11 +54,11 @@
   font-size: 14pt;
   font-family: "Times New Roman";
 }
-.split-a4 .line .transliteration,
+.split-a4 .line .phonetics,
 .split-a4 .line .translation {
   line-height: 1em;
 }
-.split-a4 .line .transliteration.small-writings,
+.split-a4 .line .phonetics.small-writings,
 .split-a4 .line .translation.small-writings {
   margin-left: 0;
   font-size: 13pt;
@@ -66,12 +66,12 @@
   font-style: italic;
 }
 
-.split-a4:not(.with-transliteration) .line .translation {
+.split-a4:not(.with-phonetics) .line .translation {
   margin-left: 0;
   font-size: 16pt;
   font-family: Calibri;
 }
-.split-a4:not(.with-transliteration) .line .translation.small-writings {
+.split-a4:not(.with-phonetics) .line .translation.small-writings {
   font-size: 14pt;
 }
 

@@ -16,23 +16,23 @@
   width: 20px;
 }
 
-.classic-a4 .line .transliteration,
+.classic-a4 .line .phonetics,
 .classic-a4 .line .translation {
   font-size: 16px;
   line-height: 1em;
   margin-bottom: 1em;
 }
-.classic-a4 .line .transliteration.small-writings,
+.classic-a4 .line .phonetics.small-writings,
 .classic-a4 .line .translation.small-writings {
   font-size: 14px;
   font-style: italic;
 }
 
-.classic-a4.with-transliteration .line .translation {
+.classic-a4.with-phonetics .line .translation {
   margin-left: 12px;
   font-size: 14px;
 }
-.classic-a4.with-transliteration .line .translation.small-writings {
+.classic-a4.with-phonetics .line .translation.small-writings {
   font-size: 12px;
 }
 

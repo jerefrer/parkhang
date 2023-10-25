@@ -4,25 +4,38 @@
   page-break-after: always;
 }
 
+.split-a5 .tibetan-page .line.empty-line-after {
+  margin-bottom: 2em;
+}
+.split-a5 .translation-page .line.empty-line-after {
+  margin-bottom: 3em;
+}
+
+.split-a5 .line .centered {
+  margin-left:  0 !important;
+  margin-right: 0 !important;
+  text-align: center;
+}
+
 .split-a5 .line .tibetan {
   font-family: TibetanChogyalUnicode-170221;
-  font-size: 34pt;
+  font-size: 38pt;
   line-height: 1.2em;
 }
-.split-a5 .line .tibetan.small-writings {
-  font-size: 28pt;
+.split-a5 .line .tibetan.small-writings,
+.split-a5 .line .tibetan .small-writings {
+  font-size: 25pt;
 }
 .split-a5 .line .space {
   display: inline-block;
   width: 20px;
 }
 
-.split-a5 .line .transliteration {
-  margin-top: 0.20cm;
-  margin-left: 0.55cm;
+.split-a5 .line .phonetics {
+  margin: 0.30cm 0 0.20cm 0.55cm;
   font-size: 16pt;
   font-family: Calibri;
-  line-height: 1.7em;
+  line-height: 1.07em;
 }
 .split-a5 .line .translation {
   margin-left: 1.05cm;
@@ -30,31 +43,49 @@
   font-family: "Times New Roman";
   line-height: 1em;
 }
-.split-a5 .line .transliteration.small-writings,
 .split-a5 .line .translation.small-writings {
-  margin-left: 0;
+  margin: 1em 0;
+}
+.split-a5 .line .translation.small-writings,
+.split-a5 .line .translation .small-writings {
   font-size: 13pt;
   font-family: "Times New Roman";
   font-style: italic;
+  line-height: 1.2em;
+}
+.split-a5 .line .translation.header {
+  margin-bottom: 0.9em;
+  font-size: 18pt;
+  font-weight: bold;
+  font-style: italic;
+  font-family: "Times New Roman";
+}
+.split-a5 .line .translation.header .secondary {
+  font-size: 16pt;
+  font-weight: normal;
 }
 
-.split-a5:not(.with-transliteration) .line .translation {
+.split-a5:not(.with-phonetics) .line .translation {
   margin-left: 0;
   font-size: 16pt;
   font-family: Calibri;
 }
-.split-a5:not(.with-transliteration) .line .translation.small-writings {
+.split-a5:not(.with-phonetics) .line .translation.small-writings {
   font-size: 14pt;
 }
 
 .split-a5 .line .translation.practice-title {
-  margin-top: 0.90cm;
-  margin-bottom: 0.90cm;
+  margin: 0.90cm 0;
   font-size: 19pt;
   font-style: normal;
   font-family: "Linux Libertine Display G";
   font-variant: small-caps;
   text-align: center;
+}
+.split-a5 .line .translation.practice-title .subtitle {
+  display: block;
+  font-size: 16pt;
+  font-variant: none;
 }
 
 .split-a5 .line .translation.practice-title .space {

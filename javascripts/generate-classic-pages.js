@@ -37,29 +37,29 @@ var ClassicPage = {
     var group = pecha.groups[this.currentGroupIndex];
     if (group) {
       var tibetanLine = $('<div class="tibetan">');
-      var translationLine = $('<div class="translation">');
+      var phoneticsLine = $('<div class="phonetics">');
       tibetanLine.html(group.tibetan);
-      translationLine.html(group[selectedLanguage]);
+      phoneticsLine.html(group[selectedLanguage]);
       if (includeTransliteration) {
-        var transliterationLine = $('<div class="transliteration">');
-        transliterationLine.html(group.transliteration);
+        var phoneticsLine = $('<div class="phonetics">');
+        phoneticsLine.html(group.phonetics);
       }
       if (group.smallWritings) {
         tibetanLine.addClass('small-writings');
-        translationLine.addClass('small-writings');
-        if (includeTransliteration) transliterationLine.addClass('small-writings');
+        phoneticsLine.addClass('small-writings');
+        if (includeTransliteration) phoneticsLine.addClass('small-writings');
       }
-      if (group.mergeNext) {
+      if (group.mergeNextWhenLineByLine) {
         this.currentGroupIndex++;
         var nextGroup = pecha.groups[this.currentGroupIndex];
         tibetanLine.append('<span class="space"></span>'+nextGroup.tibetan);
-        translationLine.append(nextGroup[selectedLanguage]);
-        if (includeTransliteration) transliterationLine.append(nextGroup.transliteration);
+        phoneticsLine.append(nextGroup[selectedLanguage]);
+        if (includeTransliteration) phoneticsLine.append(nextGroup.phonetics);
       }
       var line = $('<div class="line">');
       line.append(tibetanLine);
-      if (includeTransliteration && group.transliteration) line.append(transliterationLine);
-      line.append(translationLine);
+      if (includeTransliteration && group.phonetics) line.append(phoneticsLine);
+      line.append(phoneticsLine);
       this.lastPage().append(line);
       if (this.lastPage().height() > this.innerPageHeight()) {
         this.addPage();

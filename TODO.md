@@ -1,14 +1,20 @@
 # TODO
 
+* Test break-word property
 * Proper sizes for pechas and make everything fit
 * Proper font-sizes for A4/A5 according to Padmakara booklets
 * Styling for split pages headers
 * Index with links
-* Add transliteration option for pechas
-* Make transliteration optional for split pages?
+* Add phonetics option for pechas
+* Make phonetics optional for split pages?
 * Add unbreakable groups (for Om Ah Hung mantra for instance)
 * Remove the bar at the beginning of a group if it starts on a new page with a yigo
-* Find out what would be the best way to handle the spaces between groups
+
+# Existential questions
+
+* What would be the best way to handle the spaces between groups?
+* Does there have to be two bars between two groups?
+* Why sometimes only one after the end and none at the beginning?
 
 # Ideas
 

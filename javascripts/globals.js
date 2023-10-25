@@ -1,5 +1,7 @@
 var appName = 'parkhang';
 
+var goldenRatio = 0.5 * (Math.sqrt(5) - 1);
+
 var tibetanNumber = function(number) {
   if (typeof(number) == 'number') {
     var digits = number.toString().split('');
