@@ -1,5 +1,6 @@
 # TODO
 
+* For now smallWritings that span two pages are handled properly, but not if they are longer. Fix that.
 * Test break-word property
 * Proper sizes for pechas and make everything fit
 * Proper font-sizes for A4/A5 according to Padmakara booklets

@@ -123,16 +123,15 @@ var SplitPages = {
     $('#main').append(translationPage);
   },
   makePagesEven: function() {
-    var that = this;
     if (this.tibetanGroupIndex > this.translationGroupIndex) {
-      _(this.tibetanGroupIndex - this.translationGroupIndex).times(function(i) {
-        $('.tibetan-page .line[data-group-index='+(that.translationGroupIndex+i+1)+']').remove();
+      _(this.tibetanGroupIndex - this.translationGroupIndex).times((i) => {
+        $('.tibetan-page .line[data-group-index='+(this.translationGroupIndex+i+1)+']').remove();
       });
       this.translationGroupIndex++;
       this.tibetanGroupIndex = this.translationGroupIndex;
     } else if (this.tibetanGroupIndex < this.translationGroupIndex) {
-      _(this.translationGroupIndex - this.tibetanGroupIndex).times(function(i) {
-        $('.translation-page .line[data-group-index='+(that.tibetanGroupIndex+i+1)+']').remove();
+      _(this.translationGroupIndex - this.tibetanGroupIndex).times((i) => {
+        $('.translation-page .line[data-group-index='+(this.tibetanGroupIndex+i+1)+']').remove();
       })
       this.tibetanGroupIndex++;
       this.translationGroupIndex = this.tibetanGroupIndex;
@@ -145,19 +144,19 @@ var SplitPages = {
     if (group.emptyLineAfterTranslation) line.addClass('empty-line-after');
     return line;
   },
-  setLineDiv: function(div, text, group) {
-    div.append(text);
+  setLineClass: function(div, group) {
     if (group.smallWritings) div.addClass('small-writings');
     if (group.practiceTitle) div.addClass('practice-title');
     if (group.header)        div.addClass('header');
-    if (group.centered)      div.addClass('centered');
+    if (group.centered || group.centeredTibetan || group.centeredTranslation)
+      div.addClass('centered');
   },
   shouldStartNewPage: function(group, type) {
     if (group.newPage && $('.'+type+'-page:last .line').length) return true;
     if (group.preferNewPage && $('.'+type+'-page:last .page-inner').height() > this.innerPageHeight() * goldenRatio) return true;
     return false;
   },
-  addSpaceOrNot: function(group, text) {
+  maybeAddSpace: function(group, text) {
     if (group.addSpaceBetweenMerged)
       return '<span class="space"></span>'+text;
     else
@@ -170,10 +169,54 @@ var SplitPages = {
         this.addNextTranslationLine();
         return;
       }
-      var line = this.newGroupLine(group, this.tibetanGroupIndex);
-      var tibetanLine = $('<div class="tibetan">');
-      this.setLineDiv(tibetanLine, group.tibetan, group);
-      if (group.centeredTibetan) tibetanLine.addClass('centered');
+      var groupDiv, tibetanDiv;
+      var addGroupDiv = () => {
+        groupDiv = this.newGroupLine(group, this.tibetanGroupIndex);
+        tibetanDiv = $('<div class="tibetan">');
+        this.setLineClass(tibetanDiv, group);
+        groupDiv.append(tibetanDiv);
+        this.lastTibetanPage().append(groupDiv);
+      }
+      addGroupDiv();
+      if (group.smallWritings) {
+        var wordIndex = 0;
+        var words = group.tibetan.split('་');
+        var addNextWord = () => {
+          var word = words[wordIndex];
+          if (word) {
+            tibetanDiv.append('<span>'+word+(words[wordIndex+1] && '་' || '')+'</span>');
+            if (this.lastTibetanPage().height() > this.innerPageHeight()) {
+              tibetanDiv.find('span:last').remove();
+              if (!tibetanDiv.find('span:not(.space)').length)
+                tibetanDiv.remove();
+              addGroupDiv();
+              var groupsWithSameId = pecha.groups.filter((g) => g.id == group.id);
+              var newGroup;
+              if (groupsWithSameId.length > 1)
+                newGroup = groupsWithSameId.last();
+              else
+                newGroup = JSON.parse(JSON.stringify(group));
+              var remainingWords = words.slice(wordIndex).join('་');
+              newGroup.tibetan = remainingWords;
+              pecha.groups.insert(newGroup, this.tibetanGroupIndex + 1);
+              this.tibetanGroupIndex++;
+              this.addNextTranslationLine();
+            } else {
+              wordIndex++;
+              // setTimeout(function() {
+              addNextWord();
+              // }, delay);
+            }
+          } else {
+            this.tibetanGroupIndex++;
+            this.addNextTranslationLine();
+          }
+        }
+        addNextWord();
+      } else {
+        tibetanDiv.append(group.tibetan);
+        this.lastTibetanPage().append(groupDiv);
+      }
       if (group.mergeNext || group.mergeNextTibetan) {
         this.tibetanGroupIndex++;
         var nextGroup = pecha.groups[this.tibetanGroupIndex];
@@ -182,13 +225,11 @@ var SplitPages = {
           line.addClass('empty-line-after');
         if (nextGroup.smallWritings)
           nextText = '<span class="small-writings">'+nextText+'</span>';
-        nextText = this.addSpaceOrNot(nextGroup, nextText);
+        nextText = this.maybeAddSpace(nextGroup, nextText);
         tibetanLine.append(nextText);
       }
-      line.append(tibetanLine);
-      this.lastTibetanPage().append(line);
       if (this.lastTibetanPage().height() > this.innerPageHeight()) {
-        $(line).remove();
+        $(groupDiv).remove();
         this.tibetanGroupIndex--;
         this.addNextTranslationLine();
       } else {
@@ -208,52 +249,97 @@ var SplitPages = {
         this.addNextTibetanLine();
         return;
       }
-      var line = this.newGroupLine(group, this.translationGroupIndex);
-      if (group.linkInIndex)
-        line.attr('id', this.linkId(group));
-      var phoneticsLine = $('<div class="phonetics">');
-      var translationLine = $('<div class="translation">');
-      this.setLineDiv(phoneticsLine, group.phonetics, group);
-      this.setLineDiv(translationLine, group[selectedLanguage], group);
-      if (group.centeredTranslation) {
-        phoneticsLine.addClass('centered');
-        translationLine.addClass('centered');
-      }
-      if (group.mergeNext || group.mergeNextTranslation) {
-        this.translationGroupIndex++;
-        var nextGroup = pecha.groups[this.translationGroupIndex];
-        var nextTransliteration = nextGroup.phonetics;
-        var nextTranslation = nextGroup[selectedLanguage];
-        if (nextGroup.emptyLineAfterTranslation)
-          line.addClass('empty-line-after');
-        if (nextGroup.smallWritings) {
-          nextTransliteration = '<span class="small-writings">'+nextTransliteration+'</span>';
-          nextTranslation = '<span class="small-writings">'+nextTranslation+'</span>';
+      var translation = group[selectedLanguage].replace(/\n/g, '<br>').replace(/\t/g, '&emsp;');
+      if (group.smallWritings) {
+        var groupDiv, translationDiv;
+        var addGroupDiv = () => {
+          groupDiv = this.newGroupLine(group, this.tibetanGroupIndex);
+          if (group.linkInIndex)
+            groupDiv.attr('id', this.linkId(group));
+          translationDiv = $('<div class="translation">');
+          this.setLineClass(translationDiv, group);
+          groupDiv.append(translationDiv);
+          this.lastTranslationPage().append(groupDiv);
         }
-        nextTransliteration = this.addSpaceOrNot(nextGroup, nextTransliteration);
-        nextTranslation     = this.addSpaceOrNot(nextGroup, nextTranslation);
-        phoneticsLine.append(nextTransliteration);
-        translationLine.append(nextTranslation);
-      }
-      if (group.phonetics)
-        line.append(phoneticsLine);
-      if (group[selectedLanguage])
-        line.append(translationLine);
-      this.lastTranslationPage().append(line);
-      if (this.lastTranslationPage().height() > this.innerPageHeight()) {
-        console.log('too high, adding new page');
-        $(line).remove();
-        this.translationGroupIndex--;
-        this.makePagesEven();
-        this.addTwoPages();
-        this.addNextTibetanLine();
+        addGroupDiv();
+        var wordIndex = 0;
+        var words = translation.split(' ');
+        var addNextWord = () => {
+          var word = words[wordIndex];
+          if (word) {
+            translationDiv.append('<span>'+word+(words[wordIndex+1] && ' ' || '')+'</span>');
+            if (this.lastTranslationPage().height() > this.innerPageHeight()) {
+              translationDiv.find('span:last').remove();
+              if (!translationDiv.find('span:not(.space)').length)
+                translationDiv.remove();
+              addGroupDiv();
+              var remainingWords = words.slice(wordIndex).join(' ');
+              var groupsWithSameId = pecha.groups.filter((g) => g.id == group.id);
+              if (groupsWithSameId.length > 1) {
+                alreadyAddedGroup = groupsWithSameId.last();
+                alreadyAddedGroup[selectedLanguage] = remainingWords;
+              } else {
+                var newGroup = JSON.parse(JSON.stringify(group));
+                newGroup[selectedLanguage] = remainingWords;
+                pecha.groups.insert(newGroup, this.translationGroupIndex + 1);
+              }
+              this.translationGroupIndex++;
+              this.makePagesEven();
+              this.addTwoPages();
+              this.addNextTibetanLine();
+            } else {
+              wordIndex++;
+              // setTimeout(function() {
+              addNextWord();
+              // }, delay);
+            }
+          } else {
+            this.translationGroupIndex++;
+            this.addNextTibetanLine();
+          }
+        }
+        addNextWord();
       } else {
-        console.log('adding a new line');
-        this.translationGroupIndex++;
-        this.addNextTranslationLine();
+        var groupDiv = this.newGroupLine(group, this.translationGroupIndex);
+        var phoneticsDiv = $('<div class="phonetics">');
+        var translationDiv = $('<div class="translation">');
+        this.setLineClass(phoneticsDiv, group);
+        this.setLineClass(translationDiv, group);
+        phoneticsDiv.append(group.phonetics);
+        translationDiv.append(translation);
+        if (group.mergeNext || group.mergeNextTranslation) {
+          this.translationGroupIndex++;
+          var nextGroup = pecha.groups[this.translationGroupIndex];
+          var nextTransliteration = nextGroup.phonetics;
+          var nextTranslation = nextGroup[selectedLanguage];
+          if (nextGroup.emptyLineAfterTranslation)
+            groupDiv.addClass('empty-line-after');
+          if (nextGroup.smallWritings) {
+            nextTransliteration = '<span class="small-writings">'+nextTransliteration+'</span>';
+            nextTranslation = '<span class="small-writings">'+nextTranslation+'</span>';
+          }
+          nextTransliteration = this.maybeAddSpace(nextGroup, nextTransliteration);
+          nextTranslation     = this.maybeAddSpace(nextGroup, nextTranslation);
+          phoneticsDiv.append(nextTransliteration);
+          translationDiv.append(nextTranslation);
+        }
+        if (group.phonetics)
+          groupDiv.append(phoneticsDiv);
+        if (group[selectedLanguage])
+          groupDiv.append(translationDiv);
+        this.lastTranslationPage().append(groupDiv);
+        if (this.lastTranslationPage().height() > this.innerPageHeight()) {
+          $(groupDiv).remove();
+          this.translationGroupIndex--;
+          this.makePagesEven();
+          this.addTwoPages();
+          this.addNextTibetanLine();
+        } else {
+          this.translationGroupIndex++;
+          this.addNextTranslationLine();
+        }
       }
     } else {
-      console.log('adding a new line');
       this.makePagesEven();
       if (pecha.groups[this.tibetanGroupIndex]) { // If there are still groups to add
         this.addTwoPages();
