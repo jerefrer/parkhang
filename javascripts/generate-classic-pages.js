@@ -1,7 +1,3 @@
-var cmToPixel = function (value) {
-  return value * 39.36970389412549; // 100dpi
-};
-
 var ClassicPage = {
   margins: cmToPixel(1),
   currentGroupIndex: 0,

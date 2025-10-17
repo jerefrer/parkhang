@@ -18,10 +18,10 @@ var SplitPages = {
     else if (bodyHasClass("a5")) return cmToPixel(21.006);
     else if (bodyHasClass("screen")) return 0.9 * $(window).width();
   },
-  pageHeight: function () {
-    if (bodyHasClass("a4")) return cmToPixel(29.693);
-    else if (bodyHasClass("a5")) return cmToPixel(29.693);
-    else if (bodyHasClass("screen")) return Infinite;
+  pageHeight: function() {
+    if      (bodyHasClass('a4'))     return cmToPixel(29.693)
+    else if (bodyHasClass('a5'))     return cmToPixel(29.693)
+    else if (bodyHasClass('screen')) return Infinity;
   },
   innerPageWidth: function () {
     return this.pageWidth() - this.margins[1] - this.margins[3];
@@ -271,11 +271,11 @@ var SplitPages = {
         this.tibetanGroupIndex++;
         var nextGroup = pecha.groups[this.tibetanGroupIndex];
         var nextText = nextGroup.tibetan;
-        if (nextGroup.emptyLineAfterTibetan) line.addClass("empty-line-after");
+        if (nextGroup.emptyLineAfterTibetan) groupDiv.addClass("empty-line-after");
         if (nextGroup.smallWritings)
           nextText = '<span class="small-writings">' + nextText + "</span>";
         nextText = this.maybeAddSpace(nextGroup, nextText);
-        tibetanLine.append(nextText);
+        tibetanDiv.append(nextText);
       }
       if (this.lastTibetanPage().height() > this.innerPageHeight()) {
         $(groupDiv).remove();
@@ -333,7 +333,7 @@ var SplitPages = {
                 (g) => g.id == group.id
               );
               if (groupsWithSameId.length > 1) {
-                alreadyAddedGroup = groupsWithSameId.last();
+                var alreadyAddedGroup = groupsWithSameId.last();
                 alreadyAddedGroup[selectedLanguage] = remainingWords;
               } else {
                 var newGroup = JSON.parse(JSON.stringify(group));

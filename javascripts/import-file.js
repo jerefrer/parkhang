@@ -23,23 +23,42 @@ var pecha = {
   groups: [],
 };
 
-var importFile = function () {
-  var file = $("#file-input input")[0].files[0];
+var importFile = function() {
+  var fileInput = $('#file-input input')[0];
+  if (!fileInput || !fileInput.files || !fileInput.files[0]) {
+    alert('Please select a file to import.');
+    return;
+  }
+  var file = fileInput.files[0];
   var reader = new FileReader();
-  var extension = file.name.split(".").last();
-  if (extension == "json") importJSON(reader, file);
-  else if (extension == "xlsx") importXLSX(reader, file);
+  var extension = file.name.split('.').last();
+  if (extension == 'json')
+    importJSON(reader, file);
+  else if (extension == 'xlsx')
+    importXLSX(reader, file);
+  else {
+    alert('Unsupported file format. Please use JSON or XLSX files.');
+  }
 };
 
 var persistPecha = function (pecha) {
-  var texts =
-    (localStorage[appName + ".texts"] &&
-      JSON.parse(localStorage[appName + ".texts"])) ||
-    {};
-  texts[pecha.id] = pecha.shortName;
-  localStorage[appName + ".texts"] = JSON.stringify(texts);
-  localStorage[appName + ".texts." + pecha.id] = JSON.stringify(pecha);
-  localStorage[appName + ".textId"] = pecha.id;
+  try {
+    var texts =
+      (localStorage[appName + ".texts"] &&
+        JSON.parse(localStorage[appName + ".texts"])) ||
+      {};
+    texts[pecha.id] = pecha.shortName;
+    localStorage[appName + ".texts"] = JSON.stringify(texts);
+    localStorage[appName + ".texts." + pecha.id] = JSON.stringify(pecha);
+    localStorage[appName + ".textId"] = pecha.id;
+  } catch (e) {
+    if (e.name === 'QuotaExceededError') {
+      alert('Storage quota exceeded. Please clear some saved texts from localStorage.');
+    } else {
+      alert('Error saving text: ' + e.message);
+    }
+    throw e;
+  }
 };
 
 var importJSON = function (reader, file) {
@@ -104,7 +123,7 @@ var importXLSX = function (reader, file) {
         }
       }
       if (rowIndex != 0 && (!titlePage || rowIndex > 5)) {
-        group = {};
+        var group = {};
         var options = cell(rowIndex, 4);
         if (options) {
           _(options.split(" ")).each(function (option) {
