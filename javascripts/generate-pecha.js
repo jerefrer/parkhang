@@ -8,6 +8,9 @@ var translationIndex = 0;
 var pageBeginningMarker = "༄༅།  །";
 var spaceBetweenGroups = '<span class="space"></span>';
 
+// Constants for layout calculations
+var LINE_END_MARGIN = 120; // Minimum space to leave at end of line before wrapping
+
 var pechaLeftMargin = function () {
   var margin = $('<div class="pecha-left-margin">');
   margin.append('<div class="pecha-left-margin-first">དང་པོ་པ་ནི།</div>');
@@ -296,7 +299,7 @@ var addNextGroup = function (remainingWords) {
         // If it's a new line (just one group) don't add space at the beginning
         td.html("");
       else td.html(spaceBetweenGroups);
-      if (lineWidth + td.width() + 120 <= pechaContentWidth) {
+      if (lineWidth + td.width() + LINE_END_MARGIN <= pechaContentWidth) {
         // And there is some space left (with some margin)
         var wordIndex = 0;
         var words = text.split("་");
