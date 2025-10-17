@@ -13,6 +13,14 @@ var LINE_END_MARGIN = 120; // Minimum space to leave at end of line before wrapp
 
 // Check if we need space before the next group
 var needsSpaceBefore = function(text) {
+  // Always add space before yigos (section markers)
+  var yigos = ['༄༅།', '༈', '༄'];
+  for (var i = 0; i < yigos.length; i++) {
+    if (text.startsWith(yigos[i])) {
+      return true;
+    }
+  }
+  
   // Don't add space if text starts right after double shad
   // Check the last cell's content
   var lastCell = $(".pecha-page tr.tibetan:last td:last");
