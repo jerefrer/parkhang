@@ -1,39 +1,39 @@
-var cmToPixel = function(value) {
+var cmToPixel = function (value) {
   return value * 39.36970389412549; // 100dpi
-}
+};
 
 var ClassicPage = {
   margins: cmToPixel(1),
   currentGroupIndex: 0,
-  initialize: function() {
+  initialize: function () {
     this.addPage();
     this.addNextLine();
   },
-  pageWidth: function() {
-    if      (bodyHasClass('a4'))     return cmToPixel(21.006)
-    else if (bodyHasClass('a5'))     return cmToPixel(14.800)
-    else if (bodyHasClass('screen')) return 0.9 * $(window).width();
+  pageWidth: function () {
+    if (bodyHasClass("a4")) return cmToPixel(21.006);
+    else if (bodyHasClass("a5")) return cmToPixel(14.8);
+    else if (bodyHasClass("screen")) return 0.9 * $(window).width();
   },
-  pageHeight: function() {
-    if      (bodyHasClass('a4'))     return cmToPixel(29.693)
-    else if (bodyHasClass('a5'))     return cmToPixel(20.997)
-    else if (bodyHasClass('screen')) return Infinity;
+  pageHeight: function () {
+    if (bodyHasClass("a4")) return cmToPixel(29.693);
+    else if (bodyHasClass("a5")) return cmToPixel(20.997);
+    else if (bodyHasClass("screen")) return Infinity;
   },
-  innerPageWidth: function() {
+  innerPageWidth: function () {
     return this.pageWidth() - this.margins * 2;
   },
-  innerPageHeight: function() {
+  innerPageHeight: function () {
     return this.pageHeight() - this.margins * 2;
   },
-  lastPage: function() {
-    return $('.classic-page-container:last');
+  lastPage: function () {
+    return $(".classic-page-container:last");
   },
-  addPage: function() {
+  addPage: function () {
     var page = $('<div class="classic-page-container">');
-    page.css({width: this.innerPageWidth()});
-    $('#main').append(page);
+    page.css({ width: this.innerPageWidth() });
+    $("#main").append(page);
   },
-  addNextLine: function() {
+  addNextLine: function () {
     var group = pecha.groups[this.currentGroupIndex];
     if (group) {
       var tibetanLine = $('<div class="tibetan">');
@@ -45,14 +45,14 @@ var ClassicPage = {
         phoneticsLine.html(group.phonetics);
       }
       if (group.smallWritings) {
-        tibetanLine.addClass('small-writings');
-        phoneticsLine.addClass('small-writings');
-        if (includeTransliteration) phoneticsLine.addClass('small-writings');
+        tibetanLine.addClass("small-writings");
+        phoneticsLine.addClass("small-writings");
+        if (includeTransliteration) phoneticsLine.addClass("small-writings");
       }
       if (group.mergeNextWhenLineByLine) {
         this.currentGroupIndex++;
         var nextGroup = pecha.groups[this.currentGroupIndex];
-        tibetanLine.append('<span class="space"></span>'+nextGroup.tibetan);
+        tibetanLine.append('<span class="space"></span>' + nextGroup.tibetan);
         phoneticsLine.append(nextGroup[selectedLanguage]);
         if (includeTransliteration) phoneticsLine.append(nextGroup.phonetics);
       }
@@ -70,9 +70,9 @@ var ClassicPage = {
     } else {
       endGeneration();
     }
-  }
-}
+  },
+};
 
-var generateClassicPages = function() {
+var generateClassicPages = function () {
   ClassicPage.initialize();
-}
+};

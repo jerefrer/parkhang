@@ -1,38 +1,44 @@
-var beginGeneration = function() {
-  if (delay) $('#loading-overlay').remove();
+var beginGeneration = function () {
+  if (delay) $("#loading-overlay").remove();
   if (selectedExtraTexts.length) {
     var addedGroups = [];
-    _(selectedExtraTexts).each(function(textId, index) {
-      var extraText = JSON.parse(localStorage[appName+'.extra-texts.'+textId]);
+    _(selectedExtraTexts).each(function (textId, index) {
+      var extraText = JSON.parse(
+        localStorage[appName + ".extra-texts." + textId]
+      );
       var groups = extraText.groups;
       if (index > 0 || isASplitPage() || isAClassicPage()) {
-        addedGroups = addedGroups.concat({tibetan: '༄༅།', smallWritings: true, mergeNext: true});
-        groups[0].tibetan = '།' + groups[0].tibetan;
+        addedGroups = addedGroups.concat({
+          tibetan: "༄༅།",
+          smallWritings: true,
+          mergeNext: true,
+        });
+        groups[0].tibetan = "།" + groups[0].tibetan;
       }
       addedGroups = addedGroups.concat(groups);
-    })
-    pecha.groups = addedGroups.
-      concat({
+    });
+    pecha.groups = addedGroups
+      .concat({
         tibetan: pecha.title.tibetan.full,
         english: pecha.title.english.title,
         french: pecha.title.french.title,
         smallWritings: true,
-        practiceTitle: true
-      }).
-      concat(pecha.groups);
+        practiceTitle: true,
+      })
+      .concat(pecha.groups);
   }
   if (isAPecha()) {
     if (pecha.title.tibetan.full) addPechaTitlePage();
-    setTimeout(function() {
+    setTimeout(function () {
       addNextPechaPage();
       addNextGroup();
     }, 100);
   } else if (isAPage()) {
     if (pecha.title.tibetan.full) {
-      if (isPageScreen()) addPechaTitlePage()
-      else                addPageTitlePage();
+      if (isPageScreen()) addPechaTitlePage();
+      else addPageTitlePage();
     }
-    setTimeout(function() {
+    setTimeout(function () {
       addNextPechaPage();
       addNextGroup();
     }, 100);
@@ -41,12 +47,12 @@ var beginGeneration = function() {
   } else if (isASplitPage()) {
     generateSplitPages();
   }
-}
+};
 
-var endGeneration = function() {
-  setTimeout(function() {
-    $('#print-button').show();
-    $('#color-mode-button').show();
-    $('#loading-overlay').fadeOut(500);
+var endGeneration = function () {
+  setTimeout(function () {
+    $("#print-button").show();
+    $("#color-mode-button").show();
+    $("#loading-overlay").fadeOut(500);
   }, 500);
-}
+};

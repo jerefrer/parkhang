@@ -1,112 +1,117 @@
 var languageIndexes = {
-  'tibetan': 0,
-  'phonetics': 1,
-  'english': 2,
-  'french': 3
-}
+  tibetan: 0,
+  phonetics: 1,
+  english: 2,
+  french: 3,
+};
 
-var translationIndexFor = function(language) {
+var translationIndexFor = function (language) {
   return languageIndexes[language];
-}
+};
 
-var parameterize = function(text) {
-  return text.toLowerCase().replace(/[^a-zA-Z0-9]/g, '-');
-}
+var parameterize = function (text) {
+  return text.toLowerCase().replace(/[^a-zA-Z0-9]/g, "-");
+};
 
 var pecha = {
   title: {
     tibetan: {
-      full: '',
-      short: ''
-    }
+      full: "",
+      short: "",
+    },
   },
-  groups: []
-}
+  groups: [],
+};
 
-var importFile = function() {
-  var file = $('#file-input input')[0].files[0];
+var importFile = function () {
+  var file = $("#file-input input")[0].files[0];
   var reader = new FileReader();
-  var extension = file.name.split('.').last();
-  if (extension == 'json')
-    importJSON(reader, file);
-  else if (extension == 'xlsx')
-    importXLSX(reader, file);
-}
+  var extension = file.name.split(".").last();
+  if (extension == "json") importJSON(reader, file);
+  else if (extension == "xlsx") importXLSX(reader, file);
+};
 
 var persistPecha = function (pecha) {
-  var texts = localStorage[appName+'.texts'] && JSON.parse(localStorage[appName+'.texts']) || {};
+  var texts =
+    (localStorage[appName + ".texts"] &&
+      JSON.parse(localStorage[appName + ".texts"])) ||
+    {};
   texts[pecha.id] = pecha.shortName;
-  localStorage[appName+'.texts'] = JSON.stringify(texts);
-  localStorage[appName+'.texts.'+pecha.id] = JSON.stringify(pecha);
-  localStorage[appName+'.textId'] = pecha.id;
-}
+  localStorage[appName + ".texts"] = JSON.stringify(texts);
+  localStorage[appName + ".texts." + pecha.id] = JSON.stringify(pecha);
+  localStorage[appName + ".textId"] = pecha.id;
+};
 
 var importJSON = function (reader, file) {
-  reader.onload = function() {
+  reader.onload = function () {
     pecha = JSON.parse(reader.result);
     persistPecha(pecha);
     beginGeneration();
   };
-  setTimeout(function() {
+  setTimeout(function () {
     reader.readAsText(file);
   }, 100);
-}
+};
 
-var importXLSX = function(reader, file) {
+var importXLSX = function (reader, file) {
   var lines = [];
   var line_buffer = { words: [] };
   var lineIndex = 0;
   var titlePage = false;
-  reader.onload = function() {
-    var xlsx = XLSX.read(reader.result, {type: 'binary'});
+  reader.onload = function () {
+    var xlsx = XLSX.read(reader.result, { type: "binary" });
 
     var sheet = xlsx.Sheets[xlsx.SheetNames[0]];
     var rowIndex = 0;
 
-    var cell = function(row, col) {
-      var c = sheet[XLSX.utils.encode_cell({r: row, c: col})];
-      return c && c.v || undefined;
-    }
+    var cell = function (row, col) {
+      var c = sheet[XLSX.utils.encode_cell({ r: row, c: col })];
+      return (c && c.v) || undefined;
+    };
 
-    var fillForAllTranslations = function(key, rowIndex) {
-      _(languageIndexes).each(function(index, language) {
+    var fillForAllTranslations = function (key, rowIndex) {
+      _(languageIndexes).each(function (index, language) {
         if (!pecha.title[language]) pecha.title[language] = {};
         pecha.title[language][key] = cell(rowIndex, index);
       });
-    }
+    };
 
-    var isEmptyRow = function(row) {
-      return !_.any([
-        cell(row,0),
-        cell(row,1),
-        cell(row,2),
-        cell(row,3)
-      ])
-    }
+    var isEmptyRow = function (row) {
+      return !_.any([cell(row, 0), cell(row, 1), cell(row, 2), cell(row, 3)]);
+    };
 
-    while(!isEmptyRow(rowIndex)) {
+    while (!isEmptyRow(rowIndex)) {
       if (rowIndex == 0) {
         pecha.id = parameterize(cell(rowIndex, 1));
         pecha.shortName = cell(rowIndex, 1);
       }
-      if (rowIndex == 1 && cell(rowIndex, 0) == 'Tibetan title') titlePage = true;
+      if (rowIndex == 1 && cell(rowIndex, 0) == "Tibetan title")
+        titlePage = true;
       if (titlePage) {
-        switch(rowIndex) {
-          case 1: pecha.title.tibetan.full = cell(rowIndex, 1); break;
-          case 2: pecha.title.tibetan.short = cell(rowIndex, 1); break;
-          case 3: fillForAllTranslations('title', rowIndex); break;
-          case 4: fillForAllTranslations('subtitle', rowIndex); break;
+        switch (rowIndex) {
+          case 1:
+            pecha.title.tibetan.full = cell(rowIndex, 1);
+            break;
+          case 2:
+            pecha.title.tibetan.short = cell(rowIndex, 1);
+            break;
+          case 3:
+            fillForAllTranslations("title", rowIndex);
+            break;
+          case 4:
+            fillForAllTranslations("subtitle", rowIndex);
+            break;
         }
       }
       if (rowIndex != 0 && (!titlePage || rowIndex > 5)) {
         group = {};
         var options = cell(rowIndex, 4);
         if (options) {
-          _(options.split(' ')).each(function(option) {
+          _(options.split(" ")).each(function (option) {
             group[option] = true;
-          })
+          });
         }
-        _(languageIndexes).each(function(index, language) {
+        _(languageIndexes).each(function (index, language) {
           group[language] = cell(rowIndex, index);
         });
         pecha.groups.push(group);
@@ -117,7 +122,7 @@ var importXLSX = function(reader, file) {
     persistPecha(pecha);
     beginGeneration();
   };
-  setTimeout(function() {
+  setTimeout(function () {
     reader.readAsBinaryString(file);
   }, 100);
-}
+};
