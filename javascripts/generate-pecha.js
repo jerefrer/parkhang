@@ -272,6 +272,45 @@ var addRowspanCell = function (td, text) {
   td.html(text);
 };
 
+var fitWordsOnLine = function(text) {
+  var wordIndex = 0;
+  var words = text.split("་");
+  var addNextWord = function () {
+    var td = $(".pecha-page tr.tibetan td:last");
+    var word = words[wordIndex];
+    if (word) {
+      // Then if there is more words
+      td.append(
+        "<span>" +
+          word +
+          ((words[wordIndex + 1] && "་") || "") +
+          "</span>"
+      );
+      if (lineWidth + td.width() <= pechaContentWidth) {
+        // And the next ones fits, add it
+        wordIndex++;
+        setTimeout(function () {
+          addNextWord();
+        }, delay);
+      } else if (words.slice(wordIndex).length == 1) {
+        // And there is just one word left, tighten the line to make it fit
+        continueOnNewLineStartingWith("");
+      } else {
+        // And there is at least two and they don't fit, start a new line with them
+        td.find("span:last").remove();
+        if (!td.find("span:not(.space)").length) td.remove();
+        var remainingWords = _(words).rest(wordIndex).join("་");
+        continueOnNewLineStartingWith(remainingWords);
+      }
+    } else {
+      lineWidth += td.width();
+      groupIndex++;
+      addNextGroup();
+    }
+  };
+  addNextWord();
+};
+
 var addNextGroup = function (remainingWords) {
   var group = pecha.groups[groupIndex];
   if (remainingWords || group) {
@@ -302,42 +341,7 @@ var addNextGroup = function (remainingWords) {
       else td.html(spaceBetweenGroups);
       if (lineWidth + td.width() + LINE_END_MARGIN <= pechaContentWidth) {
         // And there is some space left (with some margin)
-        var wordIndex = 0;
-        var words = text.split("་");
-        var addNextWord = function () {
-          var td = $(".pecha-page tr.tibetan td:last");
-          var word = words[wordIndex];
-          if (word) {
-            // Then if there is more words
-            td.append(
-              "<span>" +
-                word +
-                ((words[wordIndex + 1] && "་") || "") +
-                "</span>"
-            );
-            if (lineWidth + td.width() <= pechaContentWidth) {
-              // And the next ones fits, add it
-              wordIndex++;
-              setTimeout(function () {
-                addNextWord();
-              }, delay);
-            } else if (words.slice(wordIndex).length == 1) {
-              // And there is just one word left, tighten the line to make it fit
-              continueOnNewLineStartingWith("");
-            } else {
-              // And there is at least two and they don't fit, start a new line with them
-              td.find("span:last").remove();
-              if (!td.find("span:not(.space)").length) td.remove();
-              var remainingWords = _(words).rest(wordIndex).join("་");
-              continueOnNewLineStartingWith(remainingWords);
-            }
-          } else {
-            lineWidth += td.width();
-            groupIndex++;
-            addNextGroup();
-          }
-        };
-        addNextWord();
+        fitWordsOnLine(text);
       } else {
         // If there isn't enough space at the end of the line start a new line
         td.remove();
