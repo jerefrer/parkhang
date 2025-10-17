@@ -3,3 +3,5 @@ node_modules/
 docs/
 pechas/
 .git.backup.*/
+.git.backup.*/
+.git.corrupt.*/
