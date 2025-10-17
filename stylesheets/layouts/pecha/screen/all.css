@@ -11,11 +11,11 @@
 
 .pecha-screen .line .tibetan td {
   font-size: 36px;
-  line-height: 1em;
+  line-height: 36px;
 }
 .pecha-screen .line .tibetan td.small-writings {
-  top: 1.7px;
   font-size: 29px;
+  line-height: 36px;
 }
 .line .tibetan td[rowspan="2"] {
   top: 2px;
@@ -29,7 +29,8 @@
   width: 20px;
 }
 
-.pecha-screen .line .translation { /* Don't forget to keep in sync with revealTranslationsThatAreTooTall */
+.pecha-screen .line .translation {
+  /* Don't forget to keep in sync with revealTranslationsThatAreTooTall */
   height: 32.73px;
 }
 .pecha-screen .line .translation td {
@@ -38,7 +39,8 @@
   line-height: 11px;
   letter-spacing: -0.4px;
 }
-.pecha-screen .line .translation td.small-writings { /* Don't forget to keep in sync with mimicTranslationCellInTibetanCell */
+.pecha-screen .line .translation td.small-writings {
+  /* Don't forget to keep in sync with mimicTranslationCellInTibetanCell */
   font-size: 10px;
   letter-spacing: -0.1px;
   font-weight: normal;

@@ -11,11 +11,11 @@
 
 .pecha-a3 .line .tibetan td {
   font-size: 31px;
-  line-height: 1em;
+  line-height: 31px;
 }
 .pecha-a3 .line .tibetan td.small-writings {
-  top: 1.7px;
   font-size: 25px;
+  line-height: 31px;
 }
 .pecha-a3 .line .tibetan td span.space {
   width: 20px;
@@ -31,7 +31,8 @@
   position: relative;
   top: -2px;
 }
-.pecha-a3 .line .translation td.small-writings { /* Don't forget to keep in sync with mimicTranslationCellInTibetanCell */
+.pecha-a3 .line .translation td.small-writings {
+  /* Don't forget to keep in sync with mimicTranslationCellInTibetanCell */
   font-size: 8px;
   letter-spacing: -0.2px;
 }
