@@ -356,8 +356,8 @@ var addNextGroup = function (remainingWords) {
     var $currentTibetanRow = $(".pecha-page tr.tibetan:last");
     if (!group.tibetan) {
       text = group[selectedLanguage];
-      // Skip groups without Tibetan content (usually introductory notes)
-      // These should be handled separately or displayed differently
+      // Skip groups without Tibetan content that are smallWritings (usually long English-only intro paragraphs)
+      // or are completely empty
       if (!text || text.trim() === "" || group.smallWritings) {
         groupIndex++;
         setTimeout(function () {
@@ -378,6 +378,9 @@ var addNextGroup = function (remainingWords) {
         td.html(text);
       }
     }
+    // Calculate prefix before appending td (so needsSpaceBefore checks the previous td, not current)
+    var needsSpace = $currentTibetanRow.find("td:not(.page-beginning)").length > 0 && needsSpaceBefore(text);
+    
     $currentTibetanRow.append(td);
     if (lineWidth + td.width() <= pechaContentWidth) {
       // If group fits then add next group
@@ -393,7 +396,7 @@ var addNextGroup = function (remainingWords) {
         td.html("");
       } else {
         // Add space only if needed (not after double shad)
-        var prefix = needsSpaceBefore(text) ? spaceBetweenGroups : '';
+        var prefix = needsSpace ? spaceBetweenGroups : '';
         td.html(prefix);
       }
       if (lineWidth + td.width() + LINE_END_MARGIN <= pechaContentWidth) {
