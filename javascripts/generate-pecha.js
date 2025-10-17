@@ -11,6 +11,21 @@ var spaceBetweenGroups = '<span class="space"></span>';
 // Constants for layout calculations
 var LINE_END_MARGIN = 120; // Minimum space to leave at end of line before wrapping
 
+// Check if we need space before the next group
+var needsSpaceBefore = function(text) {
+  // Don't add space if text starts right after double shad
+  // Check the last cell's content
+  var lastCell = $(".pecha-page tr.tibetan:last td:last");
+  if (lastCell.length) {
+    var lastText = lastCell.text().trim();
+    // If previous text ends with double shad, no space needed
+    if (lastText.endsWith('།།') || lastText.endsWith('། །')) {
+      return false;
+    }
+  }
+  return true;
+};
+
 var pechaLeftMargin = function () {
   var margin = $('<div class="pecha-left-margin">');
   margin.append('<div class="pecha-left-margin-first">དང་པོ་པ་ནི།</div>');
@@ -329,9 +344,13 @@ var addNextGroup = function (remainingWords) {
       }
       addRowspanCell(td, text);
     } else {
-      if ($currentTibetanRow.find("td:not(.page-beginning)").length)
-        td.html(spaceBetweenGroups + text);
-      else td.html(text);
+      if ($currentTibetanRow.find("td:not(.page-beginning)").length) {
+        // Add space only if needed (not after double shad)
+        var prefix = needsSpaceBefore(text) ? spaceBetweenGroups : '';
+        td.html(prefix + text);
+      } else {
+        td.html(text);
+      }
     }
     $currentTibetanRow.append(td);
     if (lineWidth + td.width() <= pechaContentWidth) {
@@ -343,10 +362,14 @@ var addNextGroup = function (remainingWords) {
       }, delay);
     } else {
       // If group overflows
-      if ($currentTibetanRow.find("td").length == 1)
+      if ($currentTibetanRow.find("td").length == 1) {
         // If it's a new line (just one group) don't add space at the beginning
         td.html("");
-      else td.html(spaceBetweenGroups);
+      } else {
+        // Add space only if needed (not after double shad)
+        var prefix = needsSpaceBefore(text) ? spaceBetweenGroups : '';
+        td.html(prefix);
+      }
       if (lineWidth + td.width() + LINE_END_MARGIN <= pechaContentWidth) {
         // And there is some space left (with some margin)
         fitWordsOnLine(text);
