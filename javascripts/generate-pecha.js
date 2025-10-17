@@ -26,6 +26,21 @@ var needsSpaceBefore = function(text) {
   return true;
 };
 
+// Remove leading yigos from text if the line already has a page-beginning marker
+var stripLeadingYigo = function(text, $currentRow) {
+  // Check if this row has a page-beginning marker
+  if ($currentRow.find('td.page-beginning').length > 0) {
+    // Common yigos that mark section beginnings
+    var yigos = ['༄༅།  །', '༄༅། །', '༄༅།།', '༈ །', '༈།', '༄ །', '༄།'];
+    for (var i = 0; i < yigos.length; i++) {
+      if (text.startsWith(yigos[i])) {
+        return text.substring(yigos[i].length).trim();
+      }
+    }
+  }
+  return text;
+};
+
 var pechaLeftMargin = function () {
   var margin = $('<div class="pecha-left-margin">');
   margin.append('<div class="pecha-left-margin-first">དང་པོ་པ་ནི།</div>');
@@ -344,6 +359,9 @@ var addNextGroup = function (remainingWords) {
       }
       addRowspanCell(td, text);
     } else {
+      // Strip leading yigo if this row already has a page-beginning marker
+      text = stripLeadingYigo(text, $currentTibetanRow);
+      
       if ($currentTibetanRow.find("td:not(.page-beginning)").length) {
         // Add space only if needed (not after double shad)
         var prefix = needsSpaceBefore(text) ? spaceBetweenGroups : '';
