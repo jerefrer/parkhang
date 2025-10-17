@@ -272,7 +272,7 @@ var addRowspanCell = function (td, text) {
   td.html(text);
 };
 
-var fitWordsOnLine = function(text) {
+var fitWordsOnLine = function (text) {
   var wordIndex = 0;
   var words = text.split("་");
   var addNextWord = function () {
@@ -281,10 +281,7 @@ var fitWordsOnLine = function(text) {
     if (word) {
       // Then if there is more words
       td.append(
-        "<span>" +
-          word +
-          ((words[wordIndex + 1] && "་") || "") +
-          "</span>"
+        "<span>" + word + ((words[wordIndex + 1] && "་") || "") + "</span>"
       );
       if (lineWidth + td.width() <= pechaContentWidth) {
         // And the next ones fits, add it
@@ -508,9 +505,13 @@ var pechaContentWidthFor = function (line) {
 // Happens that lines become wider after adding a translation (since no hyhenation for now)
 // So we adjust in case it happens
 var fitLinesTooWide = function () {
+  var tolerance = 0.5; // Allow 0.5px tolerance to avoid unnecessary adjustments
   _($(".line")).each(function (line) {
-    if ($(line).width() > pechaContentWidthFor(line))
+    var lineWidth = $(line).width();
+    var maxWidth = pechaContentWidthFor(line);
+    if (lineWidth > maxWidth + tolerance) {
       decreaseUntilItFits($(line));
+    }
   });
 };
 
@@ -540,7 +541,7 @@ var increaseUntilItFits = function (table) {
 };
 
 var decreaseUntilItFits = function (table) {
-  var spacing = 0.01;
+  var spacing = 0;
   var minSpacing = -2; // Minimum -2px letter-spacing to prevent infinite loop
   var setWidth = function () {
     table.css({ "letter-spacing": spacing + "px" });
