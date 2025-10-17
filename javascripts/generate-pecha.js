@@ -277,15 +277,16 @@ var addNextGroup = function (remainingWords) {
   if (remainingWords || group) {
     var td = newTibetanCell(groupIndex);
     var text = remainingWords || group.tibetan;
+    var $currentTibetanRow = $(".pecha-page tr.tibetan:last");
     if (!group.tibetan) {
       text = group[selectedLanguage];
       addRowspanCell(td, text);
     } else {
-      if ($(".pecha-page tr.tibetan:last td:not(.page-beginning)").length)
+      if ($currentTibetanRow.find("td:not(.page-beginning)").length)
         td.html(spaceBetweenGroups + text);
       else td.html(text);
     }
-    $(".pecha-page tr.tibetan:last").append(td);
+    $currentTibetanRow.append(td);
     if (lineWidth + td.width() <= pechaContentWidth) {
       // If group fits then add next group
       lineWidth += td.width();
@@ -295,7 +296,7 @@ var addNextGroup = function (remainingWords) {
       }, delay);
     } else {
       // If group overflows
-      if ($(".pecha-page tr.tibetan:last td").length == 1)
+      if ($currentTibetanRow.find("td").length == 1)
         // If it's a new line (just one group) don't add space at the beginning
         td.html("");
       else td.html(spaceBetweenGroups);
