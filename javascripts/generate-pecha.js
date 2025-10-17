@@ -457,7 +457,7 @@ var addNextTranslation = function () {
             }, delay);
           } else {
             // If the word  doesn't fit then continue in the next cell
-            td.find("span").last().remove();
+            td.find("span:last").remove();
             var tibetan = findFirstTibetanForGroupWhereTranslationIsEmpty();
             var remainingWords = _(words).rest(wordIndex).join(" ");
             addTranslationCell(tibetan, remainingWords);

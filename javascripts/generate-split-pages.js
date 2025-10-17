@@ -244,7 +244,7 @@ var SplitPages = {
               );
               var newGroup;
               if (groupsWithSameId.length > 1)
-                newGroup = groupsWithSameId.last();
+                newGroup = groupsWithSameId[groupsWithSameId.length - 1];
               else newGroup = JSON.parse(JSON.stringify(group));
               var remainingWords = words.slice(wordIndex).join("་");
               newGroup.tibetan = remainingWords;
@@ -333,7 +333,7 @@ var SplitPages = {
                 (g) => g.id == group.id
               );
               if (groupsWithSameId.length > 1) {
-                var alreadyAddedGroup = groupsWithSameId.last();
+                var alreadyAddedGroup = groupsWithSameId[groupsWithSameId.length - 1];
                 alreadyAddedGroup[selectedLanguage] = remainingWords;
               } else {
                 var newGroup = JSON.parse(JSON.stringify(group));

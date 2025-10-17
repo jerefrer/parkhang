@@ -31,7 +31,8 @@ var importFile = function() {
   }
   var file = fileInput.files[0];
   var reader = new FileReader();
-  var extension = file.name.split('.').last();
+  var parts = file.name.split('.');
+  var extension = parts[parts.length - 1];
   if (extension == 'json')
     importJSON(reader, file);
   else if (extension == 'xlsx')
