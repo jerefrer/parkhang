@@ -522,11 +522,16 @@ var fitWidth = function (table) {
 
 var increaseUntilItFits = function (table) {
   var spacing = 0.01;
+  var maxSpacing = 5; // Maximum 5px letter-spacing to prevent infinite loop
   var setWidth = function () {
     table.css({ "letter-spacing": spacing + "px" });
-    if (table.width() > pechaContentWidthFor(table))
+    if (table.width() > pechaContentWidthFor(table)) {
+      // Found the right spacing, use previous value
       table.css({ "letter-spacing": spacing - 0.01 + "px" });
-    else {
+    } else if (spacing >= maxSpacing) {
+      // Hit maximum, stop here
+      table.css({ "letter-spacing": maxSpacing + "px" });
+    } else {
       spacing += 0.01;
       setTimeout(setWidth, delay / 10);
     }
@@ -536,11 +541,16 @@ var increaseUntilItFits = function (table) {
 
 var decreaseUntilItFits = function (table) {
   var spacing = 0.01;
+  var minSpacing = -2; // Minimum -2px letter-spacing to prevent infinite loop
   var setWidth = function () {
     table.css({ "letter-spacing": spacing + "px" });
-    if (table.width() <= pechaContentWidthFor(table))
+    if (table.width() <= pechaContentWidthFor(table)) {
+      // Fits now, keep this spacing
       table.css({ "letter-spacing": spacing + "px" });
-    else {
+    } else if (spacing <= minSpacing) {
+      // Hit minimum, stop here
+      table.css({ "letter-spacing": minSpacing + "px" });
+    } else {
       spacing -= 0.01;
       setTimeout(setWidth, delay / 10);
     }
