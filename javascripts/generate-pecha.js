@@ -19,7 +19,7 @@ var pechaLeftMargin = function () {
 var pechaRightMargin = function () {
   var margin = $('<div class="pecha-right-margin">');
   if (pageNumber % 2 == 1) {
-    // Even page
+    // Odd page
     margin.append('<div class="pecha-right-margin-first">དང་པོ་པ་ནི།</div>');
     margin.append('<div class="pecha-right-margin-last">དང་པོ་པ་ནི།</div>');
     margin.append(
@@ -28,7 +28,7 @@ var pechaRightMargin = function () {
         "</div>"
     );
   } else {
-    // Odd page
+    // Even page
     margin.append('<div class="pecha-right-margin-first"></div>');
     margin.append('<div class="pecha-right-margin-last"></div>');
     margin.append(
