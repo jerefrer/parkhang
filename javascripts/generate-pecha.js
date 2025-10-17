@@ -262,6 +262,8 @@ var newTibetanCell = function (index) {
 };
 
 var addRowspanCell = function (td, text) {
+  // Handle undefined or null text
+  if (!text) text = "";
   var fontSize = 10;
   var ratioPerCharacterPerFontPixel = 0.45;
   var width = (text.length * fontSize * ratioPerCharacterPerFontPixel) / 2.5;
@@ -316,6 +318,15 @@ var addNextGroup = function (remainingWords) {
     var $currentTibetanRow = $(".pecha-page tr.tibetan:last");
     if (!group.tibetan) {
       text = group[selectedLanguage];
+      // Skip groups without Tibetan content (usually introductory notes)
+      // These should be handled separately or displayed differently
+      if (!text || text.trim() === "" || group.smallWritings) {
+        groupIndex++;
+        setTimeout(function () {
+          addNextGroup();
+        }, delay);
+        return;
+      }
       addRowspanCell(td, text);
     } else {
       if ($currentTibetanRow.find("td:not(.page-beginning)").length)
