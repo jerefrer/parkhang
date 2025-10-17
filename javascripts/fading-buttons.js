@@ -34,7 +34,20 @@ var waitThenFade = function () {
   hiddenButtonsLoop = setTimeout(fadeButtons, 3000);
 };
 
-$(document).mousemove(function () {
+// Debounce helper function
+var debounce = function(func, wait) {
+  var timeout;
+  return function() {
+    var context = this;
+    var args = arguments;
+    clearTimeout(timeout);
+    timeout = setTimeout(function() {
+      func.apply(context, args);
+    }, wait);
+  };
+};
+
+var handleMouseMove = function() {
   clearTimeout(hiddenButtonsLoop);
   clearTimeout(colorModeLoop);
   if (!$("body").hasClass("no-pointer")) {
@@ -44,4 +57,6 @@ $(document).mousemove(function () {
     }, 75);
     if (!hoveringOverButtons) waitThenFade();
   }
-});
+};
+
+$(document).mousemove(debounce(handleMouseMove, 50));
