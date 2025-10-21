@@ -27,11 +27,11 @@
   border-color: white;
 }
 .pecha-a3 .pecha-left-margin {
-  line-height: 1.1em;
+  line-height: 1.4em;
   border-width: 1px 2px 2px 1px;
 }
 .pecha-a3 .pecha-right-margin {
-  line-height: 1.2em;
+  line-height: 1.5em;
   border-width: 2px 1px 1px 2px;
   transform: rotate(180deg);
 }
