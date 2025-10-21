@@ -12,22 +12,22 @@ var spaceBetweenGroups = '<span class="space"></span>';
 var LINE_END_MARGIN = 120; // Minimum space to leave at end of line before wrapping
 
 // Check if we need space before the next group
-var needsSpaceBefore = function(text) {
+var needsSpaceBefore = function (text) {
   // Always add space before yigos (section markers)
-  var yigos = ['༄༅།', '༈', '༄'];
+  var yigos = ["༄༅།", "༈", "༄"];
   for (var i = 0; i < yigos.length; i++) {
     if (text.startsWith(yigos[i])) {
       return true;
     }
   }
-  
+
   // Don't add space if text starts right after double shad
   // Check the last cell's content
   var lastCell = $(".pecha-page tr.tibetan:last td:last");
   if (lastCell.length) {
     var lastText = lastCell.text().trim();
     // If previous text ends with double shad, no space needed
-    if (lastText.endsWith('།།') || lastText.endsWith('། །')) {
+    if (lastText.endsWith("།།") || lastText.endsWith("། །")) {
       return false;
     }
   }
@@ -35,11 +35,11 @@ var needsSpaceBefore = function(text) {
 };
 
 // Remove leading yigos from text if the line already has a page-beginning marker
-var stripLeadingYigo = function(text, $currentRow) {
+var stripLeadingYigo = function (text, $currentRow) {
   // Check if this row has a page-beginning marker
-  if ($currentRow.find('td.page-beginning').length > 0) {
+  if ($currentRow.find("td.page-beginning").length > 0) {
     // Common yigos that mark section beginnings
-    var yigos = ['༄༅།  །', '༄༅། །', '༄༅།།', '༈ །', '༈།', '༄ །', '༄།'];
+    var yigos = ["༄༅།  །", "༄༅། །", "༄༅།།", "༈ །", "༈།", "༄ །", "༄།"];
     for (var i = 0; i < yigos.length; i++) {
       if (text.startsWith(yigos[i])) {
         return text.substring(yigos[i].length).trim();
@@ -369,18 +369,20 @@ var addNextGroup = function (remainingWords) {
     } else {
       // Strip leading yigo if this row already has a page-beginning marker
       text = stripLeadingYigo(text, $currentTibetanRow);
-      
+
       if ($currentTibetanRow.find("td:not(.page-beginning)").length) {
         // Add space only if needed (not after double shad)
-        var prefix = needsSpaceBefore(text) ? spaceBetweenGroups : '';
+        var prefix = needsSpaceBefore(text) ? spaceBetweenGroups : "";
         td.html(prefix + text);
       } else {
         td.html(text);
       }
     }
     // Calculate prefix before appending td (so needsSpaceBefore checks the previous td, not current)
-    var needsSpace = $currentTibetanRow.find("td:not(.page-beginning)").length > 0 && needsSpaceBefore(text);
-    
+    var needsSpace =
+      $currentTibetanRow.find("td:not(.page-beginning)").length > 0 &&
+      needsSpaceBefore(text);
+
     $currentTibetanRow.append(td);
     if (lineWidth + td.width() <= pechaContentWidth) {
       // If group fits then add next group
@@ -396,7 +398,7 @@ var addNextGroup = function (remainingWords) {
         td.html("");
       } else {
         // Add space only if needed (not after double shad)
-        var prefix = needsSpace ? spaceBetweenGroups : '';
+        var prefix = needsSpace ? spaceBetweenGroups : "";
         td.html(prefix);
       }
       if (lineWidth + td.width() + LINE_END_MARGIN <= pechaContentWidth) {
