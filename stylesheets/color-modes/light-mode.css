@@ -1,5 +1,4 @@
 * {
-  background: white;
   color: black !important;
   border-color: black !important;
 }
@@ -21,4 +20,7 @@ body.pushable .pusher {
 #color-mode-button i {
   color: #fff !important;
   background: transparent !important;
+}
+.pecha-a3 .line .tibetan td {
+  text-shadow: 0 0 1px white;
 }
