@@ -1,5 +1,4 @@
-@media print {  
-
+@media print {
   #print-button,
   #color-mode-button {
     display: none !important;
@@ -14,10 +13,13 @@
     margin: 0 auto !important;
   }
 
+  .pecha-page-container .line .tibetan td {
+    text-shadow: 0 0 1px white;
+  }
+
   * {
     background: white;
     color: black !important;
     border-color: black !important;
   }
-
 }
