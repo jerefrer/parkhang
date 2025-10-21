@@ -452,12 +452,12 @@ var addTranslationCell = function (tibetanTd, text, callback) {
 
         if (td.height() <= maxHeight) {
           // Fits now, lock the width and continue
-          td.css({ "width": td.width() + "px" });
+          td.css({ width: td.width() + "px" });
           if (callback) callback();
           return;
         } else if (letterSpacing <= minLetterSpacing) {
           // Hit minimum, lock width, highlight and continue
-          td.css({ "width": td.width() + "px", background: "rgba(255,0,0,0.5)" });
+          td.css({ width: td.width() + "px", background: "rgba(255,0,0,0.5)" });
           if (callback) callback();
           return;
         } else {
@@ -469,7 +469,7 @@ var addTranslationCell = function (tibetanTd, text, callback) {
       adjustLetterSpacing();
     } else {
       // Cell fits, lock the width and continue immediately
-      td.css({ "width": td.width() + "px" });
+      td.css({ width: td.width() + "px" });
       if (callback) callback();
     }
   } else {
@@ -654,9 +654,12 @@ var increaseUntilItFits = function (table) {
 var decreaseUntilItFits = function (table) {
   var spacing = 0;
   var minSpacing = -2; // Minimum -2px letter-spacing to prevent infinite loop
+  var tolerance = 0.5; // Allow 0.5px tolerance
   var setWidth = function () {
     table.css({ "letter-spacing": spacing + "px" });
-    if (table.width() <= pechaContentWidthFor(table)) {
+    var tableWidth = table.width();
+    var maxWidth = pechaContentWidthFor(table);
+    if (tableWidth <= maxWidth + tolerance) {
       // Fits now, keep this spacing
       table.css({ "letter-spacing": spacing + "px" });
     } else if (spacing <= minSpacing) {
