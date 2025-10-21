@@ -426,7 +426,7 @@ var newTranslationCell = function (tibetanTd) {
   return td;
 };
 
-var addTranslationCell = function (tibetanTd, text) {
+var addTranslationCell = function (tibetanTd, text, callback) {
   var table = tibetanTd.parents("table");
   var td = newTranslationCell(tibetanTd);
   td.html(text);
@@ -434,6 +434,48 @@ var addTranslationCell = function (tibetanTd, text) {
   translationIndex++;
   if (delay)
     $(window).scrollTop(table.parents(".pecha-page-container").offset().top);
+
+  // Adjust letter-spacing if translation exceeds two lines
+  if (text) {
+    var maxHeight;
+    if ($("body").hasClass("pecha-a3")) maxHeight = 19.3;
+    if ($("body").hasClass("pecha-a4")) maxHeight = 19.3;
+    if ($("body").hasClass("pecha-screen")) maxHeight = 32.73;
+
+    if (td.height() > maxHeight) {
+      var letterSpacing = 0;
+      var minLetterSpacing = -5;
+
+      var adjustLetterSpacing = function () {
+        letterSpacing -= 0.1;
+        td.css({ "letter-spacing": letterSpacing + "px" });
+
+        if (td.height() <= maxHeight) {
+          // Fits now, lock the width and continue
+          td.css({ "width": td.width() + "px" });
+          if (callback) callback();
+          return;
+        } else if (letterSpacing <= minLetterSpacing) {
+          // Hit minimum, lock width, highlight and continue
+          td.css({ "width": td.width() + "px", background: "rgba(255,0,0,0.5)" });
+          if (callback) callback();
+          return;
+        } else {
+          // Continue reducing
+          setTimeout(adjustLetterSpacing, delay / 10);
+        }
+      };
+
+      adjustLetterSpacing();
+    } else {
+      // Cell fits, lock the width and continue immediately
+      td.css({ "width": td.width() + "px" });
+      if (callback) callback();
+    }
+  } else {
+    // Empty text, continue immediately
+    if (callback) callback();
+  }
 };
 
 var rowSpansSum = function (table, position) {
@@ -495,8 +537,9 @@ var addNextTranslation = function () {
   if (group != undefined) {
     var translation = group[selectedLanguage];
     if (!translation) {
-      addTranslationCell(tibetanTd, "");
-      setTimeout(addNextTranslation, delay);
+      addTranslationCell(tibetanTd, "", function () {
+        setTimeout(addNextTranslation, delay);
+      });
       return;
     }
     if (!group.tibetan) {
@@ -526,21 +569,24 @@ var addNextTranslation = function () {
             td.find("span:last").remove();
             var tibetan = findFirstTibetanForGroupWhereTranslationIsEmpty();
             var remainingWords = _(words).rest(wordIndex).join(" ");
-            addTranslationCell(tibetan, remainingWords);
-            setTimeout(addNextTranslation, delay);
+            addTranslationCell(tibetan, remainingWords, function () {
+              setTimeout(addNextTranslation, delay);
+            });
           }
         } else {
           var tibetan = $(
             ".tibetan [data-index=" + translationIndex + "]:last"
           );
-          addTranslationCell(tibetan, "");
-          setTimeout(addNextTranslation, delay);
+          addTranslationCell(tibetan, "", function () {
+            setTimeout(addNextTranslation, delay);
+          });
         }
       };
       addNextWord();
     } else {
-      addTranslationCell(tibetanTd, translation);
-      setTimeout(addNextTranslation, delay);
+      addTranslationCell(tibetanTd, translation, function () {
+        setTimeout(addNextTranslation, delay);
+      });
     }
   } else {
     // If all translations have been added
@@ -554,9 +600,9 @@ var addNextTranslation = function () {
 
 var revealTranslationsThatAreTooTall = function () {
   var height;
-  if ($("body").hasClass("a3")) height = 19.3;
-  if ($("body").hasClass("a4")) height = 19.3;
-  if ($("body").hasClass("screen")) height = 32.73;
+  if ($("body").hasClass("pecha-a3")) height = 19.3;
+  if ($("body").hasClass("pecha-a4")) height = 19.3;
+  if ($("body").hasClass("pecha-screen")) height = 32.73;
   $(".pecha-content tr.translation").each(function () {
     if ($(this).height() > height)
       $(this).css({ background: "rgba(255,0,0,0.5)" });
