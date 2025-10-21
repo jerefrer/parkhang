@@ -23,14 +23,15 @@
   padding: 2px 0 0 20px;
   font-weight: bold;
   font-size: 10px !important;
-  line-height: 11px;
+  line-height: 9px;
   letter-spacing: -0.3px;
 }
 .page-a4 .line .tibetan td span.space {
   width: 20px;
 }
 
-.page-a4 .line .translation { /* Don't forget to keep in sync with revealTranslationsThatAreTooTall */
+.page-a4 .line .translation {
+  /* Don't forget to keep in sync with revealTranslationsThatAreTooTall */
   height: 32.73px;
 }
 .page-a4 .line .translation td {
@@ -39,7 +40,8 @@
   line-height: 11px;
   letter-spacing: -0.4px;
 }
-.page-a4 .line .translation td.small-writings { /* Don't forget to keep in sync with mimicTranslationCellInTibetanCell */
+.page-a4 .line .translation td.small-writings {
+  /* Don't forget to keep in sync with mimicTranslationCellInTibetanCell */
   font-size: 10px;
   letter-spacing: -0.1px;
   font-weight: normal;
