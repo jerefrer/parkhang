@@ -170,6 +170,53 @@ var extraTextsSelect = function () {
   );
 };
 
+var prayersSelect = function () {
+  if (!availablePrayers || availablePrayers.length === 0) {
+    return '';
+  }
+  
+  return (
+    '\
+    <div class="ui field">\
+      <h4 style="color: white; text-align: center; margin-bottom: 15px;">Prayers for Tsok</h4>\
+      <div class="ui prayers-list" id="prayers-list">' +
+    _(availablePrayers)
+      .map(function (prayer) {
+        var isSelected = selectedPrayers.indexOf(prayer.id) !== -1;
+        var order = isSelected ? selectedPrayers.indexOf(prayer.id) + 1 : '';
+        return (
+          '\
+            <div class="ui prayer-item" data-id="' +
+          prayer.id +
+          '" draggable="true">\
+              <div class="prayer-checkbox">\
+                <input type="checkbox" id="prayer-' +
+          prayer.id +
+          '"' +
+          (isSelected ? ' checked' : '') +
+          ' />\
+                <label for="prayer-' +
+          prayer.id +
+          '">' +
+          prayer.name +
+          '</label>\
+              </div>\
+              <div class="prayer-order">' +
+          (order || '') +
+          '</div>\
+              <div class="prayer-handle">☰</div>\
+            </div>\
+          '
+        );
+      })
+      .join("") +
+    '\
+      </div>\
+    </div>\
+  '
+  );
+};
+
 var renderInputForm = function () {
   var form = $('<div id="input-form" class="ui form">');
   form.append(textSelect);
@@ -193,6 +240,12 @@ var renderInputForm = function () {
   form.append(
     '<div class="ui inverted divider" style="margin-top: 25px;"></div>'
   );
+  form.append(prayersSelect);
+  if (availablePrayers && availablePrayers.length > 0) {
+    form.append(
+      '<div class="ui inverted divider" style="margin-top: 25px;"></div>'
+    );
+  }
   form.append(languageSelect);
   form.append('<div class="ui inverted divider"></div>');
   form.append(layoutSelect);
@@ -218,6 +271,7 @@ var renderInputForm = function () {
       $(".extra-text[data-id=" + extraTextId + "]").click();
     });
   }
+  initializePrayerDragAndDrop();
 };
 
 $(document).on("click", ".layout:not(.disabled)", function (event) {
@@ -245,6 +299,101 @@ $(document).on("click", ".text", function (event) {
 $(document).on("click", ".extra-text", function (event) {
   $(event.currentTarget).toggleClass("selected");
 });
+
+// Prayer checkbox handling
+$(document).on("change", ".prayer-item input[type=checkbox]", function (event) {
+  var prayerId = $(event.currentTarget).closest('.prayer-item').data('id');
+  var isChecked = $(event.currentTarget).is(':checked');
+  
+  if (isChecked) {
+    if (selectedPrayers.indexOf(prayerId) === -1) {
+      selectedPrayers.push(prayerId);
+    }
+  } else {
+    selectedPrayers = selectedPrayers.filter(function(id) { return id !== prayerId; });
+  }
+  
+  saveSelectedPrayers();
+  updatePrayerOrder();
+});
+
+// Update prayer order numbers
+var updatePrayerOrder = function() {
+  $('.prayer-item').each(function() {
+    var prayerId = $(this).data('id');
+    var index = selectedPrayers.indexOf(prayerId);
+    if (index !== -1) {
+      $(this).find('.prayer-order').text(index + 1);
+    } else {
+      $(this).find('.prayer-order').text('');
+    }
+  });
+};
+
+// Drag and drop for prayer reordering
+var draggedPrayerElement = null;
+var draggedPrayerId = null;
+
+var initializePrayerDragAndDrop = function() {
+  $('.prayer-item').on('dragstart', function(e) {
+    draggedPrayerElement = this;
+    draggedPrayerId = $(this).data('id');
+    e.originalEvent.dataTransfer.effectAllowed = 'move';
+    $(this).addClass('dragging');
+  });
+  
+  $('.prayer-item').on('dragend', function(e) {
+    $(this).removeClass('dragging');
+    draggedPrayerElement = null;
+    draggedPrayerId = null;
+  });
+  
+  $('.prayer-item').on('dragover', function(e) {
+    if (e.preventDefault) {
+      e.preventDefault();
+    }
+    e.originalEvent.dataTransfer.dropEffect = 'move';
+    return false;
+  });
+  
+  $('.prayer-item').on('dragenter', function(e) {
+    if (draggedPrayerElement !== this) {
+      $(this).addClass('drag-over');
+    }
+  });
+  
+  $('.prayer-item').on('dragleave', function(e) {
+    $(this).removeClass('drag-over');
+  });
+  
+  $('.prayer-item').on('drop', function(e) {
+    if (e.stopPropagation) {
+      e.stopPropagation();
+    }
+    $(this).removeClass('drag-over');
+    
+    if (draggedPrayerElement !== this) {
+      var targetPrayerId = $(this).data('id');
+      
+      // Only reorder if both prayers are selected
+      var draggedIndex = selectedPrayers.indexOf(draggedPrayerId);
+      var targetIndex = selectedPrayers.indexOf(targetPrayerId);
+      
+      if (draggedIndex !== -1 && targetIndex !== -1) {
+        // Remove dragged prayer from its position
+        selectedPrayers.splice(draggedIndex, 1);
+        // Insert at new position
+        var newTargetIndex = selectedPrayers.indexOf(targetPrayerId);
+        selectedPrayers.splice(newTargetIndex, 0, draggedPrayerId);
+        
+        saveSelectedPrayers();
+        updatePrayerOrder();
+      }
+    }
+    
+    return false;
+  });
+};
 
 var selectedLanguage;
 var selectedExtraTexts;

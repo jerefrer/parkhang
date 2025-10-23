@@ -1,3 +1,15 @@
+// Remove optional markers but keep the content for split pages
+var removeOptionalMarkers = function (text) {
+  if (!text) return text;
+  return text.replace(/<optional>/g, "").replace(/<\/optional>/g, "");
+};
+
+// Convert <small>...</small> markers to span.small-writings for Tibetan text
+var convertSmallMarkers = function (text) {
+  if (!text) return text;
+  return text.replace(/<small>(.*?)<\/small>/g, '<span class="small-writings">$1</span>');
+};
+
 var SplitPages = {
   isTibetanPage: true,
   margins: [cmToPixel(1.5), cmToPixel(2), cmToPixel(1.5), cmToPixel(2)],
@@ -18,10 +30,10 @@ var SplitPages = {
     else if (bodyHasClass("a5")) return cmToPixel(21.006);
     else if (bodyHasClass("screen")) return 0.9 * $(window).width();
   },
-  pageHeight: function() {
-    if      (bodyHasClass('a4'))     return cmToPixel(29.693)
-    else if (bodyHasClass('a5'))     return cmToPixel(29.693)
-    else if (bodyHasClass('screen')) return Infinity;
+  pageHeight: function () {
+    if (bodyHasClass("a4")) return cmToPixel(29.693);
+    else if (bodyHasClass("a5")) return cmToPixel(29.693);
+    else if (bodyHasClass("screen")) return Infinity;
   },
   innerPageWidth: function () {
     return this.pageWidth() - this.margins[1] - this.margins[3];
@@ -111,7 +123,7 @@ var SplitPages = {
     var list = $('<div class="ui link list">');
     var links = _(pecha.groups).where({ linkInIndex: true });
     _(links).each(function (group) {
-      var linkText = group[selectedLanguage].replace(
+      var linkText = removeOptionalMarkers(group[selectedLanguage]).replace(
         /\<span class\="subtitle">[^\>]*\>/,
         ""
       );
@@ -264,14 +276,15 @@ var SplitPages = {
         };
         addNextWord();
       } else {
-        tibetanDiv.append(group.tibetan);
+        tibetanDiv.append(convertSmallMarkers(group.tibetan));
         this.lastTibetanPage().append(groupDiv);
       }
       if (group.mergeNext || group.mergeNextTibetan) {
         this.tibetanGroupIndex++;
         var nextGroup = pecha.groups[this.tibetanGroupIndex];
-        var nextText = nextGroup.tibetan;
-        if (nextGroup.emptyLineAfterTibetan) groupDiv.addClass("empty-line-after");
+        var nextText = convertSmallMarkers(nextGroup.tibetan);
+        if (nextGroup.emptyLineAfterTibetan)
+          groupDiv.addClass("empty-line-after");
         if (nextGroup.smallWritings)
           nextText = '<span class="small-writings">' + nextText + "</span>";
         nextText = this.maybeAddSpace(nextGroup, nextText);
@@ -298,7 +311,7 @@ var SplitPages = {
         this.addNextTibetanLine();
         return;
       }
-      var translation = group[selectedLanguage]
+      var translation = (removeOptionalMarkers(group[selectedLanguage]) || "")
         .replace(/\n/g, "<br>")
         .replace(/\t/g, "&emsp;");
       if (group.smallWritings) {
@@ -313,7 +326,7 @@ var SplitPages = {
         };
         addGroupDiv();
         var wordIndex = 0;
-        var words = translation.split(" ");
+        var words = removeOptionalMarkers(translation).split(" ");
         var addNextWord = () => {
           var word = words[wordIndex];
           if (word) {
@@ -333,7 +346,8 @@ var SplitPages = {
                 (g) => g.id == group.id
               );
               if (groupsWithSameId.length > 1) {
-                var alreadyAddedGroup = groupsWithSameId[groupsWithSameId.length - 1];
+                var alreadyAddedGroup =
+                  groupsWithSameId[groupsWithSameId.length - 1];
                 alreadyAddedGroup[selectedLanguage] = remainingWords;
               } else {
                 var newGroup = JSON.parse(JSON.stringify(group));
@@ -368,7 +382,9 @@ var SplitPages = {
           this.translationGroupIndex++;
           var nextGroup = pecha.groups[this.translationGroupIndex];
           var nextTransliteration = nextGroup.phonetics;
-          var nextTranslation = nextGroup[selectedLanguage];
+          var nextTranslation = removeOptionalMarkers(
+            nextGroup[selectedLanguage]
+          );
           if (nextGroup.emptyLineAfterTranslation)
             groupDiv.addClass("empty-line-after");
           if (nextGroup.smallWritings) {

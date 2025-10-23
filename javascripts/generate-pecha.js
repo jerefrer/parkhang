@@ -8,11 +8,53 @@ var translationIndex = 0;
 var pageBeginningMarker = "༄༅།  །";
 var spaceBetweenGroups = '<span class="space"></span>';
 
+// Remove optional parts from translation for pecha (space-constrained)
+var removeOptionalParts = function (text) {
+  if (!text) return text;
+  return text.replace(/<optional>.*?<\/optional>/g, "").trim();
+};
+
+// Parse text with <small> markers and return array of {text, isSmall} objects
+var parseSmallMarkers = function (text) {
+  if (!text) return [{ text: text, isSmall: false }];
+  
+  var result = [];
+  var remaining = text;
+  var smallRegex = /<small>(.*?)<\/small>/g;
+  var lastIndex = 0;
+  var match;
+  
+  while ((match = smallRegex.exec(text)) !== null) {
+    // Add text before the match
+    if (match.index > lastIndex) {
+      result.push({ text: text.substring(lastIndex, match.index), isSmall: false });
+    }
+    // Add the small text
+    result.push({ text: match[1], isSmall: true });
+    lastIndex = smallRegex.lastIndex;
+  }
+  
+  // Add remaining text after last match
+  if (lastIndex < text.length) {
+    result.push({ text: text.substring(lastIndex), isSmall: false });
+  }
+  
+  return result.length > 0 ? result : [{ text: text, isSmall: false }];
+};
+
+// Convert <small>...</small> markers to span.small-writings for non-split text
+var convertSmallMarkers = function (text) {
+  if (!text) return text;
+  return text.replace(/<small>(.*?)<\/small>/g, '<span class="small-writings">$1</span>');
+};
+
 // Constants for layout calculations
 var LINE_END_MARGIN = 120; // Minimum space to leave at end of line before wrapping
 
 // Check if we need space before the next group
 var needsSpaceBefore = function (text) {
+  if (!text) return true; // Default to adding space if no text
+  
   // Always add space before yigos (section markers)
   var yigos = ["༄༅།", "༈", "༄"];
   for (var i = 0; i < yigos.length; i++) {
@@ -313,31 +355,69 @@ var addRowspanCell = function (td, text) {
 };
 
 var fitWordsOnLine = function (text) {
-  var wordIndex = 0;
-  var words = text.split("་");
-  var addNextWord = function () {
+  // Parse text to identify small sections
+  var segments = parseSmallMarkers(text);
+  
+  console.log("Segments:", segments);
+  
+  // Build array of syllables with their isSmall flag
+  var syllables = [];
+  segments.forEach(function(segment) {
+    // Split by ་ (tsheg) to get syllables
+    var parts = segment.text.split("་");
+    parts.forEach(function(part, i) {
+      // Include empty parts at the end (they become just a tsheg)
+      if (part || i < parts.length - 1) {
+        // Each part gets the tsheg back except the last one
+        var syllableText = part + (i < parts.length - 1 ? "་" : "");
+        syllables.push({
+          text: syllableText,
+          isSmall: segment.isSmall
+        });
+      }
+    });
+  });
+  
+  console.log("Syllables:", syllables);
+  
+  var syllableIndex = 0;
+  var addNextSyllable = function () {
     var td = $(".pecha-page tr.tibetan td:last");
-    var word = words[wordIndex];
-    if (word) {
-      // Then if there is more words
-      td.append(
-        "<span>" + word + ((words[wordIndex + 1] && "་") || "") + "</span>"
-      );
+    var syllable = syllables[syllableIndex];
+    if (syllable) {
+      // Add syllable with appropriate class
+      var spanClass = syllable.isSmall ? ' class="small-writings"' : '';
+      td.append("<span" + spanClass + ">" + syllable.text + "</span>");
+      
       if (lineWidth + td.width() <= pechaContentWidth) {
-        // And the next ones fits, add it
-        wordIndex++;
+        // Syllable fits, add next one
+        syllableIndex++;
         setTimeout(function () {
-          addNextWord();
+          addNextSyllable();
         }, delay);
-      } else if (words.slice(wordIndex).length == 1) {
-        // And there is just one word left, tighten the line to make it fit
+      } else if (syllables.slice(syllableIndex).length == 1) {
+        // Just one syllable left, tighten the line to make it fit
         continueOnNewLineStartingWith("");
       } else {
-        // And there is at least two and they don't fit, start a new line with them
+        // Doesn't fit, start a new line with remaining syllables
         td.find("span:last").remove();
         if (!td.find("span:not(.space)").length) td.remove();
-        var remainingWords = _(words).rest(wordIndex).join("་");
-        continueOnNewLineStartingWith(remainingWords);
+        
+        // Reconstruct remaining text with small markers
+        var remainingText = "";
+        var currentIsSmall = null;
+        for (var i = syllableIndex; i < syllables.length; i++) {
+          var syl = syllables[i];
+          if (syl.isSmall !== currentIsSmall) {
+            if (currentIsSmall === true) remainingText += "</small>";
+            if (syl.isSmall === true) remainingText += "<small>";
+            currentIsSmall = syl.isSmall;
+          }
+          remainingText += syl.text;
+        }
+        if (currentIsSmall === true) remainingText += "</small>";
+        
+        continueOnNewLineStartingWith(remainingText);
       }
     } else {
       lineWidth += td.width();
@@ -345,7 +425,7 @@ var fitWordsOnLine = function (text) {
       addNextGroup();
     }
   };
-  addNextWord();
+  addNextSyllable();
 };
 
 var addNextGroup = function (remainingWords) {
@@ -354,6 +434,9 @@ var addNextGroup = function (remainingWords) {
     var td = newTibetanCell(groupIndex);
     var text = remainingWords || group.tibetan;
     var $currentTibetanRow = $(".pecha-page tr.tibetan:last");
+    var textWithMarkers = text;
+    var textConverted = text;
+    
     if (!group.tibetan) {
       text = group[selectedLanguage];
       // Skip groups without Tibetan content that are smallWritings (usually long English-only intro paragraphs)
@@ -369,19 +452,27 @@ var addNextGroup = function (remainingWords) {
     } else {
       // Strip leading yigo if this row already has a page-beginning marker
       text = stripLeadingYigo(text, $currentTibetanRow);
+      
+      // Store original text with <small> markers for fitWordsOnLine
+      textWithMarkers = text;
+      // Convert markers for display when text fits without splitting
+      textConverted = convertSmallMarkers(text);
 
       if ($currentTibetanRow.find("td:not(.page-beginning)").length) {
-        // Add space only if needed (not after double shad)
-        var prefix = needsSpaceBefore(text) ? spaceBetweenGroups : "";
-        td.html(prefix + text);
+        // Add space only if needed (not after double shad or if tibetanAttachedToPrevious is true)
+        var shouldAddSpace =
+          needsSpaceBefore(textConverted) && !group.tibetanAttachedToPrevious;
+        var prefix = shouldAddSpace ? spaceBetweenGroups : "";
+        td.html(prefix + textConverted);
       } else {
-        td.html(text);
+        td.html(textConverted);
       }
     }
     // Calculate prefix before appending td (so needsSpaceBefore checks the previous td, not current)
     var needsSpace =
       $currentTibetanRow.find("td:not(.page-beginning)").length > 0 &&
-      needsSpaceBefore(text);
+      needsSpaceBefore(textConverted) &&
+      !group.tibetanAttachedToPrevious;
 
     $currentTibetanRow.append(td);
     if (lineWidth + td.width() <= pechaContentWidth) {
@@ -397,13 +488,14 @@ var addNextGroup = function (remainingWords) {
         // If it's a new line (just one group) don't add space at the beginning
         td.html("");
       } else {
-        // Add space only if needed (not after double shad)
+        // Add space only if needed (not after double shad or if tibetanAttachedToPrevious is true)
         var prefix = needsSpace ? spaceBetweenGroups : "";
         td.html(prefix);
       }
       if (lineWidth + td.width() + LINE_END_MARGIN <= pechaContentWidth) {
         // And there is some space left (with some margin)
-        fitWordsOnLine(text);
+        // Use original text with <small> markers for proper parsing
+        fitWordsOnLine(textWithMarkers);
       } else {
         // If there isn't enough space at the end of the line start a new line
         td.remove();
@@ -535,7 +627,7 @@ var addNextTranslation = function () {
   var table = tibetanTd.parents("table");
   addEmptyTdsIfNeeded(table, tibetanTd);
   if (group != undefined) {
-    var translation = group[selectedLanguage];
+    var translation = removeOptionalParts(group[selectedLanguage]);
     if (!translation) {
       addTranslationCell(tibetanTd, "", function () {
         setTimeout(addNextTranslation, delay);

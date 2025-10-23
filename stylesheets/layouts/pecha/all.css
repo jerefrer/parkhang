@@ -8,7 +8,8 @@
   display: inline-block;
   background: transparent !important;
 }
-.line td.small-writings {
+.line td.small-writings,
+.line td span.small-writings {
   color: rgba(255, 255, 255, 0.5);
 }
 .line .tibetan td {
@@ -20,7 +21,8 @@
 .line .tibetan td.page-beginning {
   white-space: pre !important;
 }
-.line .tibetan td.small-writings {
+.line .tibetan td.small-writings,
+.line .tibetan td span.small-writings {
   position: relative;
 }
 .line .tibetan td[rowspan="2"] {
@@ -39,7 +41,8 @@
   vertical-align: top;
   white-space: pre-wrap;
 }
-.line .translation td.small-writings {
+.line .translation td.small-writings,
+.line .translation td span.small-writings {
   position: relative;
   font-style: italic;
 }

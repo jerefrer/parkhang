@@ -40,8 +40,8 @@
   line-height: 11px;
   letter-spacing: -0.4px;
 }
-.page-a4 .line .translation td.small-writings {
-  /* Don't forget to keep in sync with mimicTranslationCellInTibetanCell */
+.page-a4 .line .translation td.small-writings,
+.page-a4 .line .translation td span.small-writings {
   font-size: 10px;
   letter-spacing: -0.1px;
   font-weight: normal;

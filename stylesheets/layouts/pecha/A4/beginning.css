@@ -1,7 +1,7 @@
 .pecha-a4 .pecha-beginning-page {
   width: 786pt;
   height: 167pt;
-  margin: calc((198.50pt - 167pt) / 2) calc((842.04pt - 786pt) / 2);
+  margin: calc((198.5pt - 167pt) / 2) calc((842.04pt - 786pt) / 2);
   padding: 3pt;
   border-width: 2px 1px 1px 2px;
   border-style: solid;

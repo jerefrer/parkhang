@@ -13,7 +13,8 @@
   font-size: 36px;
   line-height: 36px;
 }
-.pecha-screen .line .tibetan td.small-writings {
+.pecha-screen .line .tibetan td.small-writings,
+.pecha-screen .line .tibetan td span.small-writings {
   font-size: 29px;
   line-height: 36px;
 }
@@ -39,8 +40,8 @@
   line-height: 11px;
   letter-spacing: -0.4px;
 }
-.pecha-screen .line .translation td.small-writings {
-  /* Don't forget to keep in sync with mimicTranslationCellInTibetanCell */
+.pecha-screen .line .translation td.small-writings,
+.pecha-screen .line .translation td span.small-writings {
   font-size: 10px;
   letter-spacing: -0.1px;
   font-weight: normal;

@@ -84,3 +84,70 @@
   color: white;
   border-color: #333;
 }
+
+/* Prayer selection styles */
+.prayers-list {
+  width: 400px;
+  margin: 0 auto;
+  background: #222;
+  border-radius: 4px;
+  padding: 10px;
+}
+
+.prayer-item {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  margin: 5px 0;
+  background: #333;
+  border-radius: 4px;
+  cursor: move;
+  transition: all 0.2s ease;
+}
+
+.prayer-item:hover {
+  background: #3a3a3a;
+  transform: translateY(-2px);
+}
+
+.prayer-item.dragging {
+  opacity: 0.5;
+}
+
+.prayer-item.drag-over {
+  border: 2px dashed #2185d0;
+  background: #2a2a3a;
+}
+
+.prayer-checkbox {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.prayer-checkbox input[type="checkbox"] {
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+.prayer-checkbox label {
+  color: rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+  user-select: none;
+}
+
+.prayer-order {
+  min-width: 30px;
+  text-align: center;
+  color: #2185d0;
+  font-weight: bold;
+  font-size: 1.2em;
+  margin-right: 10px;
+}
+
+.prayer-handle {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 1.2em;
+  cursor: move;
+  padding: 0 5px;
+}

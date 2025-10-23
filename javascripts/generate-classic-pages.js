@@ -1,3 +1,15 @@
+// Remove optional markers but keep the content for classic pages
+var removeOptionalMarkers = function (text) {
+  if (!text) return text;
+  return text.replace(/<optional>/g, "").replace(/<\/optional>/g, "");
+};
+
+// Convert <small>...</small> markers to span.small-writings for Tibetan text
+var convertSmallMarkers = function (text) {
+  if (!text) return text;
+  return text.replace(/<small>(.*?)<\/small>/g, '<span class="small-writings">$1</span>');
+};
+
 var ClassicPage = {
   margins: cmToPixel(1),
   currentGroupIndex: 0,
@@ -35,8 +47,8 @@ var ClassicPage = {
       var tibetanLine = $('<div class="tibetan">');
       var translationLine = $('<div class="translation">');
       var phoneticsLine;
-      tibetanLine.html(group.tibetan);
-      translationLine.html(group[selectedLanguage]);
+      tibetanLine.html(convertSmallMarkers(group.tibetan));
+      translationLine.html(removeOptionalMarkers(group[selectedLanguage]));
       if (includeTransliteration) {
         phoneticsLine = $('<div class="phonetics">');
         phoneticsLine.html(group.phonetics);
@@ -44,14 +56,16 @@ var ClassicPage = {
       if (group.smallWritings) {
         tibetanLine.addClass("small-writings");
         translationLine.addClass("small-writings");
-        if (includeTransliteration && phoneticsLine) phoneticsLine.addClass("small-writings");
+        if (includeTransliteration && phoneticsLine)
+          phoneticsLine.addClass("small-writings");
       }
       if (group.mergeNextWhenLineByLine) {
         this.currentGroupIndex++;
         var nextGroup = pecha.groups[this.currentGroupIndex];
-        tibetanLine.append('<span class="space"></span>' + nextGroup.tibetan);
-        translationLine.append(nextGroup[selectedLanguage]);
-        if (includeTransliteration && phoneticsLine) phoneticsLine.append(nextGroup.phonetics);
+        tibetanLine.append('<span class="space"></span>' + convertSmallMarkers(nextGroup.tibetan));
+        translationLine.append(removeOptionalMarkers(nextGroup[selectedLanguage]));
+        if (includeTransliteration && phoneticsLine)
+          phoneticsLine.append(nextGroup.phonetics);
       }
       var line = $('<div class="line">');
       line.append(tibetanLine);

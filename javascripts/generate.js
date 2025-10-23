@@ -1,5 +1,17 @@
 var beginGeneration = function () {
   if (delay) $("#loading-overlay").remove();
+  
+  // First, handle prayer insertion if there are selected prayers
+  if (selectedPrayers && selectedPrayers.length > 0) {
+    insertPrayersAtMarker(function() {
+      continueGeneration();
+    });
+  } else {
+    continueGeneration();
+  }
+};
+
+var continueGeneration = function() {
   if (selectedExtraTexts.length) {
     var addedGroups = [];
     _(selectedExtraTexts).each(function (textId, index) {
@@ -27,6 +39,10 @@ var beginGeneration = function () {
       })
       .concat(pecha.groups);
   }
+  startRendering();
+};
+
+var startRendering = function() {
   if (isAPecha()) {
     if (pecha.title.tibetan.full) addPechaTitlePage();
     setTimeout(function () {
