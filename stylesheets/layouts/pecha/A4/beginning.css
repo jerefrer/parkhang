@@ -64,9 +64,9 @@
 }
 
 .pecha-a4 .pecha-beginning-page .pecha-content .line .tibetan td {
-  line-height: 0.95em;
+  line-height: 25px;
 }
 .pecha-a4 .pecha-beginning-page .pecha-content .line .translation td {
   position: relative;
-  top: -2px;
+  top: 5px;
 }

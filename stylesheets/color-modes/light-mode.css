@@ -21,6 +21,7 @@ body.pushable .pusher {
   color: #fff !important;
   background: transparent !important;
 }
-.pecha-a3 .line .tibetan td {
+.pecha-a3 .line .tibetan td,
+.pecha-a4 .line .tibetan td {
   text-shadow: 0 0 1px white;
 }

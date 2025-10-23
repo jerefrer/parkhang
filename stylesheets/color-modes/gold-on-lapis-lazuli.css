@@ -24,10 +24,12 @@ body[class*="page"] {
   background-blend-mode: color;
   background-color: #010119;
 }
-.pecha-a3 .line .tibetan td {
+.pecha-a3 .line .tibetan td,
+.pecha-a4 .line .tibetan td {
   text-shadow: 0 0 1px #010119;
 }
-.pecha-a3 .line .translation td {
+.pecha-a3 .line .translation td,
+.pecha-a4 .line .translation td {
   position: relative;
   z-index: 0;
 }

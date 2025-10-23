@@ -11,11 +11,12 @@
 
 .pecha-a4 .line .tibetan td {
   font-size: 31px;
-  line-height: 31px;
+  line-height: 27px;
+  text-shadow: 0 0 1px black;
 }
 .pecha-a4 .line .tibetan td.small-writings {
   font-size: 25px;
-  line-height: 31px;
+  line-height: 27px;
 }
 .pecha-a4 .line .tibetan td span.space {
   width: 20px;
