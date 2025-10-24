@@ -406,8 +406,13 @@ var fitWordsOnLine = function (text) {
           addNextSyllable();
         }, delay);
       } else if (syllables.slice(syllableIndex).length == 1) {
-        // Just one syllable left, tighten the line to make it fit
-        continueOnNewLineStartingWith("");
+        // Just one syllable left, finish this group and move to next
+        lineWidth += td.width();
+        groupIndex++;
+        fitWidth($("table:last"));
+        setTimeout(function () {
+          addNextGroup();
+        }, delay);
       } else {
         // Doesn't fit, start a new line with remaining syllables
         td.find("span:last").remove();
