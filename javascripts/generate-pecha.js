@@ -530,6 +530,19 @@ var newTranslationCell = function (tibetanTd) {
   var td = $("<td>");
   if (space) td.css({ "padding-left": space + "px" });
   if (line.smallWritings) td.addClass("small-writings");
+
+  // Add padding-right if Tibetan text ends with "། །" or "ག །"
+  var tibetanText = tibetanTd.text().trim();
+  if (
+    tibetanText.endsWith("། །") ||
+    tibetanText.endsWith("ག །") ||
+    tibetanText.endsWith("།། །།") ||
+    tibetanText.endsWith("ག །།") ||
+    tibetanText.endsWith("ག། །།")
+  ) {
+    td.css({ "padding-right": "25px" });
+  }
+
   return td;
 };
 
