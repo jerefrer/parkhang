@@ -5,23 +5,37 @@ var selectedPrayers = [];
 // Prayer data registry - maps prayer IDs to their global variable names
 var prayerDataRegistry = {
   "tsikdun-kasung": "prayerData_tsikdunKasung",
+  "lama-yidam": "prayerData_lamaYidam",
+  "jetsun-lama": "prayerData_jetsunLama",
+  "dom-zung": "prayerData_domZung",
+  lamps: "prayerData_lamps",
+  "lamps-short": "prayerData_lampsShort",
   "tsikdun-tsok": "prayerData_tsikdunTsok",
   // Add more prayers here as they are added to the prayers folder
 };
 
 // Load prayers from the prayers folder
 var loadPrayers = function () {
-  availablePrayers = [
-    {
-      id: "tsikdun-kasung",
-      name: "Tsikdün Kasung - Unimpeded Activity",
-    },
-    {
-      id: "tsikdun-tsok",
-      name: "Tsikdün Tsok Offering",
-    },
-    // Add more prayers here as they are added to the prayers folder
-  ];
+  // Build availablePrayers in the order defined by prayerDataRegistry
+  var prayerNames = {
+    "tsikdun-kasung": "Tsikdün Kasung - Unimpeded Activity",
+    "lama-yidam": 'Chokling Tor-ngo – "Lama Yidam"',
+    "jetsun-lama": 'Gyün Shak – The Daily Confession – "Jetsun Lama"',
+    "dom-zung": "Dom Zung – A short prayer for keeping the vows",
+    lamps: "Marmé mönlam – Lamp offering",
+    "lamps-short": "Marmé mönlam – Lamp offering (short)",
+    "tsikdun-tsok": "Tsikdün Tsok Offering",
+  };
+
+  availablePrayers = [];
+  for (var prayerId in prayerDataRegistry) {
+    if (prayerNames[prayerId]) {
+      availablePrayers.push({
+        id: prayerId,
+        name: prayerNames[prayerId],
+      });
+    }
+  }
 
   // Load selected prayers from localStorage
   var stored = localStorage[appName + ".selected-prayers"];
@@ -69,11 +83,6 @@ var getSelectedPrayersData = function (callback) {
 // Insert prayers at the [INSERT TSOK HERE] marker
 var insertPrayersAtMarker = function (callback) {
   getSelectedPrayersData(function (prayersData) {
-    if (!prayersData || prayersData.length === 0) {
-      callback();
-      return;
-    }
-
     // Find the marker in the pecha groups
     var markerIndex = -1;
     for (var i = 0; i < pecha.groups.length; i++) {
@@ -90,20 +99,46 @@ var insertPrayersAtMarker = function (callback) {
       return;
     }
 
+    // If no prayers are selected, remove the marker
+    if (!prayersData || prayersData.length === 0) {
+      var beforeMarker = pecha.groups.slice(0, markerIndex);
+      var afterMarker = pecha.groups.slice(markerIndex + 1);
+      pecha.groups = beforeMarker.concat(afterMarker);
+      callback();
+      return;
+    }
+
     // Collect all prayer groups
     var allPrayerGroups = [];
+    var yigos = ["༄༅།  །", "༄༅། །", "༄༅།།", "༈ །", "༈།", "༄ །", "༄།"];
+    
     prayersData.forEach(function (prayerData, prayerIndex) {
       if (prayerData && prayerData.data && prayerData.data.groups) {
         var prayerGroups = prayerData.data.groups;
 
         // Add separator between prayers (except for the first one)
+        // Only add if the prayer doesn't already start with a yigo
         if (prayerIndex > 0) {
-          allPrayerGroups.push({
-            tibetan: "༄༅།",
-            english: "",
-            french: "",
-            smallWritings: true,
-          });
+          var firstPrayerGroup = prayerGroups[0];
+          var startsWithYigo = false;
+          
+          if (firstPrayerGroup && firstPrayerGroup.tibetan) {
+            for (var y = 0; y < yigos.length; y++) {
+              if (firstPrayerGroup.tibetan.startsWith(yigos[y])) {
+                startsWithYigo = true;
+                break;
+              }
+            }
+          }
+          
+          if (!startsWithYigo) {
+            allPrayerGroups.push({
+              tibetan: "༄༅། །",
+              english: "",
+              french: "",
+              smallWritings: true,
+            });
+          }
         }
 
         // Convert prayer groups to pecha format
@@ -161,7 +196,8 @@ var insertPrayersAtMarker = function (callback) {
 
           // Preserve tibetanAttachedToPrevious attribute
           if (prayerGroup.tibetanAttachedToPrevious) {
-            convertedGroup.tibetanAttachedToPrevious = prayerGroup.tibetanAttachedToPrevious;
+            convertedGroup.tibetanAttachedToPrevious =
+              prayerGroup.tibetanAttachedToPrevious;
           }
 
           // Set smallWritings for any type that is not verse or mantra
