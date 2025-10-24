@@ -183,7 +183,6 @@ var prayersSelect = function () {
     _(availablePrayers)
       .map(function (prayer) {
         var isSelected = selectedPrayers.indexOf(prayer.id) !== -1;
-        var order = isSelected ? selectedPrayers.indexOf(prayer.id) + 1 : '';
         return (
           '\
             <div class="ui prayer-item" data-id="' +
@@ -201,9 +200,6 @@ var prayersSelect = function () {
           prayer.name +
           '</label>\
               </div>\
-              <div class="prayer-order">' +
-          (order || '') +
-          '</div>\
               <div class="prayer-handle">☰</div>\
             </div>\
           '
@@ -317,17 +313,19 @@ $(document).on("change", ".prayer-item input[type=checkbox]", function (event) {
   updatePrayerOrder();
 });
 
-// Update prayer order numbers
+// Update prayer order based on visual order
 var updatePrayerOrder = function() {
+  // Rebuild selectedPrayers array based on visual order of checked items
+  var newOrder = [];
   $('.prayer-item').each(function() {
     var prayerId = $(this).data('id');
-    var index = selectedPrayers.indexOf(prayerId);
-    if (index !== -1) {
-      $(this).find('.prayer-order').text(index + 1);
-    } else {
-      $(this).find('.prayer-order').text('');
+    var isChecked = $(this).find('input[type=checkbox]').is(':checked');
+    if (isChecked) {
+      newOrder.push(prayerId);
     }
   });
+  selectedPrayers = newOrder;
+  saveSelectedPrayers();
 };
 
 // Drag and drop for prayer reordering
@@ -373,22 +371,24 @@ var initializePrayerDragAndDrop = function() {
     $(this).removeClass('drag-over');
     
     if (draggedPrayerElement !== this) {
-      var targetPrayerId = $(this).data('id');
+      // Reorder the visual elements
+      var $draggedElement = $(draggedPrayerElement);
+      var $targetElement = $(this);
       
-      // Only reorder if both prayers are selected
-      var draggedIndex = selectedPrayers.indexOf(draggedPrayerId);
-      var targetIndex = selectedPrayers.indexOf(targetPrayerId);
+      // Insert dragged element before or after target based on position
+      var draggedRect = draggedPrayerElement.getBoundingClientRect();
+      var targetRect = this.getBoundingClientRect();
       
-      if (draggedIndex !== -1 && targetIndex !== -1) {
-        // Remove dragged prayer from its position
-        selectedPrayers.splice(draggedIndex, 1);
-        // Insert at new position
-        var newTargetIndex = selectedPrayers.indexOf(targetPrayerId);
-        selectedPrayers.splice(newTargetIndex, 0, draggedPrayerId);
-        
-        saveSelectedPrayers();
-        updatePrayerOrder();
+      if (draggedRect.top < targetRect.top) {
+        // Dragging down - insert after target
+        $targetElement.after($draggedElement);
+      } else {
+        // Dragging up - insert before target
+        $targetElement.before($draggedElement);
       }
+      
+      // Update the order based on new visual positions
+      updatePrayerOrder();
     }
     
     return false;
