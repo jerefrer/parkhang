@@ -1,7 +1,7 @@
 .pecha-a3 .pecha-title-page {
   width: 760pt;
   height: 108pt;
-  margin: calc((210.36pt - 108pt) / 2) calc((1048.92pt - 760pt) / 2);
+  margin: calc((210.36pt - 108pt) / 2) auto;
   padding: 3pt;
   border-width: 2px 1px 1px 2px;
   border-style: solid;
@@ -43,7 +43,9 @@
 }
 .pecha-a3 .pecha-title-content {
   float: left;
-  width: calc(100% - (17.52pt * 2) - (52pt * 2) - (3px * 4) - (4 * 3pt) + (3pt * 2) + 3px );
+  width: calc(
+    100% - (17.52pt * 2) - (52pt * 2) - (3px * 4) - (4 * 3pt) + (3pt * 2) + 3px
+  );
   padding: 6pt;
   border-width: 1px 2px 2px 1px;
   border-style: solid;
