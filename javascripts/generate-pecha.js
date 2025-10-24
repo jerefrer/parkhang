@@ -17,35 +17,41 @@ var removeOptionalParts = function (text) {
 // Parse text with <small> markers and return array of {text, isSmall} objects
 var parseSmallMarkers = function (text) {
   if (!text) return [{ text: text, isSmall: false }];
-  
+
   var result = [];
   var remaining = text;
   var smallRegex = /<small>(.*?)<\/small>/g;
   var lastIndex = 0;
   var match;
-  
+
   while ((match = smallRegex.exec(text)) !== null) {
     // Add text before the match
     if (match.index > lastIndex) {
-      result.push({ text: text.substring(lastIndex, match.index), isSmall: false });
+      result.push({
+        text: text.substring(lastIndex, match.index),
+        isSmall: false,
+      });
     }
     // Add the small text
     result.push({ text: match[1], isSmall: true });
     lastIndex = smallRegex.lastIndex;
   }
-  
+
   // Add remaining text after last match
   if (lastIndex < text.length) {
     result.push({ text: text.substring(lastIndex), isSmall: false });
   }
-  
+
   return result.length > 0 ? result : [{ text: text, isSmall: false }];
 };
 
 // Convert <small>...</small> markers to span.small-writings for non-split text
 var convertSmallMarkers = function (text) {
   if (!text) return text;
-  return text.replace(/<small>(.*?)<\/small>/g, '<span class="small-writings">$1</span>');
+  return text.replace(
+    /<small>(.*?)<\/small>/g,
+    '<span class="small-writings">$1</span>'
+  );
 };
 
 // Constants for layout calculations
@@ -54,7 +60,7 @@ var LINE_END_MARGIN = 120; // Minimum space to leave at end of line before wrapp
 // Check if we need space before the next group
 var needsSpaceBefore = function (text) {
   if (!text) return true; // Default to adding space if no text
-  
+
   // Always add space before yigos (section markers)
   var yigos = ["༄༅།", "༈", "༄"];
   for (var i = 0; i < yigos.length; i++) {
@@ -69,7 +75,11 @@ var needsSpaceBefore = function (text) {
   if (lastCell.length) {
     var lastText = lastCell.text().trim();
     // If previous text ends with double shad, no space needed
-    if (lastText.endsWith("།།") || lastText.endsWith("། །")) {
+    if (
+      lastText.endsWith("།།") ||
+      lastText.endsWith("། །") ||
+      lastText.endsWith("ག །")
+    ) {
       return false;
     }
   }
@@ -357,38 +367,38 @@ var addRowspanCell = function (td, text) {
 var fitWordsOnLine = function (text) {
   // Parse text to identify small sections
   var segments = parseSmallMarkers(text);
-  
+
   console.log("Segments:", segments);
-  
+
   // Build array of syllables with their isSmall flag
   var syllables = [];
-  segments.forEach(function(segment) {
+  segments.forEach(function (segment) {
     // Split by ་ (tsheg) to get syllables
     var parts = segment.text.split("་");
-    parts.forEach(function(part, i) {
+    parts.forEach(function (part, i) {
       // Include empty parts at the end (they become just a tsheg)
       if (part || i < parts.length - 1) {
         // Each part gets the tsheg back except the last one
         var syllableText = part + (i < parts.length - 1 ? "་" : "");
         syllables.push({
           text: syllableText,
-          isSmall: segment.isSmall
+          isSmall: segment.isSmall,
         });
       }
     });
   });
-  
+
   console.log("Syllables:", syllables);
-  
+
   var syllableIndex = 0;
   var addNextSyllable = function () {
     var td = $(".pecha-page tr.tibetan td:last");
     var syllable = syllables[syllableIndex];
     if (syllable) {
       // Add syllable with appropriate class
-      var spanClass = syllable.isSmall ? ' class="small-writings"' : '';
+      var spanClass = syllable.isSmall ? ' class="small-writings"' : "";
       td.append("<span" + spanClass + ">" + syllable.text + "</span>");
-      
+
       if (lineWidth + td.width() <= pechaContentWidth) {
         // Syllable fits, add next one
         syllableIndex++;
@@ -402,7 +412,7 @@ var fitWordsOnLine = function (text) {
         // Doesn't fit, start a new line with remaining syllables
         td.find("span:last").remove();
         if (!td.find("span:not(.space)").length) td.remove();
-        
+
         // Reconstruct remaining text with small markers
         var remainingText = "";
         var currentIsSmall = null;
@@ -416,7 +426,7 @@ var fitWordsOnLine = function (text) {
           remainingText += syl.text;
         }
         if (currentIsSmall === true) remainingText += "</small>";
-        
+
         continueOnNewLineStartingWith(remainingText);
       }
     } else {
@@ -436,7 +446,7 @@ var addNextGroup = function (remainingWords) {
     var $currentTibetanRow = $(".pecha-page tr.tibetan:last");
     var textWithMarkers = text;
     var textConverted = text;
-    
+
     if (!group.tibetan) {
       text = group[selectedLanguage];
       // Skip groups without Tibetan content that are smallWritings (usually long English-only intro paragraphs)
@@ -452,7 +462,7 @@ var addNextGroup = function (remainingWords) {
     } else {
       // Strip leading yigo if this row already has a page-beginning marker
       text = stripLeadingYigo(text, $currentTibetanRow);
-      
+
       // Store original text with <small> markers for fitWordsOnLine
       textWithMarkers = text;
       // Convert markers for display when text fits without splitting
