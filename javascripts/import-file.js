@@ -23,22 +23,20 @@ var pecha = {
   groups: [],
 };
 
-var importFile = function(shouldGenerate) {
-  var fileInput = $('#file-input input')[0];
+var importFile = function (shouldGenerate) {
+  var fileInput = $("#file-input input")[0];
   if (!fileInput || !fileInput.files || !fileInput.files[0]) {
-    alert('Please select a file to import.');
+    alert("Please select a file to import.");
     return;
   }
   var file = fileInput.files[0];
   var reader = new FileReader();
-  var parts = file.name.split('.');
+  var parts = file.name.split(".");
   var extension = parts[parts.length - 1];
-  if (extension == 'json')
-    importJSON(reader, file, shouldGenerate);
-  else if (extension == 'xlsx')
-    importXLSX(reader, file, shouldGenerate);
+  if (extension == "json") importJSON(reader, file, shouldGenerate);
+  else if (extension == "xlsx") importXLSX(reader, file, shouldGenerate);
   else {
-    alert('Unsupported file format. Please use JSON or XLSX files.');
+    alert("Unsupported file format. Please use JSON or XLSX files.");
   }
 };
 
@@ -53,10 +51,12 @@ var persistPecha = function (pecha) {
     localStorage[appName + ".texts." + pecha.id] = JSON.stringify(pecha);
     localStorage[appName + ".textId"] = pecha.id;
   } catch (e) {
-    if (e.name === 'QuotaExceededError') {
-      alert('Storage quota exceeded. Please clear some saved texts from localStorage.');
+    if (e.name === "QuotaExceededError") {
+      alert(
+        "Storage quota exceeded. Please clear some saved texts from localStorage."
+      );
     } else {
-      alert('Error saving text: ' + e.message);
+      alert("Error saving text: " + e.message);
     }
     throw e;
   }
@@ -67,7 +67,7 @@ var importJSON = function (reader, file, shouldGenerate) {
     pecha = JSON.parse(reader.result);
     persistPecha(pecha);
     // Update prayers section if the function exists (when staying on form)
-    if (typeof updatePrayersSection === 'function') {
+    if (typeof updatePrayersSection === "function") {
       updatePrayersSection();
     }
     if (shouldGenerate !== false) {
@@ -85,6 +85,9 @@ var importXLSX = function (reader, file, shouldGenerate) {
   var lineIndex = 0;
   var titlePage = false;
   reader.onload = function () {
+    // Reset pecha.groups to avoid duplicating content on re-import
+    pecha.groups = [];
+    
     var xlsx = XLSX.read(reader.result, { type: "binary" });
 
     var sheet = xlsx.Sheets[xlsx.SheetNames[0]];
@@ -147,7 +150,7 @@ var importXLSX = function (reader, file, shouldGenerate) {
 
     persistPecha(pecha);
     // Update prayers section if the function exists (when staying on form)
-    if (typeof updatePrayersSection === 'function') {
+    if (typeof updatePrayersSection === "function") {
       updatePrayersSection();
     }
     if (shouldGenerate !== false) {
