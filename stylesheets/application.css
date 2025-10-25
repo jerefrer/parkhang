@@ -1,6 +1,7 @@
 @font-face {
   font-family: Tibetan;
-  src: url("../vendor/fonts/TibetanChogyalUnicode-170221.ttf") format("truetype");
+  src: url("../vendor/fonts/TibetanChogyalUnicode-170221.ttf")
+    format("truetype");
 }
 
 @font-face {
@@ -9,12 +10,17 @@
 }
 
 body,
-body.pushable>.pusher {
+body.pushable > .pusher {
   background: #001211;
   color: white;
 }
 
-body {
+/* Fix for Tibetan character ྅ (U+0F45) which needs spacing 
+   This character is zero-width and needs a fixed width span.
+   The character is wrapped in a span via JavaScript in import-file.js */
+.tibetan-avagraha {
+  display: inline-block;
+  width: 0.3em;
 }
 
 #masking-overlay,

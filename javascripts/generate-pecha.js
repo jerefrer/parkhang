@@ -8,6 +8,14 @@ var translationIndex = 0;
 var pageBeginningMarker = "༄༅།  །";
 var spaceBetweenGroups = '<span class="space"></span>';
 
+// Fix Tibetan character ྅ (U+0F45) spacing
+// This character is zero-width and needs to be wrapped in a span with fixed width
+var fixTibetanAvagraha = function (text) {
+  if (!text) return text;
+  // Wrap ྅ in a span with the tibetan-avagraha class
+  return text.replace(/྅/g, '<span class="tibetan-avagraha">྅</span>');
+};
+
 // Remove optional parts from translation for pecha (space-constrained)
 var removeOptionalParts = function (text) {
   if (!text) return text;
@@ -397,7 +405,8 @@ var fitWordsOnLine = function (text) {
     if (syllable) {
       // Add syllable with appropriate class
       var spanClass = syllable.isSmall ? ' class="small-writings"' : "";
-      td.append("<span" + spanClass + ">" + syllable.text + "</span>");
+      var syllableText = fixTibetanAvagraha(syllable.text);
+      td.append("<span" + spanClass + ">" + syllableText + "</span>");
 
       if (lineWidth + td.width() <= pechaContentWidth) {
         // Syllable fits, add next one
@@ -472,6 +481,8 @@ var addNextGroup = function (remainingWords) {
       textWithMarkers = text;
       // Convert markers for display when text fits without splitting
       textConverted = convertSmallMarkers(text);
+      // Fix Tibetan spacing for ྅ character
+      textConverted = fixTibetanAvagraha(textConverted);
 
       if ($currentTibetanRow.find("td:not(.page-beginning)").length) {
         // Add space only if needed (not after double shad or if tibetanAttachedToPrevious is true)
