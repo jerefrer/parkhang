@@ -514,11 +514,16 @@ var addNextGroup = function (remainingWords) {
 
     // Check if current group is a yigo - if so, it must stay with next group's first 2 syllables
     var currentIsYigo = isYigo(textConverted);
-    
+
     if (currentIsYigo) {
-      console.log('Found yigo:', JSON.stringify(textConverted), 'at group', groupIndex);
+      console.log(
+        "Found yigo:",
+        JSON.stringify(textConverted),
+        "at group",
+        groupIndex
+      );
     }
-    
+
     // Before appending, check if yigo + next syllables will fit
     if (currentIsYigo && groupIndex + 1 < pecha.groups.length) {
       var nextGroup = pecha.groups[groupIndex + 1];
@@ -539,15 +544,28 @@ var addNextGroup = function (remainingWords) {
         var yigoAndNextWidth = yigoWidth + nextWidth;
         tempNextTd.remove();
         td.remove();
-        
-        console.log('Yigo check: lineWidth=' + lineWidth + ', yigoWidth=' + yigoWidth + 
-                    ', nextWidth=' + nextWidth + ', total=' + (lineWidth + yigoAndNextWidth) + 
-                    ', withMargin=' + (lineWidth + yigoAndNextWidth + LINE_END_MARGIN) +
-                    ', contentWidth=' + pechaContentWidth);
-        
+
+        console.log(
+          "Yigo check: lineWidth=" +
+            lineWidth +
+            ", yigoWidth=" +
+            yigoWidth +
+            ", nextWidth=" +
+            nextWidth +
+            ", total=" +
+            (lineWidth + yigoAndNextWidth) +
+            ", withMargin=" +
+            (lineWidth + yigoAndNextWidth + LINE_END_MARGIN) +
+            ", contentWidth=" +
+            pechaContentWidth
+        );
+
         // If yigo + next syllables won't fit on current line (including margin), start new line
-        if (lineWidth + yigoAndNextWidth + LINE_END_MARGIN > pechaContentWidth) {
-          console.log('Moving yigo to next line');
+        if (
+          lineWidth + yigoAndNextWidth + LINE_END_MARGIN >
+          pechaContentWidth
+        ) {
+          console.log("Moving yigo to next line");
           fitWidth($("table:last"));
           if (isAPage() && !isPageScreen() && pageOverflows())
             addNextPechaPage();
@@ -585,15 +603,9 @@ var addNextGroup = function (remainingWords) {
         var prefix = needsSpace ? spaceBetweenGroups : "";
         td.html(prefix);
       }
-      if (lineWidth + td.width() + LINE_END_MARGIN <= pechaContentWidth) {
-        // And there is some space left (with some margin)
-        // Use original text with <small> markers for proper parsing
-        fitWordsOnLine(textWithMarkers);
-      } else {
-        // If there isn't enough space at the end of the line start a new line
-        td.remove();
-        continueOnNewLineStartingWith("");
-      }
+      // Try to fit words on line - this will squeeze if needed
+      // Use original text with <small> markers for proper parsing
+      fitWordsOnLine(textWithMarkers);
     }
   } else {
     // If all groups have been processed
