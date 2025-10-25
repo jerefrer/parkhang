@@ -388,8 +388,6 @@ var fitWordsOnLine = function (text) {
   // Parse text to identify small sections
   var segments = parseSmallMarkers(text);
 
-  console.log("Segments:", segments);
-
   // Build array of syllables with their isSmall flag
   var syllables = [];
   segments.forEach(function (segment) {
@@ -407,8 +405,6 @@ var fitWordsOnLine = function (text) {
       }
     });
   });
-
-  console.log("Syllables:", syllables);
 
   var syllableIndex = 0;
   var addNextSyllable = function () {
@@ -515,15 +511,6 @@ var addNextGroup = function (remainingWords) {
     // Check if current group is a yigo - if so, it must stay with next group's first 2 syllables
     var currentIsYigo = isYigo(textConverted);
 
-    if (currentIsYigo) {
-      console.log(
-        "Found yigo:",
-        JSON.stringify(textConverted),
-        "at group",
-        groupIndex
-      );
-    }
-
     // Before appending, check if yigo + next syllables will fit
     if (currentIsYigo && groupIndex + 1 < pecha.groups.length) {
       var nextGroup = pecha.groups[groupIndex + 1];
@@ -545,27 +532,11 @@ var addNextGroup = function (remainingWords) {
         tempNextTd.remove();
         td.remove();
 
-        console.log(
-          "Yigo check: lineWidth=" +
-            lineWidth +
-            ", yigoWidth=" +
-            yigoWidth +
-            ", nextWidth=" +
-            nextWidth +
-            ", total=" +
-            (lineWidth + yigoAndNextWidth) +
-            ", withMargin=" +
-            (lineWidth + yigoAndNextWidth + LINE_END_MARGIN) +
-            ", contentWidth=" +
-            pechaContentWidth
-        );
-
         // If yigo + next syllables won't fit on current line (including margin), start new line
         if (
           lineWidth + yigoAndNextWidth + LINE_END_MARGIN >
           pechaContentWidth
         ) {
-          console.log("Moving yigo to next line");
           fitWidth($("table:last"));
           if (isAPage() && !isPageScreen() && pageOverflows())
             addNextPechaPage();

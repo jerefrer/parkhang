@@ -171,34 +171,30 @@ var extraTextsSelect = function () {
 };
 
 // Detect INSERT markers in the current text
-var detectMarkersInText = function() {
+var detectMarkersInText = function () {
   var markers = [];
   var markerRegex = /^\[INSERT (.+?) HERE\]$/;
-  
+
   if (!pecha || !pecha.groups) {
-    console.log('detectMarkersInText: No pecha or groups');
     return markers;
   }
-  
-  console.log('detectMarkersInText: Checking', pecha.groups.length, 'groups');
-  
+
   var seenTypes = {};
   for (var i = 0; i < pecha.groups.length; i++) {
     var group = pecha.groups[i];
     // Check all language fields, but only add the first match per group
     var foundInGroup = false;
-    ['tibetan', 'english', 'french'].forEach(function(lang) {
+    ["tibetan", "english", "french"].forEach(function (lang) {
       if (!foundInGroup && group[lang]) {
         var text = group[lang].trim(); // Trim whitespace
         var match = text.match(markerRegex);
         if (match) {
-          console.log('Found marker:', match[1], 'in', lang, 'at group', i);
           if (!seenTypes[match[1]]) {
             seenTypes[match[1]] = true;
             markers.push({
               type: match[1],
               displayName: match[1].charAt(0) + match[1].slice(1).toLowerCase(),
-              index: i  // Store the index for ordering
+              index: i, // Store the index for ordering
             });
             foundInGroup = true;
           }
@@ -206,27 +202,26 @@ var detectMarkersInText = function() {
       }
     });
   }
-  
+
   // Sort markers by their index in the document
-  markers.sort(function(a, b) {
+  markers.sort(function (a, b) {
     return a.index - b.index;
   });
-  
-  console.log('detectMarkersInText: Found markers:', markers);
+
   return markers;
 };
 
 var prayersSelect = function () {
   if (!availablePrayers || availablePrayers.length === 0) {
-    return '';
+    return "";
   }
-  
+
   var markers = detectMarkersInText();
-  
+
   if (markers.length === 0) {
-    return '';
+    return "";
   }
-  
+
   return (
     '\
     <div class="ui field">\
@@ -242,16 +237,20 @@ var prayersSelect = function () {
           '" style="margin: 8px 0; background: #333; color: white;">\
               <i class="list icon"></i> ' +
           marker.displayName +
-          ' (' + prayerCount + ' prayer' + (prayerCount !== 1 ? 's' : '') + ')\
+          " (" +
+          prayerCount +
+          " prayer" +
+          (prayerCount !== 1 ? "s" : "") +
+          ")\
             </button>\
-          '
+          "
         );
       })
       .join("") +
-    '\
+    "\
       </div>\
     </div>\
-  '
+  "
   );
 };
 
@@ -307,27 +306,26 @@ var renderInputForm = function () {
       $(".extra-text[data-id=" + extraTextId + "]").click();
     });
   }
-  
+
   // Load prayers section if text is already selected
   if (textId) {
     try {
       pecha = JSON.parse(localStorage[appName + ".texts." + textId]);
-      console.log('Loaded pecha from localStorage:', textId, 'with', pecha.groups.length, 'groups');
       updatePrayersSection();
     } catch (e) {
-      console.error('Error loading pecha from localStorage:', e);
+      console.error("Error loading pecha from localStorage:", e);
     }
   }
 };
 
 // Update the prayers section based on current text
-var updatePrayersSection = function() {
+var updatePrayersSection = function () {
   var prayersHtml = prayersSelect();
-  $('#prayers-section').html(prayersHtml);
+  $("#prayers-section").html(prayersHtml);
   if (prayersHtml) {
-    $('#prayers-divider').show();
+    $("#prayers-divider").show();
   } else {
-    $('#prayers-divider').hide();
+    $("#prayers-divider").hide();
   }
 };
 
@@ -344,7 +342,7 @@ $(document).on("change", "input[type=radio]", function (event) {
 $(document).on("change", "#file-input input", function (event) {
   $(".text").removeClass("selected");
   $(event.currentTarget).parents(".file.field").addClass("selected");
-  
+
   // Import the file but don't generate yet - just load it and show markers
   importFile(false);
 });
@@ -354,9 +352,9 @@ $(document).on("click", ".text", function (event) {
   $("#file-input").parents(".file.field").removeClass("selected");
   $("#file-input input").val("");
   $(event.currentTarget).addClass("selected");
-  
+
   // Load the text and update prayer markers
-  var textId = $(event.currentTarget).data('id');
+  var textId = $(event.currentTarget).data("id");
   if (textId) {
     pecha = JSON.parse(localStorage[appName + ".texts." + textId]);
     updatePrayersSection();
@@ -370,22 +368,29 @@ $(document).on("click", ".extra-text", function (event) {
 // Open modal for marker-specific prayer selection
 $(document).on("click", ".marker-button", function (event) {
   event.preventDefault();
-  var markerType = $(event.currentTarget).data('marker-type');
+  var markerType = $(event.currentTarget).data("marker-type");
   openPrayerModal(markerType);
 });
 
 // Open prayer selection modal for a specific marker
-var openPrayerModal = function(markerType) {
+var openPrayerModal = function (markerType) {
   var currentPrayers = markerPrayers[markerType] || [];
   var displayName = markerType.charAt(0) + markerType.slice(1).toLowerCase();
-  
-  var modalHtml = '\
-    <div class="ui modal prayer-modal" id="prayer-modal-' + markerType + '">\
+
+  var modalHtml =
+    '\
+    <div class="ui modal prayer-modal" id="prayer-modal-' +
+    markerType +
+    '">\
       <div class="header" style="background: #1b1c1d; color: white;">\
-        Select Prayers for ' + displayName + '\
+        Select Prayers for ' +
+    displayName +
+    '\
       </div>\
       <div class="content" style="background: #1b1c1d;">\
-        <div class="ui prayers-list" id="modal-prayers-list-' + markerType + '">' +
+        <div class="ui prayers-list" id="modal-prayers-list-' +
+    markerType +
+    '">' +
     _(availablePrayers)
       .map(function (prayer) {
         var isSelected = currentPrayers.indexOf(prayer.id) !== -1;
@@ -395,12 +400,16 @@ var openPrayerModal = function(markerType) {
           prayer.id +
           '" draggable="true">\
               <div class="prayer-checkbox">\
-                <input type="checkbox" id="modal-prayer-' + markerType + '-' +
+                <input type="checkbox" id="modal-prayer-' +
+          markerType +
+          "-" +
           prayer.id +
           '"' +
-          (isSelected ? ' checked' : '') +
+          (isSelected ? " checked" : "") +
           ' />\
-                <label for="modal-prayer-' + markerType + '-' +
+                <label for="modal-prayer-' +
+          markerType +
+          "-" +
           prayer.id +
           '">' +
           prayer.name +
@@ -417,120 +426,134 @@ var openPrayerModal = function(markerType) {
       </div>\
       <div class="actions" style="background: #1b1c1d;">\
         <button class="ui button" id="modal-cancel">Cancel</button>\
-        <button class="ui primary button" id="modal-save" data-marker-type="' + markerType + '">Save</button>\
+        <button class="ui primary button" id="modal-save" data-marker-type="' +
+    markerType +
+    '">Save</button>\
       </div>\
     </div>\
   ';
-  
+
   // Remove any existing modal
-  $('.prayer-modal').remove();
-  
+  $(".prayer-modal").remove();
+
   // Add modal to page
-  $('body').append(modalHtml);
-  
+  $("body").append(modalHtml);
+
   // Initialize Semantic UI modal
-  $('#prayer-modal-' + markerType).modal({
-    closable: true,
-    onHidden: function() {
-      $(this).remove();
-    }
-  }).modal('show');
-  
+  $("#prayer-modal-" + markerType)
+    .modal({
+      closable: true,
+      onHidden: function () {
+        $(this).remove();
+      },
+    })
+    .modal("show");
+
   // Initialize drag and drop for modal
   initializeModalPrayerDragAndDrop(markerType);
 };
 
 // Save prayers from modal
 $(document).on("click", "#modal-save", function (event) {
-  var markerType = $(event.currentTarget).data('marker-type');
-  var modalId = '#prayer-modal-' + markerType;
-  
+  var markerType = $(event.currentTarget).data("marker-type");
+  var modalId = "#prayer-modal-" + markerType;
+
   // Collect selected prayers in order
   var selectedPrayerIds = [];
-  $(modalId + ' .prayer-item').each(function() {
-    var prayerId = $(this).data('id');
-    var isChecked = $(this).find('input[type=checkbox]').is(':checked');
+  $(modalId + " .prayer-item").each(function () {
+    var prayerId = $(this).data("id");
+    var isChecked = $(this).find("input[type=checkbox]").is(":checked");
     if (isChecked) {
       selectedPrayerIds.push(prayerId);
     }
   });
-  
+
   markerPrayers[markerType] = selectedPrayerIds;
   saveMarkerPrayers();
-  
+
   // Update button text
   var prayerCount = selectedPrayerIds.length;
   var displayName = markerType.charAt(0) + markerType.slice(1).toLowerCase();
   $('.marker-button[data-marker-type="' + markerType + '"]').html(
-    '<i class="list icon"></i> ' + displayName + ' (' + prayerCount + ' prayer' + (prayerCount !== 1 ? 's' : '') + ')'
+    '<i class="list icon"></i> ' +
+      displayName +
+      " (" +
+      prayerCount +
+      " prayer" +
+      (prayerCount !== 1 ? "s" : "") +
+      ")"
   );
-  
-  $(modalId).modal('hide');
+
+  $(modalId).modal("hide");
 });
 
 // Cancel modal
 $(document).on("click", "#modal-cancel", function (event) {
-  $('.prayer-modal').modal('hide');
+  $(".prayer-modal").modal("hide");
 });
 
 // Prayer checkbox handling in modal
-$(document).on("change", ".prayer-modal .prayer-item input[type=checkbox]", function (event) {
-  // No need to save here, will save when modal is closed with Save button
-});
+$(document).on(
+  "change",
+  ".prayer-modal .prayer-item input[type=checkbox]",
+  function (event) {
+    // No need to save here, will save when modal is closed with Save button
+  }
+);
 
 // Drag and drop for prayer reordering in modal
 var draggedPrayerElement = null;
 var draggedPrayerId = null;
 
-var initializeModalPrayerDragAndDrop = function(markerType) {
-  var selector = '#prayer-modal-' + markerType + ' .prayer-item';
-  
-  $(selector).on('dragstart', function(e) {
+var initializeModalPrayerDragAndDrop = function (markerType) {
+  var selector = "#prayer-modal-" + markerType + " .prayer-item";
+
+  $(selector).on("dragstart", function (e) {
     draggedPrayerElement = this;
-    draggedPrayerId = $(this).data('id');
-    e.originalEvent.dataTransfer.effectAllowed = 'move';
-    $(this).addClass('dragging');
+    draggedPrayerId = $(this).data("id");
+    e.originalEvent.dataTransfer.effectAllowed = "move";
+    $(this).addClass("dragging");
   });
-  
-  $(selector).on('dragend', function(e) {
-    $(this).removeClass('dragging');
+
+  $(selector).on("dragend", function (e) {
+    $(this).removeClass("dragging");
     draggedPrayerElement = null;
     draggedPrayerId = null;
   });
-  
-  $(selector).on('dragover', function(e) {
+
+  $(selector).on("dragover", function (e) {
     if (e.preventDefault) {
       e.preventDefault();
     }
-    e.originalEvent.dataTransfer.dropEffect = 'move';
+    e.originalEvent.dataTransfer.dropEffect = "move";
     return false;
   });
-  
-  $(selector).on('dragenter', function(e) {
+
+  $(selector).on("dragenter", function (e) {
     if (draggedPrayerElement !== this) {
-      $(this).addClass('drag-over');
+      $(this).addClass("drag-over");
     }
   });
-  
-  $(selector).on('dragleave', function(e) {
-    $(this).removeClass('drag-over');
+
+  $(selector).on("dragleave", function (e) {
+    $(this).removeClass("drag-over");
   });
-  
-  $(selector).on('drop', function(e) {
+
+  $(selector).on("drop", function (e) {
     if (e.stopPropagation) {
       e.stopPropagation();
     }
-    $(this).removeClass('drag-over');
-    
+    $(this).removeClass("drag-over");
+
     if (draggedPrayerElement !== this) {
       // Reorder the visual elements
       var $draggedElement = $(draggedPrayerElement);
       var $targetElement = $(this);
-      
+
       // Insert dragged element before or after target based on position
       var draggedRect = draggedPrayerElement.getBoundingClientRect();
       var targetRect = this.getBoundingClientRect();
-      
+
       if (draggedRect.top < targetRect.top) {
         // Dragging down - insert after target
         $targetElement.after($draggedElement);
@@ -539,7 +562,7 @@ var initializeModalPrayerDragAndDrop = function(markerType) {
         $targetElement.before($draggedElement);
       }
     }
-    
+
     return false;
   });
 };
@@ -564,7 +587,7 @@ $(document).on("click", "#render-button", function () {
   if (includeTransliteration) $("body").addClass("with-phonetics");
   $("#input-form").remove();
   $("#loading-overlay").show();
-  
+
   if (textId) {
     pecha = JSON.parse(localStorage[appName + ".texts." + textId]);
     beginGeneration();
