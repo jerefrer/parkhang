@@ -65,6 +65,18 @@ var convertSmallMarkers = function (text) {
 // Constants for layout calculations
 var LINE_END_MARGIN = 120; // Minimum space to leave at end of line before wrapping
 
+// Check if text is a yigo (section marker)
+var isYigo = function (text) {
+  if (!text) return false;
+  var yigos = ["༄༅།  །", "༄༅། །", "༄༅།།", "༈ །", "༈།", "༄ །", "༄།"];
+  for (var i = 0; i < yigos.length; i++) {
+    if (text.trim() === yigos[i]) {
+      return true;
+    }
+  }
+  return false;
+};
+
 // Check if we need space before the next group
 var needsSpaceBefore = function (text) {
   if (!text) return true; // Default to adding space if no text
@@ -500,9 +512,64 @@ var addNextGroup = function (remainingWords) {
       needsSpaceBefore(textConverted) &&
       !group.tibetanAttachedToPrevious;
 
+    // Check if current group is a yigo - if so, it must stay with next group's first 2 syllables
+    var currentIsYigo = isYigo(textConverted);
+    
+    if (currentIsYigo) {
+      console.log('Found yigo:', JSON.stringify(textConverted), 'at group', groupIndex);
+    }
+    
+    // Before appending, check if yigo + next syllables will fit
+    if (currentIsYigo && groupIndex + 1 < pecha.groups.length) {
+      var nextGroup = pecha.groups[groupIndex + 1];
+      if (nextGroup && nextGroup.tibetan) {
+        // Get first two syllables of next group
+        var nextText = nextGroup.tibetan;
+        var syllables = nextText.split("་");
+        var firstTwoSyllables = syllables.slice(0, 2).join("་");
+        if (syllables.length > 1) firstTwoSyllables += "་";
+
+        // Create temporary td to measure if yigo + first two syllables would fit
+        // Must append to DOM to measure width
+        var tempNextTd = $("<td>").html(fixTibetanAvagraha(firstTwoSyllables));
+        $currentTibetanRow.append(td);
+        $currentTibetanRow.append(tempNextTd);
+        var yigoWidth = td.width();
+        var nextWidth = tempNextTd.width();
+        var yigoAndNextWidth = yigoWidth + nextWidth;
+        tempNextTd.remove();
+        td.remove();
+        
+        console.log('Yigo check: lineWidth=' + lineWidth + ', yigoWidth=' + yigoWidth + 
+                    ', nextWidth=' + nextWidth + ', total=' + (lineWidth + yigoAndNextWidth) + 
+                    ', withMargin=' + (lineWidth + yigoAndNextWidth + LINE_END_MARGIN) +
+                    ', contentWidth=' + pechaContentWidth);
+        
+        // If yigo + next syllables won't fit on current line (including margin), start new line
+        if (lineWidth + yigoAndNextWidth + LINE_END_MARGIN > pechaContentWidth) {
+          console.log('Moving yigo to next line');
+          fitWidth($("table:last"));
+          if (isAPage() && !isPageScreen() && pageOverflows())
+            addNextPechaPage();
+          else if ($(".pecha-page:last .line").length == numberOfLinesPerPage)
+            addNextPechaPage();
+          else {
+            addNewEmptyLine();
+            lineWidth = 0;
+          }
+          // Retry adding this group on the new line
+          setTimeout(function () {
+            addNextGroup();
+          }, delay);
+          return;
+        }
+      }
+    }
+
     $currentTibetanRow.append(td);
+
     if (lineWidth + td.width() <= pechaContentWidth) {
-      // If group fits then add next group
+      // Group fits, add next group
       lineWidth += td.width();
       groupIndex++;
       setTimeout(function () {
