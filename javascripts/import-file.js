@@ -23,7 +23,7 @@ var pecha = {
   groups: [],
 };
 
-var importFile = function() {
+var importFile = function(shouldGenerate) {
   var fileInput = $('#file-input input')[0];
   if (!fileInput || !fileInput.files || !fileInput.files[0]) {
     alert('Please select a file to import.');
@@ -34,9 +34,9 @@ var importFile = function() {
   var parts = file.name.split('.');
   var extension = parts[parts.length - 1];
   if (extension == 'json')
-    importJSON(reader, file);
+    importJSON(reader, file, shouldGenerate);
   else if (extension == 'xlsx')
-    importXLSX(reader, file);
+    importXLSX(reader, file, shouldGenerate);
   else {
     alert('Unsupported file format. Please use JSON or XLSX files.');
   }
@@ -62,18 +62,24 @@ var persistPecha = function (pecha) {
   }
 };
 
-var importJSON = function (reader, file) {
+var importJSON = function (reader, file, shouldGenerate) {
   reader.onload = function () {
     pecha = JSON.parse(reader.result);
     persistPecha(pecha);
-    beginGeneration();
+    // Update prayers section if the function exists (when staying on form)
+    if (typeof updatePrayersSection === 'function') {
+      updatePrayersSection();
+    }
+    if (shouldGenerate !== false) {
+      beginGeneration();
+    }
   };
   setTimeout(function () {
     reader.readAsText(file);
   }, 100);
 };
 
-var importXLSX = function (reader, file) {
+var importXLSX = function (reader, file, shouldGenerate) {
   var lines = [];
   var line_buffer = { words: [] };
   var lineIndex = 0;
@@ -140,7 +146,13 @@ var importXLSX = function (reader, file) {
     }
 
     persistPecha(pecha);
-    beginGeneration();
+    // Update prayers section if the function exists (when staying on form)
+    if (typeof updatePrayersSection === 'function') {
+      updatePrayersSection();
+    }
+    if (shouldGenerate !== false) {
+      beginGeneration();
+    }
   };
   setTimeout(function () {
     reader.readAsBinaryString(file);

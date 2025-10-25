@@ -170,38 +170,80 @@ var extraTextsSelect = function () {
   );
 };
 
+// Detect INSERT markers in the current text
+var detectMarkersInText = function() {
+  var markers = [];
+  var markerRegex = /^\[INSERT (.+?) HERE\]$/;
+  
+  if (!pecha || !pecha.groups) {
+    console.log('detectMarkersInText: No pecha or groups');
+    return markers;
+  }
+  
+  console.log('detectMarkersInText: Checking', pecha.groups.length, 'groups');
+  
+  var seenTypes = {};
+  for (var i = 0; i < pecha.groups.length; i++) {
+    var group = pecha.groups[i];
+    // Check all language fields, but only add the first match per group
+    var foundInGroup = false;
+    ['tibetan', 'english', 'french'].forEach(function(lang) {
+      if (!foundInGroup && group[lang]) {
+        var text = group[lang].trim(); // Trim whitespace
+        var match = text.match(markerRegex);
+        if (match) {
+          console.log('Found marker:', match[1], 'in', lang, 'at group', i);
+          if (!seenTypes[match[1]]) {
+            seenTypes[match[1]] = true;
+            markers.push({
+              type: match[1],
+              displayName: match[1].charAt(0) + match[1].slice(1).toLowerCase(),
+              index: i  // Store the index for ordering
+            });
+            foundInGroup = true;
+          }
+        }
+      }
+    });
+  }
+  
+  // Sort markers by their index in the document
+  markers.sort(function(a, b) {
+    return a.index - b.index;
+  });
+  
+  console.log('detectMarkersInText: Found markers:', markers);
+  return markers;
+};
+
 var prayersSelect = function () {
   if (!availablePrayers || availablePrayers.length === 0) {
+    return '';
+  }
+  
+  var markers = detectMarkersInText();
+  
+  if (markers.length === 0) {
     return '';
   }
   
   return (
     '\
     <div class="ui field">\
-      <h4 style="color: white; text-align: center; margin-bottom: 15px;">Prayers for Tsok</h4>\
-      <div class="ui prayers-list" id="prayers-list">' +
-    _(availablePrayers)
-      .map(function (prayer) {
-        var isSelected = selectedPrayers.indexOf(prayer.id) !== -1;
+      <h4 style="color: white; text-align: center; margin-bottom: 15px;">Prayer Insertions</h4>\
+      <div class="marker-buttons" style="width: 400px; margin: 0 auto;">' +
+    _(markers)
+      .map(function (marker) {
+        var prayerCount = (markerPrayers[marker.type] || []).length;
         return (
           '\
-            <div class="ui prayer-item" data-id="' +
-          prayer.id +
-          '" draggable="true">\
-              <div class="prayer-checkbox">\
-                <input type="checkbox" id="prayer-' +
-          prayer.id +
-          '"' +
-          (isSelected ? ' checked' : '') +
-          ' />\
-                <label for="prayer-' +
-          prayer.id +
-          '">' +
-          prayer.name +
-          '</label>\
-              </div>\
-              <div class="prayer-handle">☰</div>\
-            </div>\
+            <button class="ui fluid button marker-button" data-marker-type="' +
+          marker.type +
+          '" style="margin: 8px 0; background: #333; color: white;">\
+              <i class="list icon"></i> ' +
+          marker.displayName +
+          ' (' + prayerCount + ' prayer' + (prayerCount !== 1 ? 's' : '') + ')\
+            </button>\
           '
         );
       })
@@ -236,12 +278,10 @@ var renderInputForm = function () {
   form.append(
     '<div class="ui inverted divider" style="margin-top: 25px;"></div>'
   );
-  form.append(prayersSelect);
-  if (availablePrayers && availablePrayers.length > 0) {
-    form.append(
-      '<div class="ui inverted divider" style="margin-top: 25px;"></div>'
-    );
-  }
+  form.append('<div id="prayers-section"></div>');
+  form.append(
+    '<div id="prayers-divider" style="display: none;"><div class="ui inverted divider" style="margin-top: 25px;"></div></div>'
+  );
   form.append(languageSelect);
   form.append('<div class="ui inverted divider"></div>');
   form.append(layoutSelect);
@@ -267,7 +307,28 @@ var renderInputForm = function () {
       $(".extra-text[data-id=" + extraTextId + "]").click();
     });
   }
-  initializePrayerDragAndDrop();
+  
+  // Load prayers section if text is already selected
+  if (textId) {
+    try {
+      pecha = JSON.parse(localStorage[appName + ".texts." + textId]);
+      console.log('Loaded pecha from localStorage:', textId, 'with', pecha.groups.length, 'groups');
+      updatePrayersSection();
+    } catch (e) {
+      console.error('Error loading pecha from localStorage:', e);
+    }
+  }
+};
+
+// Update the prayers section based on current text
+var updatePrayersSection = function() {
+  var prayersHtml = prayersSelect();
+  $('#prayers-section').html(prayersHtml);
+  if (prayersHtml) {
+    $('#prayers-divider').show();
+  } else {
+    $('#prayers-divider').hide();
+  }
 };
 
 $(document).on("click", ".layout:not(.disabled)", function (event) {
@@ -283,6 +344,9 @@ $(document).on("change", "input[type=radio]", function (event) {
 $(document).on("change", "#file-input input", function (event) {
   $(".text").removeClass("selected");
   $(event.currentTarget).parents(".file.field").addClass("selected");
+  
+  // Import the file but don't generate yet - just load it and show markers
+  importFile(false);
 });
 
 $(document).on("click", ".text", function (event) {
@@ -290,63 +354,151 @@ $(document).on("click", ".text", function (event) {
   $("#file-input").parents(".file.field").removeClass("selected");
   $("#file-input input").val("");
   $(event.currentTarget).addClass("selected");
+  
+  // Load the text and update prayer markers
+  var textId = $(event.currentTarget).data('id');
+  if (textId) {
+    pecha = JSON.parse(localStorage[appName + ".texts." + textId]);
+    updatePrayersSection();
+  }
 });
 
 $(document).on("click", ".extra-text", function (event) {
   $(event.currentTarget).toggleClass("selected");
 });
 
-// Prayer checkbox handling
-$(document).on("change", ".prayer-item input[type=checkbox]", function (event) {
-  var prayerId = $(event.currentTarget).closest('.prayer-item').data('id');
-  var isChecked = $(event.currentTarget).is(':checked');
-  
-  if (isChecked) {
-    if (selectedPrayers.indexOf(prayerId) === -1) {
-      selectedPrayers.push(prayerId);
-    }
-  } else {
-    selectedPrayers = selectedPrayers.filter(function(id) { return id !== prayerId; });
-  }
-  
-  saveSelectedPrayers();
-  updatePrayerOrder();
+// Open modal for marker-specific prayer selection
+$(document).on("click", ".marker-button", function (event) {
+  event.preventDefault();
+  var markerType = $(event.currentTarget).data('marker-type');
+  openPrayerModal(markerType);
 });
 
-// Update prayer order based on visual order
-var updatePrayerOrder = function() {
-  // Rebuild selectedPrayers array based on visual order of checked items
-  var newOrder = [];
-  $('.prayer-item').each(function() {
+// Open prayer selection modal for a specific marker
+var openPrayerModal = function(markerType) {
+  var currentPrayers = markerPrayers[markerType] || [];
+  var displayName = markerType.charAt(0) + markerType.slice(1).toLowerCase();
+  
+  var modalHtml = '\
+    <div class="ui modal prayer-modal" id="prayer-modal-' + markerType + '">\
+      <div class="header" style="background: #1b1c1d; color: white;">\
+        Select Prayers for ' + displayName + '\
+      </div>\
+      <div class="content" style="background: #1b1c1d;">\
+        <div class="ui prayers-list" id="modal-prayers-list-' + markerType + '">' +
+    _(availablePrayers)
+      .map(function (prayer) {
+        var isSelected = currentPrayers.indexOf(prayer.id) !== -1;
+        return (
+          '\
+            <div class="ui prayer-item" data-id="' +
+          prayer.id +
+          '" draggable="true">\
+              <div class="prayer-checkbox">\
+                <input type="checkbox" id="modal-prayer-' + markerType + '-' +
+          prayer.id +
+          '"' +
+          (isSelected ? ' checked' : '') +
+          ' />\
+                <label for="modal-prayer-' + markerType + '-' +
+          prayer.id +
+          '">' +
+          prayer.name +
+          '</label>\
+              </div>\
+              <div class="prayer-handle">☰</div>\
+            </div>\
+          '
+        );
+      })
+      .join("") +
+    '\
+        </div>\
+      </div>\
+      <div class="actions" style="background: #1b1c1d;">\
+        <button class="ui button" id="modal-cancel">Cancel</button>\
+        <button class="ui primary button" id="modal-save" data-marker-type="' + markerType + '">Save</button>\
+      </div>\
+    </div>\
+  ';
+  
+  // Remove any existing modal
+  $('.prayer-modal').remove();
+  
+  // Add modal to page
+  $('body').append(modalHtml);
+  
+  // Initialize Semantic UI modal
+  $('#prayer-modal-' + markerType).modal({
+    closable: true,
+    onHidden: function() {
+      $(this).remove();
+    }
+  }).modal('show');
+  
+  // Initialize drag and drop for modal
+  initializeModalPrayerDragAndDrop(markerType);
+};
+
+// Save prayers from modal
+$(document).on("click", "#modal-save", function (event) {
+  var markerType = $(event.currentTarget).data('marker-type');
+  var modalId = '#prayer-modal-' + markerType;
+  
+  // Collect selected prayers in order
+  var selectedPrayerIds = [];
+  $(modalId + ' .prayer-item').each(function() {
     var prayerId = $(this).data('id');
     var isChecked = $(this).find('input[type=checkbox]').is(':checked');
     if (isChecked) {
-      newOrder.push(prayerId);
+      selectedPrayerIds.push(prayerId);
     }
   });
-  selectedPrayers = newOrder;
-  saveSelectedPrayers();
-};
+  
+  markerPrayers[markerType] = selectedPrayerIds;
+  saveMarkerPrayers();
+  
+  // Update button text
+  var prayerCount = selectedPrayerIds.length;
+  var displayName = markerType.charAt(0) + markerType.slice(1).toLowerCase();
+  $('.marker-button[data-marker-type="' + markerType + '"]').html(
+    '<i class="list icon"></i> ' + displayName + ' (' + prayerCount + ' prayer' + (prayerCount !== 1 ? 's' : '') + ')'
+  );
+  
+  $(modalId).modal('hide');
+});
 
-// Drag and drop for prayer reordering
+// Cancel modal
+$(document).on("click", "#modal-cancel", function (event) {
+  $('.prayer-modal').modal('hide');
+});
+
+// Prayer checkbox handling in modal
+$(document).on("change", ".prayer-modal .prayer-item input[type=checkbox]", function (event) {
+  // No need to save here, will save when modal is closed with Save button
+});
+
+// Drag and drop for prayer reordering in modal
 var draggedPrayerElement = null;
 var draggedPrayerId = null;
 
-var initializePrayerDragAndDrop = function() {
-  $('.prayer-item').on('dragstart', function(e) {
+var initializeModalPrayerDragAndDrop = function(markerType) {
+  var selector = '#prayer-modal-' + markerType + ' .prayer-item';
+  
+  $(selector).on('dragstart', function(e) {
     draggedPrayerElement = this;
     draggedPrayerId = $(this).data('id');
     e.originalEvent.dataTransfer.effectAllowed = 'move';
     $(this).addClass('dragging');
   });
   
-  $('.prayer-item').on('dragend', function(e) {
+  $(selector).on('dragend', function(e) {
     $(this).removeClass('dragging');
     draggedPrayerElement = null;
     draggedPrayerId = null;
   });
   
-  $('.prayer-item').on('dragover', function(e) {
+  $(selector).on('dragover', function(e) {
     if (e.preventDefault) {
       e.preventDefault();
     }
@@ -354,17 +506,17 @@ var initializePrayerDragAndDrop = function() {
     return false;
   });
   
-  $('.prayer-item').on('dragenter', function(e) {
+  $(selector).on('dragenter', function(e) {
     if (draggedPrayerElement !== this) {
       $(this).addClass('drag-over');
     }
   });
   
-  $('.prayer-item').on('dragleave', function(e) {
+  $(selector).on('dragleave', function(e) {
     $(this).removeClass('drag-over');
   });
   
-  $('.prayer-item').on('drop', function(e) {
+  $(selector).on('drop', function(e) {
     if (e.stopPropagation) {
       e.stopPropagation();
     }
@@ -386,9 +538,6 @@ var initializePrayerDragAndDrop = function() {
         // Dragging up - insert before target
         $targetElement.before($draggedElement);
       }
-      
-      // Update the order based on new visual positions
-      updatePrayerOrder();
     }
     
     return false;
@@ -413,10 +562,17 @@ $(document).on("click", "#render-button", function () {
     JSON.stringify(selectedExtraTexts);
   $("body").addClass(layout);
   if (includeTransliteration) $("body").addClass("with-phonetics");
+  $("#input-form").remove();
+  $("#loading-overlay").show();
+  
   if (textId) {
     pecha = JSON.parse(localStorage[appName + ".texts." + textId]);
     beginGeneration();
-  } else importFile();
-  $("#input-form").remove();
-  $("#loading-overlay").show();
+  } else if (pecha && pecha.groups && pecha.groups.length > 0) {
+    // File was already imported, just start generation
+    beginGeneration();
+  } else {
+    // Import file and start generation
+    importFile(true);
+  }
 });

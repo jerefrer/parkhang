@@ -1,9 +1,15 @@
 var beginGeneration = function () {
   if (delay) $("#loading-overlay").remove();
   
-  // First, handle prayer insertion if there are selected prayers
-  if (selectedPrayers && selectedPrayers.length > 0) {
-    insertPrayersAtMarker(function() {
+  // First, handle prayer insertion at markers
+  // Check if there are any markers or legacy selected prayers
+  var hasMarkerPrayers = markerPrayers && Object.keys(markerPrayers).some(function(key) {
+    return markerPrayers[key] && markerPrayers[key].length > 0;
+  });
+  var hasLegacyPrayers = selectedPrayers && selectedPrayers.length > 0;
+  
+  if (hasMarkerPrayers || hasLegacyPrayers) {
+    insertPrayersAtMarkers(function() {
       continueGeneration();
     });
   } else {

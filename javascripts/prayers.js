@@ -1,6 +1,7 @@
 // Prayer management functionality
 var availablePrayers = [];
-var selectedPrayers = [];
+var selectedPrayers = []; // Deprecated: kept for backward compatibility
+var markerPrayers = {}; // Maps marker type (e.g., 'TSOK', 'TSEGUK') to array of prayer IDs
 
 // Prayer data registry - maps prayer IDs to their global variable names
 var prayerDataRegistry = {
@@ -11,6 +12,7 @@ var prayerDataRegistry = {
   lamps: "prayerData_lamps",
   "lamps-short": "prayerData_lampsShort",
   "tsikdun-tsok": "prayerData_tsikdunTsok",
+  "tsikdun-tseguk": "prayerData_tsikdunTseguk",
   // Add more prayers here as they are added to the prayers folder
 };
 
@@ -25,6 +27,7 @@ var loadPrayers = function () {
     lamps: "Marmé mönlam – Lamp offering",
     "lamps-short": "Marmé mönlam – Lamp offering (short)",
     "tsikdun-tsok": "Tsikdün Tsok Offering",
+    "tsikdun-tseguk": "Tsikdün Tseguk Offering",
   };
 
   availablePrayers = [];
@@ -42,11 +45,22 @@ var loadPrayers = function () {
   if (stored) {
     selectedPrayers = JSON.parse(stored);
   }
+  
+  // Load marker-specific prayers from localStorage
+  var storedMarkerPrayers = localStorage[appName + ".marker-prayers"];
+  if (storedMarkerPrayers) {
+    markerPrayers = JSON.parse(storedMarkerPrayers);
+  }
 };
 
 // Save selected prayers to localStorage
 var saveSelectedPrayers = function () {
   localStorage[appName + ".selected-prayers"] = JSON.stringify(selectedPrayers);
+};
+
+// Save marker-specific prayers to localStorage
+var saveMarkerPrayers = function () {
+  localStorage[appName + ".marker-prayers"] = JSON.stringify(markerPrayers);
 };
 
 // Get prayer data from global variable
@@ -80,29 +94,93 @@ var getSelectedPrayersData = function (callback) {
   callback(prayersData);
 };
 
-// Insert prayers at the [INSERT TSOK HERE] marker
-var insertPrayersAtMarker = function (callback) {
-  getSelectedPrayersData(function (prayersData) {
-    // Find the marker in the pecha groups
-    var markerIndex = -1;
-    for (var i = 0; i < pecha.groups.length; i++) {
-      var group = pecha.groups[i];
-      if (group[selectedLanguage] === "[INSERT TSOK HERE]") {
-        markerIndex = i;
-        break;
+// Get prayers for a specific marker type
+var getPrayersDataForMarker = function (markerType, callback) {
+  var prayersData = [];
+  var prayerIds = markerPrayers[markerType] || [];
+
+  if (prayerIds.length === 0) {
+    callback([]);
+    return;
+  }
+
+  prayerIds.forEach(function (prayerId) {
+    var data = getPrayerData(prayerId);
+    if (data) {
+      prayersData.push({
+        id: prayerId,
+        data: data,
+      });
+    }
+  });
+
+  callback(prayersData);
+};
+
+// Find all INSERT markers in the pecha
+var findAllMarkers = function () {
+  var markers = [];
+  var markerRegex = /^\[INSERT (.+?) HERE\]$/;
+  
+  for (var i = 0; i < pecha.groups.length; i++) {
+    var group = pecha.groups[i];
+    
+    // Check all language fields to find markers
+    var languages = ['tibetan', 'english', 'french'];
+    for (var j = 0; j < languages.length; j++) {
+      var lang = languages[j];
+      var text = group[lang];
+      if (text) {
+        var trimmedText = text.trim();
+        var match = trimmedText.match(markerRegex);
+        
+        if (match) {
+          markers.push({
+            index: i,
+            type: match[1], // e.g., 'TSOK', 'TSEGUK'
+            text: trimmedText
+          });
+          break; // Found marker in this group, no need to check other languages
+        }
       }
     }
+  }
+  
+  return markers;
+};
 
-    if (markerIndex === -1) {
-      // No marker found, just continue
+// Insert prayers at all markers
+var insertPrayersAtMarkers = function (callback) {
+  var markers = findAllMarkers();
+  
+  if (markers.length === 0) {
+    callback();
+    return;
+  }
+  
+  // Process markers in reverse order to maintain correct indices
+  var processNextMarker = function (markerIndex) {
+    if (markerIndex < 0) {
       callback();
       return;
     }
+    
+    var marker = markers[markerIndex];
+    insertPrayersAtSingleMarker(marker, function () {
+      processNextMarker(markerIndex - 1);
+    });
+  };
+  
+  processNextMarker(markers.length - 1);
+};
 
+// Insert prayers at a single marker
+var insertPrayersAtSingleMarker = function (marker, callback) {
+  getPrayersDataForMarker(marker.type, function (prayersData) {
     // If no prayers are selected, remove the marker
     if (!prayersData || prayersData.length === 0) {
-      var beforeMarker = pecha.groups.slice(0, markerIndex);
-      var afterMarker = pecha.groups.slice(markerIndex + 1);
+      var beforeMarker = pecha.groups.slice(0, marker.index);
+      var afterMarker = pecha.groups.slice(marker.index + 1);
       pecha.groups = beforeMarker.concat(afterMarker);
       callback();
       return;
@@ -111,7 +189,7 @@ var insertPrayersAtMarker = function (callback) {
     // Collect all prayer groups
     var allPrayerGroups = [];
     var yigos = ["༄༅།  །", "༄༅། །", "༄༅།།", "༈ །", "༈།", "༄ །", "༄།"];
-    
+
     prayersData.forEach(function (prayerData, prayerIndex) {
       if (prayerData && prayerData.data && prayerData.data.groups) {
         var prayerGroups = prayerData.data.groups;
@@ -121,7 +199,7 @@ var insertPrayersAtMarker = function (callback) {
         if (prayerIndex > 0) {
           var firstPrayerGroup = prayerGroups[0];
           var startsWithYigo = false;
-          
+
           if (firstPrayerGroup && firstPrayerGroup.tibetan) {
             for (var y = 0; y < yigos.length; y++) {
               if (firstPrayerGroup.tibetan.startsWith(yigos[y])) {
@@ -130,7 +208,7 @@ var insertPrayersAtMarker = function (callback) {
               }
             }
           }
-          
+
           if (!startsWithYigo) {
             allPrayerGroups.push({
               tibetan: "༄༅། །",
@@ -218,12 +296,17 @@ var insertPrayersAtMarker = function (callback) {
     });
 
     // Replace the marker with the prayer groups
-    var beforeMarker = pecha.groups.slice(0, markerIndex);
-    var afterMarker = pecha.groups.slice(markerIndex + 1);
+    var beforeMarker = pecha.groups.slice(0, marker.index);
+    var afterMarker = pecha.groups.slice(marker.index + 1);
     pecha.groups = beforeMarker.concat(allPrayerGroups).concat(afterMarker);
 
     callback();
   });
+};
+
+// Legacy function for backward compatibility
+var insertPrayersAtMarker = function (callback) {
+  insertPrayersAtMarkers(callback);
 };
 
 // Initialize prayers on page load

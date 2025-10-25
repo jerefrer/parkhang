@@ -151,3 +151,48 @@
   cursor: move;
   padding: 0 5px;
 }
+
+/* Marker button styles */
+.marker-buttons {
+  display: flex;
+  flex-direction: column;
+}
+
+.marker-button {
+  transition: all 0.2s ease;
+}
+
+.marker-button:hover {
+  background: #3a3a3a !important;
+  transform: translateY(-2px);
+}
+
+/* Prayer modal styles */
+.prayer-modal .header {
+  border-bottom: 1px solid #333 !important;
+}
+
+.prayer-modal .content {
+  padding: 20px !important;
+}
+
+.prayer-modal .actions {
+  border-top: 1px solid #333 !important;
+}
+
+.prayer-modal .actions .button {
+  background: #333;
+  color: white;
+}
+
+.prayer-modal .actions .button:hover {
+  background: #3a3a3a;
+}
+
+.prayer-modal .actions .primary.button {
+  background: #2185d0;
+}
+
+.prayer-modal .actions .primary.button:hover {
+  background: #1678c2;
+}
