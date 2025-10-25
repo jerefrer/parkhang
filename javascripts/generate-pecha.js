@@ -623,28 +623,48 @@ var addTranslationCell = function (tibetanTd, text, callback) {
     if ($("body").hasClass("pecha-a4")) maxHeight = 19.3;
     if ($("body").hasClass("pecha-screen")) maxHeight = 32.73;
 
-    if (td.height() > maxHeight) {
+    var initialHeight = td[0].offsetHeight;
+    if (initialHeight > maxHeight) {
       var letterSpacing = 0;
-      var minLetterSpacing = -5;
+      var minLetterSpacing = -1;
+      var fitsDetected = false;
 
       var adjustLetterSpacing = function () {
         letterSpacing -= 0.1;
         td.css({ "letter-spacing": letterSpacing + "px" });
 
-        if (td.height() <= maxHeight) {
-          // Fits now, lock the width and continue
-          td.css({ width: td.width() + "px" });
-          if (callback) callback();
-          return;
-        } else if (letterSpacing <= minLetterSpacing) {
-          // Hit minimum, lock width, highlight and continue
-          td.css({ width: td.width() + "px", background: "rgba(255,0,0,0.5)" });
-          if (callback) callback();
-          return;
-        } else {
-          // Continue reducing
-          setTimeout(adjustLetterSpacing, delay / 10);
-        }
+        // Use requestAnimationFrame to ensure browser has painted before measuring
+        requestAnimationFrame(function () {
+          // Force reflow by accessing offsetHeight, then get precise height
+          td[0].offsetHeight; // Force browser to recalculate layout
+          var currentHeight = td.height();
+
+          // Check if it fits
+          if (currentHeight <= maxHeight) {
+            if (fitsDetected) {
+              // Already fit in previous iteration, now we're sure - stop
+              td.css({ width: td.width() + "px" });
+              if (callback) callback();
+              return;
+            } else {
+              // First time detecting fit - continue one more iteration to be sure
+              fitsDetected = true;
+              setTimeout(adjustLetterSpacing, delay / 10);
+              return;
+            }
+          } else if (letterSpacing <= minLetterSpacing) {
+            // Hit minimum, lock width, highlight and continue
+            td.css({
+              width: td.width() + "px",
+              background: "rgba(255,0,0,0.5)",
+            });
+            if (callback) callback();
+            return;
+          } else {
+            // Continue reducing
+            setTimeout(adjustLetterSpacing, delay / 10);
+          }
+        });
       };
 
       adjustLetterSpacing();
