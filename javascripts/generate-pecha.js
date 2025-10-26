@@ -626,7 +626,7 @@ var addTranslationCell = function (tibetanTd, text, callback) {
     var initialHeight = td[0].offsetHeight;
     if (initialHeight > maxHeight) {
       var letterSpacing = 0;
-      var minLetterSpacing = -1;
+      var minLetterSpacing = -0.9;
       var fitsDetected = false;
 
       var adjustLetterSpacing = function () {
