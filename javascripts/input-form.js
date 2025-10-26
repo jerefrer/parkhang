@@ -104,6 +104,23 @@ var languageSelect = function () {
   );
 };
 
+var mantraPhoneticCheckbox = function () {
+  var selectedLayout = localStorage[appName + ".layout"] || "";
+  // Hide for Split and Classic layouts
+  if (selectedLayout.startsWith("split") || selectedLayout.startsWith("classic")) {
+    return "";
+  }
+  
+  return '\
+    <div class="ui field" style="text-align: center; margin-top: 15px;">\
+      <div class="ui mantra-phonetic checkbox">\
+        <input type="checkbox" id="mantra-phonetic-checkbox" checked>\
+        <label for="mantra-phonetic-checkbox" style="color: white;">Display mantra phonetics</label>\
+      </div>\
+    </div>\
+  ';
+};
+
 var texts =
   (localStorage[appName + ".texts"] &&
     JSON.parse(localStorage[appName + ".texts"])) ||
@@ -282,6 +299,7 @@ var renderInputForm = function () {
     '<div id="prayers-divider" style="display: none;"><div class="ui inverted divider" style="margin-top: 25px;"></div></div>'
   );
   form.append(languageSelect);
+  form.append('<div id="mantra-phonetic-section"></div>');
   form.append('<div class="ui inverted divider"></div>');
   form.append(layoutSelect);
   form.append(
@@ -298,9 +316,23 @@ var renderInputForm = function () {
   var layout = localStorage[appName + ".layout"];
   var language = localStorage[appName + ".language"];
   var selectedExtraTexts = localStorage[appName + ".selected-extra-texts"];
+  
+  // Update mantra phonetic checkbox visibility based on layout
+  var updateMantraPhoneticSection = function() {
+    $("#mantra-phonetic-section").html(mantraPhoneticCheckbox());
+    $(".mantra-phonetic.checkbox").checkbox();
+    var displayMantraPhonetics = localStorage[appName + ".displayMantraPhonetics"];
+    if (displayMantraPhonetics === "false") {
+      $("#mantra-phonetic-checkbox").prop("checked", false);
+    }
+  };
+  
   if (textId) $(".text[data-id=" + textId + "]").click();
   if (layout) $(".layout[data-id=" + layout + "]").click();
   if (language) $("input[name=language][value=" + language + "]").click();
+  
+  // Initialize mantra phonetic section
+  updateMantraPhoneticSection();
   if (selectedExtraTexts && selectedExtraTexts.length) {
     _(JSON.parse(selectedExtraTexts)).each(function (extraTextId) {
       $(".extra-text[data-id=" + extraTextId + "]").click();
@@ -332,6 +364,16 @@ var updatePrayersSection = function () {
 $(document).on("click", ".layout:not(.disabled)", function (event) {
   $(".layout").removeClass("selected");
   $(event.currentTarget).addClass("selected");
+  
+  // Update mantra phonetic checkbox visibility when layout changes
+  var layout = $(event.currentTarget).data("id");
+  localStorage[appName + ".layout"] = layout;
+  $("#mantra-phonetic-section").html(mantraPhoneticCheckbox());
+  $(".mantra-phonetic.checkbox").checkbox();
+  var displayMantraPhonetics = localStorage[appName + ".displayMantraPhonetics"];
+  if (displayMantraPhonetics === "false") {
+    $("#mantra-phonetic-checkbox").prop("checked", false);
+  }
 });
 
 $(document).on("change", "input[type=radio]", function (event) {
@@ -570,6 +612,7 @@ var initializeModalPrayerDragAndDrop = function (markerType) {
 var selectedLanguage;
 var selectedExtraTexts;
 var includeTransliteration = true;
+var displayMantraPhonetics = true;
 $(document).on("click", "#render-button", function () {
   var textId = (localStorage[appName + ".textId"] =
     $(".text.selected").data("id"));
@@ -583,8 +626,14 @@ $(document).on("click", "#render-button", function () {
   });
   localStorage[appName + ".selected-extra-texts"] =
     JSON.stringify(selectedExtraTexts);
+  
+  // Save mantra phonetic preference
+  displayMantraPhonetics = $("#mantra-phonetic-checkbox").is(":checked");
+  localStorage[appName + ".displayMantraPhonetics"] = displayMantraPhonetics;
+  
   $("body").addClass(layout);
   if (includeTransliteration) $("body").addClass("with-phonetics");
+  if (displayMantraPhonetics) $("body").addClass("with-mantra-phonetics");
   $("#input-form").remove();
   $("#loading-overlay").show();
 

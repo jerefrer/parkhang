@@ -736,7 +736,18 @@ var addNextTranslation = function () {
   var table = tibetanTd.parents("table");
   addEmptyTdsIfNeeded(table, tibetanTd);
   if (group != undefined) {
-    var translation = removeOptionalParts(group[selectedLanguage]);
+    // Check if this is a mantra group and if mantra phonetics should be hidden
+    var isMantraGroup = group.type === "mantra";
+    var hideMantraPhonetics = !$("body").hasClass("with-mantra-phonetics");
+    
+    // If it's a mantra and we should hide phonetics, use empty translation
+    var translation;
+    if (isMantraGroup && hideMantraPhonetics) {
+      translation = "";
+    } else {
+      translation = removeOptionalParts(group[selectedLanguage]);
+    }
+    
     if (!translation) {
       addTranslationCell(tibetanTd, "", function () {
         setTimeout(addNextTranslation, delay);
