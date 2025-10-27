@@ -107,15 +107,46 @@ var languageSelect = function () {
 var mantraPhoneticCheckbox = function () {
   var selectedLayout = localStorage[appName + ".layout"] || "";
   // Hide for Split and Classic layouts
-  if (selectedLayout.startsWith("split") || selectedLayout.startsWith("classic")) {
+  if (
+    selectedLayout.startsWith("split") ||
+    selectedLayout.startsWith("classic")
+  ) {
     return "";
   }
-  
+
   return '\
     <div class="ui field" style="text-align: center; margin-top: 15px;">\
       <div class="ui mantra-phonetic checkbox">\
         <input type="checkbox" id="mantra-phonetic-checkbox" checked>\
         <label for="mantra-phonetic-checkbox" style="color: white;">Display mantra phonetics</label>\
+      </div>\
+    </div>\
+  ';
+};
+
+var pageNumberTypeSelect = function () {
+  var selectedLayout = localStorage[appName + ".layout"] || "";
+  // Only show for Pecha layouts
+  if (!selectedLayout.startsWith("pecha")) {
+    return "";
+  }
+
+  return '\
+    <div class="ui field" style="text-align: center; margin-top: 15px;">\
+      <label style="color: white; display: block; margin-bottom: 8px; font-weight: bold;">Page Number Style</label>\
+      <div class="ui inline page-number-type fields" style="justify-content: center;">\
+        <div class="field">\
+          <div class="ui page-number-type radio checkbox">\
+            <input type="radio" name="page-number-type" value="tibetan">\
+            <label style="color: white;">Tibetan</label>\
+          </div>\
+        </div>\
+        <div class="field">\
+          <div class="ui page-number-type radio checkbox">\
+            <input type="radio" name="page-number-type" value="arabic" checked>\
+            <label style="color: white;">Arabic</label>\
+          </div>\
+        </div>\
       </div>\
     </div>\
   ';
@@ -302,6 +333,7 @@ var renderInputForm = function () {
   form.append('<div id="mantra-phonetic-section"></div>');
   form.append('<div class="ui inverted divider"></div>');
   form.append(layoutSelect);
+  form.append('<div id="page-number-type-section"></div>');
   form.append(
     '<div class="ui inverted divider" style="margin: 15px auto 20px"></div>'
   );
@@ -316,23 +348,36 @@ var renderInputForm = function () {
   var layout = localStorage[appName + ".layout"];
   var language = localStorage[appName + ".language"];
   var selectedExtraTexts = localStorage[appName + ".selected-extra-texts"];
-  
+
   // Update mantra phonetic checkbox visibility based on layout
-  var updateMantraPhoneticSection = function() {
+  var updateMantraPhoneticSection = function () {
     $("#mantra-phonetic-section").html(mantraPhoneticCheckbox());
     $(".mantra-phonetic.checkbox").checkbox();
-    var displayMantraPhonetics = localStorage[appName + ".displayMantraPhonetics"];
+    var displayMantraPhonetics =
+      localStorage[appName + ".displayMantraPhonetics"];
     if (displayMantraPhonetics === "false") {
       $("#mantra-phonetic-checkbox").prop("checked", false);
     }
   };
-  
+
+  // Update page number type section visibility based on layout
+  var updatePageNumberTypeSection = function () {
+    $("#page-number-type-section").html(pageNumberTypeSelect());
+    $(".page-number-type.checkbox").checkbox();
+    var pageNumberType = localStorage[appName + ".pageNumberType"];
+    if (pageNumberType === "arabic") {
+      $("input[name=page-number-type][value=arabic]").prop("checked", true);
+    }
+  };
+
   if (textId) $(".text[data-id=" + textId + "]").click();
   if (layout) $(".layout[data-id=" + layout + "]").click();
   if (language) $("input[name=language][value=" + language + "]").click();
-  
+
   // Initialize mantra phonetic section
   updateMantraPhoneticSection();
+  // Initialize page number type section
+  updatePageNumberTypeSection();
   if (selectedExtraTexts && selectedExtraTexts.length) {
     _(JSON.parse(selectedExtraTexts)).each(function (extraTextId) {
       $(".extra-text[data-id=" + extraTextId + "]").click();
@@ -364,15 +409,24 @@ var updatePrayersSection = function () {
 $(document).on("click", ".layout:not(.disabled)", function (event) {
   $(".layout").removeClass("selected");
   $(event.currentTarget).addClass("selected");
-  
+
   // Update mantra phonetic checkbox visibility when layout changes
   var layout = $(event.currentTarget).data("id");
   localStorage[appName + ".layout"] = layout;
   $("#mantra-phonetic-section").html(mantraPhoneticCheckbox());
   $(".mantra-phonetic.checkbox").checkbox();
-  var displayMantraPhonetics = localStorage[appName + ".displayMantraPhonetics"];
+  var displayMantraPhonetics =
+    localStorage[appName + ".displayMantraPhonetics"];
   if (displayMantraPhonetics === "false") {
     $("#mantra-phonetic-checkbox").prop("checked", false);
+  }
+
+  // Update page number type section visibility when layout changes
+  $("#page-number-type-section").html(pageNumberTypeSelect());
+  $(".page-number-type.checkbox").checkbox();
+  var pageNumberType = localStorage[appName + ".pageNumberType"];
+  if (pageNumberType === "arabic") {
+    $("input[name=page-number-type][value=arabic]").prop("checked", true);
   }
 });
 
@@ -626,14 +680,20 @@ $(document).on("click", "#render-button", function () {
   });
   localStorage[appName + ".selected-extra-texts"] =
     JSON.stringify(selectedExtraTexts);
-  
+
   // Save mantra phonetic preference
   displayMantraPhonetics = $("#mantra-phonetic-checkbox").is(":checked");
   localStorage[appName + ".displayMantraPhonetics"] = displayMantraPhonetics;
-  
+
+  // Save page number type preference
+  var pageNumberType =
+    $("input[name=page-number-type]:checked").val() || "tibetan";
+  localStorage[appName + ".pageNumberType"] = pageNumberType;
+
   $("body").addClass(layout);
   if (includeTransliteration) $("body").addClass("with-phonetics");
   if (displayMantraPhonetics) $("body").addClass("with-mantra-phonetics");
+  if (pageNumberType === "arabic") $("body").addClass("arabic-numbers");
   $("#input-form").remove();
   $("#loading-overlay").show();
 

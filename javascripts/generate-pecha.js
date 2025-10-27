@@ -123,73 +123,87 @@ var stripLeadingYigo = function (text, $currentRow) {
 
 var pechaLeftMargin = function () {
   var margin = $('<div class="pecha-left-margin">');
-  margin.append('<div class="pecha-left-margin-first">དང་པོ་པ་ནི།</div>');
-  margin.append('<div class="pecha-left-margin-last">དང་པོ་པ་ནི།</div>');
-  margin.append('<div class="pecha-left-margin-center">དང་པོ་པ་ནི།</div>');
-  return margin;
-};
-
-var pechaRightMargin = function () {
-  var margin = $('<div class="pecha-right-margin">');
   if (pageNumber % 2 == 1) {
-    // Odd page
-    margin.append('<div class="pecha-right-margin-first">དང་པོ་པ་ནི།</div>');
-    margin.append('<div class="pecha-right-margin-last">དང་པོ་པ་ནི།</div>');
+    // Odd page - show page number
+    margin.append('<div class="pecha-left-margin-first"></div>');
+    margin.append('<div class="pecha-left-margin-last"></div>');
+    var pageNumberText =
+      tibetanPageNumbersInPlainText[physicalPageNumber - 1] || "";
     margin.append(
-      '<div class="pecha-right-margin-center">' +
-        tibetanNumber(physicalPageNumber) +
-        "</div>"
+      '<div class="pecha-left-margin-center">' + pageNumberText + "</div>"
     );
   } else {
-    // Even page
-    margin.append('<div class="pecha-right-margin-first"></div>');
-    margin.append('<div class="pecha-right-margin-last"></div>');
+    // Even page - show title
+    margin.append('<div class="pecha-left-margin-first"></div>');
+    margin.append('<div class="pecha-left-margin-last"></div>');
+    var titleText =
+      (pecha.title && pecha.title.tibetan && pecha.title.tibetan.short) || "";
     margin.append(
-      '<div class="pecha-right-margin-center">དང་པོ་པ་ནི་དང་པོ་པ་ནི།</div>'
+      '<div class="pecha-left-margin-center">' + titleText + "</div>"
     );
   }
   return margin;
 };
 
+var pechaRightMargin = function () {
+  var margin = $('<div class="pecha-right-margin">');
+  margin.append('<div class="pecha-right-margin-first"></div>');
+  margin.append('<div class="pecha-right-margin-last"></div>');
+
+  // Use Arabic numbers if the body has the arabic-numbers class
+  var pageNumberText;
+  if ($("body").hasClass("arabic-numbers")) {
+    pageNumberText = pageNumber.toString();
+  } else {
+    pageNumberText = tibetanNumber(pageNumber);
+  }
+
+  margin.append(
+    '<div class="pecha-right-margin-center">' + pageNumberText + "</div>"
+  );
+  return margin;
+};
+
 var addPechaTitlePage = function () {
   var translation = pecha.title[selectedLanguage];
-  var titlePage =
+  var titlePage = $('<div class="pecha-page-container" id="title-page">');
+  titlePage.append('<div class="pecha-title-page">');
+  titlePage
+    .find(".pecha-title-page")
+    .append('<div class="pecha-title-page-inner">');
+  titlePage.find(".pecha-title-page-inner").append(pechaLeftMargin());
+  titlePage.find(".pecha-title-page-inner").append(
     '\
-    <div class="pecha-page-container" id="title-page">\
-      <div class="pecha-title-page">\
-        <div class="pecha-title-page-inner">\
-          <div class="pecha-title-page-inner-inner">\
-            <div class="pecha-title-left-box"></div>\
-            <div class="pecha-title-left-gap"></div>\
-            <div class="pecha-title-content">\
-              <table class="line">\
-                <tbody>\
-                  <tr class="tibetan">\
-                    <td>' +
-    pecha.title.tibetan.full +
-    '</td>\
-                  </tr>\
-                  <tr class="translation">\
-                    <td>\
-                      <div class="title">' +
-    translation.title +
-    "</div>" +
-    ((translation.subtitle &&
-      '<div class="subtitle">' + translation.subtitle + "</div>") ||
-      "") +
-    '\
-                    </td>\
-                  </tr>\
-                </tbody>\
-              </table>\
-            </div>\
-            <div class="pecha-title-right-gap"></div>\
-            <div class="pecha-title-right-box"></div>\
-          </div>\
-        </div>\
+    <div class="pecha-title-page-inner-inner">\
+      <div class="pecha-title-left-box"></div>\
+      <div class="pecha-title-left-gap"></div>\
+      <div class="pecha-title-content">\
+        <table class="line">\
+          <tbody>\
+            <tr class="tibetan">\
+              <td>' +
+      pecha.title.tibetan.full +
+      '</td>\
+            </tr>\
+            <tr class="translation">\
+              <td>\
+                <div class="title">' +
+      translation.title +
+      "</div>" +
+      ((translation.subtitle &&
+        '<div class="subtitle">' + translation.subtitle + "</div>") ||
+        "") +
+      '\
+              </td>\
+            </tr>\
+          </tbody>\
+        </table>\
       </div>\
-    </div>\
-  ';
+      <div class="pecha-title-right-gap"></div>\
+      <div class="pecha-title-right-box"></div>\
+    </div>'
+  );
+  titlePage.find(".pecha-title-page-inner").append(pechaRightMargin());
   $("#main").append(titlePage);
   setTimeout(function () {
     var pageHeight = $(".pecha-page-container").height();
@@ -199,22 +213,24 @@ var addPechaTitlePage = function () {
         "calc(" +
         contentHeight +
         "px + (3px * 6) + (3 * 3pt) + (2 * 6pt) + (2 * 17.52pt) - 0.5px)",
-    });
-    $(".pecha-title-page").css({
       "margin-top":
         "calc((" +
         pageHeight +
         "px - " +
         $(".pecha-title-page").outerHeight() +
         "px) / 2)",
-    });
-    $(".pecha-title-page").css({
       "margin-bottom":
         "calc((" +
         pageHeight +
         "px - " +
         $(".pecha-title-page").outerHeight() +
         "px) / 2)",
+    });
+    var innerHeight = $(".pecha-title-page-inner-inner").outerHeight();
+    $(
+      ".pecha-title-page .pecha-left-margin, .pecha-title-page .pecha-right-margin"
+    ).css({
+      height: innerHeight,
     });
   }, 200);
   pageNumber++;
@@ -739,7 +755,7 @@ var addNextTranslation = function () {
     // Check if this is a mantra group and if mantra phonetics should be hidden
     var isMantraGroup = group.type === "mantra";
     var hideMantraPhonetics = !$("body").hasClass("with-mantra-phonetics");
-    
+
     // If it's a mantra and we should hide phonetics, use empty translation
     var translation;
     if (isMantraGroup && hideMantraPhonetics) {
@@ -747,7 +763,7 @@ var addNextTranslation = function () {
     } else {
       translation = removeOptionalParts(group[selectedLanguage]);
     }
-    
+
     if (!translation) {
       addTranslationCell(tibetanTd, "", function () {
         setTimeout(addNextTranslation, delay);

@@ -27,11 +27,11 @@
   border-color: white;
 }
 .pecha-a4 .pecha-left-margin {
-  line-height: 1.4em;
+  line-height: 1.7em;
   border-width: 1px 2px 2px 1px;
 }
 .pecha-a4 .pecha-right-margin {
-  line-height: 1.4em;
+  line-height: 1.6em;
   border-width: 2px 1px 1px 2px;
   transform: rotate(180deg);
 }
@@ -48,4 +48,8 @@
 .pecha-a4 .pecha-left-margin-center,
 .pecha-a4 .pecha-right-margin-center {
   text-align: center;
+}
+.pecha-a4 .pecha-right-margin-center {
+  font-size: 12px;
+  transform: rotate(90deg) translateY(2px);
 }
