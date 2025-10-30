@@ -24,7 +24,7 @@ var pecha = {
 };
 
 var importFile = function (shouldGenerate) {
-  var fileInput = $("#file-input input")[0];
+  var fileInput = $("#hidden-file-input")[0];
   if (!fileInput || !fileInput.files || !fileInput.files[0]) {
     alert("Please select a file to import.");
     return;

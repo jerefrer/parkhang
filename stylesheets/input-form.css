@@ -10,11 +10,11 @@
 
 #input-form .card {
   width: 12vh;
-  margin: .5em;
+  margin: 0.5em;
   font-size: 1.2vh;
   background: #222 !important;
-  border-color: rgba(34,36,38,.1) !important;
-  box-shadow: 0 1px 3px 0 rgba(34,36,38,.1), 0 0 0 1px rgba(34,36,38,1) !important;
+  border-color: rgba(34, 36, 38, 0.1) !important;
+  box-shadow: 0 1px 3px 0 rgba(34, 36, 38, 0.1), 0 0 0 1px rgba(34, 36, 38, 1) !important;
 }
 #input-form .card.disabled {
   opacity: 0.5;
@@ -39,6 +39,12 @@
   font-weight: bold;
   color: rgba(255, 255, 255, 0.5);
   text-shadow: 0 0 2px rgba(255, 255, 255, 0.25), 0 0 3px rgba(0, 0, 0, 1);
+}
+
+#input-form .card .content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 #input-form .card .header {

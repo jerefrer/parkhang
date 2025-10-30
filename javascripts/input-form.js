@@ -178,6 +178,14 @@ var textSelect = function () {
         );
       })
       .join("") +
+    // Add file input as a card with + icon
+    '\
+            <div class="ui file-upload link card" id="file-upload-card">\
+              <div class="content" style="text-align: center; padding: 20px;">\
+                <div class="header" style="font-size: 3em; color: #666; margin: 0;">+</div>\
+              </div>\
+            </div>\
+          ' +
     "\
       </div>\
     </div>\
@@ -309,14 +317,9 @@ var renderInputForm = function () {
     form.append(
       '<div class="ui horizontal inverted divider" style="width: 220px; margin-top: 25px">or</div>'
     );
+  // Add hidden file input that will be triggered by the upload card
   form.append(
-    '\
-    <div class="ui file field">\
-      <div class="ui input" id="file-input">\
-        <input type="file" />\
-      </div>\
-    </div>\
-  '
+    '<input type="file" id="hidden-file-input" style="display: none;" />'
   );
   form.append(
     '<div class="ui inverted divider" style="margin-bottom: 25px;"></div>'
@@ -406,6 +409,28 @@ var updatePrayersSection = function () {
   }
 };
 
+// Refresh the text selection area with updated texts
+var refreshTextSelection = function () {
+  var textSelectHtml = textSelect();
+  $("#input-form .ui.field").first().replaceWith(textSelectHtml);
+
+  // Re-attach the text click handler
+  $(".text")
+    .off("click")
+    .on("click", function (event) {
+      $(".text").removeClass("selected");
+      $("#file-upload-card").removeClass("selected");
+      $(event.currentTarget).addClass("selected");
+
+      // Load the text and update prayer markers
+      var textId = $(event.currentTarget).data("id");
+      if (textId) {
+        pecha = JSON.parse(localStorage[appName + ".texts." + textId]);
+        updatePrayersSection();
+      }
+    });
+};
+
 $(document).on("click", ".layout:not(.disabled)", function (event) {
   $(".layout").removeClass("selected");
   $(event.currentTarget).addClass("selected");
@@ -435,18 +460,36 @@ $(document).on("change", "input[type=radio]", function (event) {
   $(event.currentTarget).parents(".language.radio").addClass("selected");
 });
 
-$(document).on("change", "#file-input input", function (event) {
+// Handle click on the upload card to trigger the hidden file input
+$(document).on("click", "#file-upload-card", function (event) {
+  $("#hidden-file-input").click();
+});
+
+$(document).on("change", "#hidden-file-input", function (event) {
   $(".text").removeClass("selected");
-  $(event.currentTarget).parents(".file.field").addClass("selected");
+  $("#file-upload-card").addClass("selected");
 
   // Import the file but don't generate yet - just load it and show markers
   importFile(false);
+
+  // After import, refresh the text selection area to include the newly uploaded file
+  // and automatically select it
+  setTimeout(function () {
+    refreshTextSelection();
+    var textId = localStorage[appName + ".textId"];
+    if (textId) {
+      // Clear upload card selection since we now have a proper text card
+      $("#file-upload-card").removeClass("selected");
+
+      // Click the newly added text card to select it
+      $(".text[data-id=" + textId + "]").click();
+    }
+  }, 200);
 });
 
 $(document).on("click", ".text", function (event) {
   $(".text").removeClass("selected");
-  $("#file-input").parents(".file.field").removeClass("selected");
-  $("#file-input input").val("");
+  $("#file-upload-card").removeClass("selected");
   $(event.currentTarget).addClass("selected");
 
   // Load the text and update prayer markers
