@@ -761,7 +761,10 @@ var addNextTranslation = function () {
     if (isMantraGroup && hideMantraPhonetics) {
       translation = "";
     } else {
-      translation = removeOptionalParts(group[selectedLanguage]);
+      // Get the appropriate translation (pecha-specific has precedence)
+      var pechaSpecificKey = selectedLanguage + "PechaSpecific";
+      var rawTranslation = group[pechaSpecificKey] || group[selectedLanguage];
+      translation = removeOptionalParts(rawTranslation);
     }
 
     if (!translation) {

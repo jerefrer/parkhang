@@ -2,8 +2,11 @@ var languageIndexes = {
   tibetan: 0,
   phonetics: 1,
   english: 2,
-  french: 3,
+  englishPechaSpecific: 3,
+  french: 4,
+  frenchPechaSpecific: 5,
 };
+var optionsColIndex = 6;
 
 var translationIndexFor = function (language) {
   return languageIndexes[language];
@@ -87,7 +90,7 @@ var importXLSX = function (reader, file, shouldGenerate) {
   reader.onload = function () {
     // Reset pecha.groups to avoid duplicating content on re-import
     pecha.groups = [];
-    
+
     var xlsx = XLSX.read(reader.result, { type: "binary" });
 
     var sheet = xlsx.Sheets[xlsx.SheetNames[0]];
@@ -134,7 +137,7 @@ var importXLSX = function (reader, file, shouldGenerate) {
       }
       if (rowIndex != 0 && (!titlePage || rowIndex > 5)) {
         var group = {};
-        var options = cell(rowIndex, 4);
+        var options = cell(rowIndex, optionsColIndex);
         if (options) {
           _(options.split(" ")).each(function (option) {
             group[option] = true;
