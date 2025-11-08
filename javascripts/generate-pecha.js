@@ -439,33 +439,58 @@ var fitWordsOnLine = function (text) {
           addNextSyllable();
         }, delay);
       } else if (syllables.slice(syllableIndex).length == 1) {
-        // Just one syllable left, finish this group and move to next
+        // Just one syllable left - squeeze line to fit it instead of overflowing
+        // This prevents single-syllable orphans on the next line
         lineWidth += td.width();
         groupIndex++;
-        fitWidth($("table:last"));
+        decreaseUntilItFits($("table:last"));
         setTimeout(function () {
           addNextGroup();
         }, delay);
       } else {
-        // Doesn't fit, start a new line with remaining syllables
+        // Doesn't fit, need to overflow
         td.find("span:last").remove();
-        if (!td.find("span:not(.space)").length) td.remove();
 
-        // Reconstruct remaining text with small markers
-        var remainingText = "";
-        var currentIsSmall = null;
-        for (var i = syllableIndex; i < syllables.length; i++) {
-          var syl = syllables[i];
-          if (syl.isSmall !== currentIsSmall) {
-            if (currentIsSmall === true) remainingText += "</small>";
-            if (syl.isSmall === true) remainingText += "<small>";
-            currentIsSmall = syl.isSmall;
+        // Check if only 1 syllable was successfully added to current line
+        if (syllableIndex == 1) {
+          // Only 1 syllable on line - remove it and overflow entire group
+          td.remove();
+
+          // Reconstruct full text from all syllables
+          var fullText = "";
+          var currentIsSmall = null;
+          for (var i = 0; i < syllables.length; i++) {
+            var syl = syllables[i];
+            if (syl.isSmall !== currentIsSmall) {
+              if (currentIsSmall === true) fullText += "</small>";
+              if (syl.isSmall === true) fullText += "<small>";
+              currentIsSmall = syl.isSmall;
+            }
+            fullText += syl.text;
           }
-          remainingText += syl.text;
-        }
-        if (currentIsSmall === true) remainingText += "</small>";
+          if (currentIsSmall === true) fullText += "</small>";
 
-        continueOnNewLineStartingWith(remainingText);
+          continueOnNewLineStartingWith(fullText);
+        } else {
+          // 2+ syllables on current line, overflow remaining syllables normally
+          if (!td.find("span:not(.space)").length) td.remove();
+
+          // Reconstruct remaining text with small markers
+          var remainingText = "";
+          var currentIsSmall = null;
+          for (var i = syllableIndex; i < syllables.length; i++) {
+            var syl = syllables[i];
+            if (syl.isSmall !== currentIsSmall) {
+              if (currentIsSmall === true) remainingText += "</small>";
+              if (syl.isSmall === true) remainingText += "<small>";
+              currentIsSmall = syl.isSmall;
+            }
+            remainingText += syl.text;
+          }
+          if (currentIsSmall === true) remainingText += "</small>";
+
+          continueOnNewLineStartingWith(remainingText);
+        }
       }
     } else {
       lineWidth += td.width();
@@ -523,6 +548,45 @@ var addNextGroup = function (remainingWords) {
       $currentTibetanRow.find("td:not(.page-beginning)").length > 0 &&
       needsSpaceBefore(textConverted) &&
       !group.tibetanAttachedToPrevious;
+
+    // Check if current group has only 1 syllable
+    var syllableCount = textWithMarkers.split("་").filter(function(s) {
+      return s.replace(/<\/?small>/g, "").trim().length > 0;
+    }).length;
+    var isSingleSyllable = syllableCount === 1;
+
+    // If 1-syllable group and there's already content on line, check if next group will fit
+    if (isSingleSyllable && $currentTibetanRow.find("td:not(.page-beginning)").length > 0 && groupIndex + 1 < pecha.groups.length) {
+      var nextGroup = pecha.groups[groupIndex + 1];
+      if (nextGroup && nextGroup.tibetan) {
+        // Create temporary td to measure if current + next group would fit
+        var nextText = nextGroup.tibetan;
+        var tempNextTd = $("<td>").html(fixTibetanAvagraha(nextText.split("་")[0] + "་"));
+        $currentTibetanRow.append(td);
+        $currentTibetanRow.append(tempNextTd);
+        var currentWidth = td.width();
+        var nextWidth = tempNextTd.width();
+        var combinedWidth = currentWidth + nextWidth;
+        tempNextTd.remove();
+        td.remove();
+
+        // If next group won't fit, move 1-syllable group to next line
+        if (lineWidth + combinedWidth + LINE_END_MARGIN > pechaContentWidth) {
+          fitWidth($("table:last"));
+          if (isAPage() && !isPageScreen() && pageOverflows()) addNextPechaPage();
+          else if ($(".pecha-page:last .line").length == numberOfLinesPerPage) addNextPechaPage();
+          else {
+            addNewEmptyLine();
+            lineWidth = 0;
+          }
+          // Retry adding this group on the new line
+          setTimeout(function () {
+            addNextGroup();
+          }, delay);
+          return;
+        }
+      }
+    }
 
     // Check if current group is a yigo - if so, it must stay with next group's first 2 syllables
     var currentIsYigo = isYigo(textConverted);
