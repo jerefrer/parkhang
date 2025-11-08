@@ -550,18 +550,24 @@ var addNextGroup = function (remainingWords) {
       !group.tibetanAttachedToPrevious;
 
     // Check if current group has only 1 syllable
-    var syllableCount = textWithMarkers.split("་").filter(function(s) {
+    var syllableCount = textWithMarkers.split("་").filter(function (s) {
       return s.replace(/<\/?small>/g, "").trim().length > 0;
     }).length;
     var isSingleSyllable = syllableCount === 1;
 
     // If 1-syllable group and there's already content on line, check if next group will fit
-    if (isSingleSyllable && $currentTibetanRow.find("td:not(.page-beginning)").length > 0 && groupIndex + 1 < pecha.groups.length) {
+    if (
+      isSingleSyllable &&
+      $currentTibetanRow.find("td:not(.page-beginning)").length > 0 &&
+      groupIndex + 1 < pecha.groups.length
+    ) {
       var nextGroup = pecha.groups[groupIndex + 1];
       if (nextGroup && nextGroup.tibetan) {
         // Create temporary td to measure if current + next group would fit
         var nextText = nextGroup.tibetan;
-        var tempNextTd = $("<td>").html(fixTibetanAvagraha(nextText.split("་")[0] + "་"));
+        var tempNextTd = $("<td>").html(
+          fixTibetanAvagraha(nextText.split("་")[0] + "་")
+        );
         $currentTibetanRow.append(td);
         $currentTibetanRow.append(tempNextTd);
         var currentWidth = td.width();
@@ -573,8 +579,10 @@ var addNextGroup = function (remainingWords) {
         // If next group won't fit, move 1-syllable group to next line
         if (lineWidth + combinedWidth + LINE_END_MARGIN > pechaContentWidth) {
           fitWidth($("table:last"));
-          if (isAPage() && !isPageScreen() && pageOverflows()) addNextPechaPage();
-          else if ($(".pecha-page:last .line").length == numberOfLinesPerPage) addNextPechaPage();
+          if (isAPage() && !isPageScreen() && pageOverflows())
+            addNextPechaPage();
+          else if ($(".pecha-page:last .line").length == numberOfLinesPerPage)
+            addNextPechaPage();
           else {
             addNewEmptyLine();
             lineWidth = 0;
@@ -928,9 +936,41 @@ var fitWidth = function (table) {
 };
 
 var increaseUntilItFits = function (table) {
+  var spaces = table.find(".space");
+  var initialSpaceWidth = spaces.length > 0 ? spaces.first().width() : 0;
+  var spaceMultiplier = 1.0;
+  var maxSpaceMultiplier = 2.0;
+
+  // Phase 1: Try adjusting space between groups
+  var adjustSpaces = function () {
+    if (spaces.length > 0) {
+      spaces.css({ width: initialSpaceWidth * spaceMultiplier + "px" });
+      if (table.width() > pechaContentWidthFor(table)) {
+        // Found the right spacing, use previous value
+        spaces.css({
+          width: initialSpaceWidth * (spaceMultiplier - 0.1) + "px",
+        });
+        return;
+      } else if (spaceMultiplier >= maxSpaceMultiplier) {
+        // Hit maximum space multiplier, proceed to letter-spacing
+        spaces.css({ width: initialSpaceWidth * maxSpaceMultiplier + "px" });
+        adjustLetterSpacing();
+        return;
+      } else {
+        spaceMultiplier += 0.1;
+        setTimeout(adjustSpaces, delay / 10);
+        return;
+      }
+    } else {
+      // No spaces, go directly to letter-spacing
+      adjustLetterSpacing();
+    }
+  };
+
+  // Phase 2: Adjust letter-spacing if space adjustment wasn't enough
   var spacing = 0.01;
-  var maxSpacing = 5; // Maximum 5px letter-spacing to prevent infinite loop
-  var setWidth = function () {
+  var maxSpacing = 5;
+  var adjustLetterSpacing = function () {
     table.css({ "letter-spacing": spacing + "px" });
     if (table.width() > pechaContentWidthFor(table)) {
       // Found the right spacing, use previous value
@@ -940,17 +980,50 @@ var increaseUntilItFits = function (table) {
       table.css({ "letter-spacing": maxSpacing + "px" });
     } else {
       spacing += 0.01;
-      setTimeout(setWidth, delay / 10);
+      setTimeout(adjustLetterSpacing, delay / 10);
     }
   };
-  setWidth();
+
+  adjustSpaces();
 };
 
 var decreaseUntilItFits = function (table) {
-  var spacing = 0;
-  var minSpacing = -2; // Minimum -2px letter-spacing to prevent infinite loop
+  var spaces = table.find(".space");
+  var initialSpaceWidth = spaces.length > 0 ? spaces.first().width() : 0;
+  var spaceMultiplier = 1.0;
+  var minSpaceMultiplier = 0.5;
   var tolerance = 0.5; // Allow 0.5px tolerance
-  var setWidth = function () {
+
+  // Phase 1: Try adjusting space between groups
+  var adjustSpaces = function () {
+    if (spaces.length > 0) {
+      spaces.css({ width: initialSpaceWidth * spaceMultiplier + "px" });
+      var tableWidth = table.width();
+      var maxWidth = pechaContentWidthFor(table);
+      if (tableWidth <= maxWidth + tolerance) {
+        // Fits now, keep this spacing
+        spaces.css({ width: initialSpaceWidth * spaceMultiplier + "px" });
+        return;
+      } else if (spaceMultiplier <= minSpaceMultiplier) {
+        // Hit minimum space multiplier, proceed to letter-spacing
+        spaces.css({ width: initialSpaceWidth * minSpaceMultiplier + "px" });
+        adjustLetterSpacing();
+        return;
+      } else {
+        spaceMultiplier -= 0.1;
+        setTimeout(adjustSpaces, delay / 10);
+        return;
+      }
+    } else {
+      // No spaces, go directly to letter-spacing
+      adjustLetterSpacing();
+    }
+  };
+
+  // Phase 2: Adjust letter-spacing if space adjustment wasn't enough
+  var spacing = 0;
+  var minSpacing = -2;
+  var adjustLetterSpacing = function () {
     table.css({ "letter-spacing": spacing + "px" });
     var tableWidth = table.width();
     var maxWidth = pechaContentWidthFor(table);
@@ -962,8 +1035,9 @@ var decreaseUntilItFits = function (table) {
       table.css({ "letter-spacing": minSpacing + "px" });
     } else {
       spacing -= 0.01;
-      setTimeout(setWidth, delay / 10);
+      setTimeout(adjustLetterSpacing, delay / 10);
     }
   };
-  setWidth();
+
+  adjustSpaces();
 };
