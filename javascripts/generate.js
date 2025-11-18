@@ -1,15 +1,17 @@
 var beginGeneration = function () {
   if (delay) $("#loading-overlay").remove();
-  
+
   // First, handle prayer insertion at markers
   // Check if there are any markers or legacy selected prayers
-  var hasMarkerPrayers = markerPrayers && Object.keys(markerPrayers).some(function(key) {
-    return markerPrayers[key] && markerPrayers[key].length > 0;
-  });
+  var hasMarkerPrayers =
+    markerPrayers &&
+    Object.keys(markerPrayers).some(function (key) {
+      return markerPrayers[key] && markerPrayers[key].length > 0;
+    });
   var hasLegacyPrayers = selectedPrayers && selectedPrayers.length > 0;
-  
+
   if (hasMarkerPrayers || hasLegacyPrayers) {
-    insertPrayersAtMarkers(function() {
+    insertPrayersAtMarkers(function () {
       continueGeneration();
     });
   } else {
@@ -17,7 +19,7 @@ var beginGeneration = function () {
   }
 };
 
-var continueGeneration = function() {
+var continueGeneration = function () {
   if (selectedExtraTexts.length) {
     var addedGroups = [];
     _(selectedExtraTexts).each(function (textId, index) {
@@ -48,7 +50,7 @@ var continueGeneration = function() {
   startRendering();
 };
 
-var startRendering = function() {
+var startRendering = function () {
   if (isAPecha()) {
     if (pecha.title.tibetan.full) addPechaTitlePage();
     setTimeout(function () {

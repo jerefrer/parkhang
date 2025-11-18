@@ -165,7 +165,10 @@ var pechaRightMargin = function () {
 };
 
 var addPechaTitlePage = function () {
-  var translation = pecha.title[selectedLanguage];
+  var translation = (pecha.title &&
+    (pecha.title[selectedLanguage] ||
+      pecha.title.english ||
+      pecha.title.french)) || { title: "", subtitle: "" };
   var titlePage = $('<div class="pecha-page-container" id="title-page">');
   titlePage.append('<div class="pecha-title-page">');
   titlePage
@@ -701,8 +704,11 @@ var addTranslationCell = function (tibetanTd, text, callback) {
   td.html(text);
   table.find("tr.translation").append(td);
   translationIndex++;
-  if (delay)
-    $(window).scrollTop(table.parents(".pecha-page-container").offset().top);
+  if (delay) {
+    var pageContainer = table.parents(".pecha-page-container");
+    var offset = pageContainer.offset();
+    if (offset) $(window).scrollTop(offset.top);
+  }
 
   // Adjust letter-spacing if translation exceeds two lines
   if (text) {
@@ -835,7 +841,11 @@ var addNextTranslation = function () {
     } else {
       // Get the appropriate translation (pecha-specific has precedence)
       var pechaSpecificKey = selectedLanguage + "PechaSpecific";
-      var rawTranslation = group[pechaSpecificKey] || group[selectedLanguage];
+      var rawTranslation =
+        group[pechaSpecificKey] ||
+        group[selectedLanguage] ||
+        group.english ||
+        group.french;
       translation = removeOptionalParts(rawTranslation);
     }
 
