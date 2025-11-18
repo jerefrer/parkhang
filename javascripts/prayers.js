@@ -188,7 +188,7 @@ var insertPrayersAtSingleMarker = function (marker, callback) {
 
     // Collect all prayer groups
     var allPrayerGroups = [];
-    var yigos = ["༄༅།  །", "༄༅། །", "༄༅།།", "༈ །", "༈།", "༄ །", "༄།"];
+    var yigos = ["༄", "༅", "༈"];
 
     prayersData.forEach(function (prayerData, prayerIndex) {
       if (prayerData && prayerData.data && prayerData.data.groups) {

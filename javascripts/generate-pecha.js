@@ -68,7 +68,7 @@ var LINE_END_MARGIN = 120; // Minimum space to leave at end of line before wrapp
 // Check if text is a yigo (section marker)
 var isYigo = function (text) {
   if (!text) return false;
-  var yigos = ["༄༅།  །", "༄༅། །", "༄༅།།", "༈ །", "༈།", "༄ །", "༄།"];
+  var yigos = ["༄༅།  །", "༄༅། །", "༄༅།།", "༈ །", "༈།", "༈", "༄ །", "༄།"];
   for (var i = 0; i < yigos.length; i++) {
     if (text.trim() === yigos[i]) {
       return true;
