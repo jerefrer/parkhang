@@ -42,6 +42,10 @@ var languages = [
   { id: "french", name: '<i class="france flag"></i> French' },
 ];
 
+var getDefaultLanguage = function () {
+  return localStorage[appName + ".language"] || languages[0].id;
+};
+
 var layoutSelect = function () {
   return (
     '\
@@ -77,6 +81,7 @@ var layoutSelect = function () {
 };
 
 var languageSelect = function () {
+  var defaultLanguageId = getDefaultLanguage();
   return (
     '\
     <div class="ui inline languages fields">' +
@@ -88,8 +93,10 @@ var languageSelect = function () {
             <div class="ui language radio checkbox">\
               <input type="radio" name="language" value="' +
           language.id +
-          '">\
-              <label>' +
+          '"' +
+          (language.id === defaultLanguageId ? " checked" : "") +
+          ">\
+              <label>" +
           language.name +
           "</label>\
             </div>\
@@ -706,7 +713,7 @@ var initializeModalPrayerDragAndDrop = function (markerType) {
   });
 };
 
-var selectedLanguage;
+var selectedLanguage = getDefaultLanguage();
 var selectedExtraTexts;
 var includeTransliteration = true;
 var displayMantraPhonetics = true;
