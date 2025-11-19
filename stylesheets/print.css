@@ -1,6 +1,7 @@
 @media print {
   #print-button,
-  #color-mode-button {
+  #color-mode-button,
+  #inspect-td-button {
     display: none !important;
   }
 

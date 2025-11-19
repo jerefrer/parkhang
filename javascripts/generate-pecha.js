@@ -7,6 +7,7 @@ var groupIndex = 0;
 var translationIndex = 0;
 var pageBeginningMarker = "༄༅།  །";
 var spaceBetweenGroups = '<span class="space"></span>';
+var translationSplitPairCounter = 0;
 
 // Fix Tibetan character ྅ (U+0F45) spacing
 // This character is zero-width and needs to be wrapped in a span with fixed width
@@ -390,6 +391,30 @@ var newTibetanCell = function (index) {
   return td;
 };
 
+var renderTranslationWords = function (td, words) {
+  td.empty();
+  _(words).each(function (word) {
+    td.append("<span>" + word + " </span>");
+  });
+};
+
+var annotateTranslationSplit = function (
+  firstTd,
+  secondTd,
+  pairId,
+  words,
+  firstCount
+) {
+  var metadata = {
+    "data-split-pair-id": pairId,
+    "data-split-total-words": words.length,
+    "data-split-first-count": firstCount,
+    "data-split-words": JSON.stringify(words),
+  };
+  firstTd.attr(metadata).attr("data-split-role", "first");
+  secondTd.attr(metadata).attr("data-split-role", "second");
+};
+
 var addRowspanCell = function (td, text) {
   // Handle undefined or null text
   if (!text) text = "";
@@ -680,6 +705,7 @@ var newTranslationCell = function (tibetanTd) {
   var space = tibetanTd.find(".space") && tibetanTd.find(".space").width();
   var line = pecha.groups[translationIndex];
   var td = $("<td>");
+  td.attr("data-translation-index", translationIndex);
   if (space) td.css({ "padding-left": space + "px" });
   if (line.smallWritings) td.addClass("small-writings");
 
@@ -861,16 +887,35 @@ var addNextTranslation = function () {
       return;
     }
     if (groupIsSplit) {
+      var splitPairId = "split-" + translationSplitPairCounter++;
       var td = newTranslationCell(tibetanTd);
       td.css({ "padding-left": space });
       table.find("tr.translation").append(td);
       var height = td.height();
       var wordIndex = 0;
       var words = splitTranslationWords(translation);
+      var appendedWords = [];
+      var continueOnNextCell = function (splitIndex) {
+        var remainingWords = words.slice(splitIndex);
+        if (!remainingWords.length) {
+          remainingWords = [];
+        }
+        var tibetan = findFirstTibetanForGroupWhereTranslationIsEmpty();
+        var nextTable = tibetan.parents("table");
+        var translationRow = nextTable.find("tr.translation");
+        var previousCount = translationRow.children().length;
+        addTranslationCell(tibetan, remainingWords.join(" "), function () {
+          setTimeout(addNextTranslation, delay);
+        });
+        var newTd = translationRow.children().eq(previousCount);
+        renderTranslationWords(newTd, remainingWords);
+        annotateTranslationSplit(td, newTd, splitPairId, words, splitIndex);
+      };
       var addNextWord = function () {
         var word = words[wordIndex];
         if (word != undefined) {
           td.append("<span>" + word + " </span>");
+          appendedWords.push(word);
           if (td.height() <= height) {
             // If the word fits try the next one
             wordIndex++;
@@ -878,21 +923,14 @@ var addNextTranslation = function () {
               addNextWord();
             }, delay);
           } else {
-            // If the word  doesn't fit then continue in the next cell
+            // If the word doesn't fit then continue in the next cell
             td.find("span:last").remove();
-            var tibetan = findFirstTibetanForGroupWhereTranslationIsEmpty();
-            var remainingWords = _(words).rest(wordIndex).join(" ");
-            addTranslationCell(tibetan, remainingWords, function () {
-              setTimeout(addNextTranslation, delay);
-            });
+            appendedWords.pop();
+            var splitIndex = appendedWords.length;
+            continueOnNextCell(splitIndex);
           }
         } else {
-          var tibetan = $(
-            ".tibetan [data-index=" + translationIndex + "]:last"
-          );
-          addTranslationCell(tibetan, "", function () {
-            setTimeout(addNextTranslation, delay);
-          });
+          continueOnNextCell(appendedWords.length);
         }
       };
       addNextWord();

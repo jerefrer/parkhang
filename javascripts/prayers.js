@@ -45,7 +45,7 @@ var loadPrayers = function () {
   if (stored) {
     selectedPrayers = JSON.parse(stored);
   }
-  
+
   // Load marker-specific prayers from localStorage
   var storedMarkerPrayers = localStorage[appName + ".marker-prayers"];
   if (storedMarkerPrayers) {
@@ -121,56 +121,56 @@ var getPrayersDataForMarker = function (markerType, callback) {
 var findAllMarkers = function () {
   var markers = [];
   var markerRegex = /^\[INSERT (.+?) HERE\]$/;
-  
+
   for (var i = 0; i < pecha.groups.length; i++) {
     var group = pecha.groups[i];
-    
+
     // Check all language fields to find markers
-    var languages = ['tibetan', 'english', 'french'];
+    var languages = ["tibetan", "english", "french"];
     for (var j = 0; j < languages.length; j++) {
       var lang = languages[j];
       var text = group[lang];
       if (text) {
         var trimmedText = text.trim();
         var match = trimmedText.match(markerRegex);
-        
+
         if (match) {
           markers.push({
             index: i,
             type: match[1], // e.g., 'TSOK', 'TSEGUK'
-            text: trimmedText
+            text: trimmedText,
           });
           break; // Found marker in this group, no need to check other languages
         }
       }
     }
   }
-  
+
   return markers;
 };
 
 // Insert prayers at all markers
 var insertPrayersAtMarkers = function (callback) {
   var markers = findAllMarkers();
-  
+
   if (markers.length === 0) {
     callback();
     return;
   }
-  
+
   // Process markers in reverse order to maintain correct indices
   var processNextMarker = function (markerIndex) {
     if (markerIndex < 0) {
       callback();
       return;
     }
-    
+
     var marker = markers[markerIndex];
     insertPrayersAtSingleMarker(marker, function () {
       processNextMarker(markerIndex - 1);
     });
   };
-  
+
   processNextMarker(markers.length - 1);
 };
 

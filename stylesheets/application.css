@@ -66,3 +66,53 @@ body.pushable > .pusher {
   top: 65px;
   left: 20px;
 }
+
+#inspect-td-button {
+  display: none;
+  position: fixed;
+  top: 110px;
+  left: 20px;
+}
+
+.inspect-td-highlight {
+  background-color: rgba(255, 255, 255, 0.15) !important;
+  filter: brightness(1.2);
+  transition: background-color 0.2s ease, filter 0.2s ease;
+}
+
+.inspect-td-popup {
+  position: absolute;
+  z-index: 999999999;
+  min-width: 220px;
+  padding: 12px 14px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  font-size: 12px;
+}
+
+.inspect-td-popup label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 4px;
+}
+
+.inspect-td-popup input[type="range"] {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.inspect-td-popup .popup-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.inspect-td-popup .popup-actions button {
+  flex: 1;
+}

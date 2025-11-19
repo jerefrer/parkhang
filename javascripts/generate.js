@@ -77,6 +77,7 @@ var endGeneration = function () {
   setTimeout(function () {
     $("#print-button").show();
     $("#color-mode-button").show();
+    $("#inspect-td-button").show();
     $("#loading-overlay").fadeOut(500);
   }, 500);
 };
