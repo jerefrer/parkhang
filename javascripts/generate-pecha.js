@@ -743,37 +743,30 @@ var addTranslationCell = function (tibetanTd, text, callback) {
     if ($("body").hasClass("pecha-a4")) maxHeight = 19.3;
     if ($("body").hasClass("pecha-screen")) maxHeight = 32.73;
 
-    var initialHeight = td[0].offsetHeight;
+    var initialHeight = td[0].scrollHeight;
     if (initialHeight > maxHeight) {
       var letterSpacing = 0;
       var minLetterSpacing = -0.9;
-      var fitsDetected = false;
+      var initialFontSize = parseFloat(td.css("font-size"));
+      var currentFontSize = initialFontSize;
+      var minFontSize = initialFontSize * 0.8; // 80% of original
 
-      var adjustLetterSpacing = function () {
-        letterSpacing -= 0.1;
-        td.css({ "letter-spacing": letterSpacing + "px" });
+      // Phase 2: Adjust font-size if letter-spacing wasn't enough
+      var adjustFontSize = function () {
+        currentFontSize -= 0.1;
+        td.css({ "font-size": currentFontSize + "px" });
 
-        // Use requestAnimationFrame to ensure browser has painted before measuring
         requestAnimationFrame(function () {
-          // Force reflow by accessing offsetHeight, then get precise height
-          td[0].offsetHeight; // Force browser to recalculate layout
-          var currentHeight = td.height();
+          td[0].offsetHeight; // Force reflow
+          var currentHeight = td[0].scrollHeight;
 
-          // Check if it fits
           if (currentHeight <= maxHeight) {
-            if (fitsDetected) {
-              // Already fit in previous iteration, now we're sure - stop
-              td.css({ width: td.width() + "px" });
-              if (callback) callback();
-              return;
-            } else {
-              // First time detecting fit - continue one more iteration to be sure
-              fitsDetected = true;
-              setTimeout(adjustLetterSpacing, delay / 10);
-              return;
-            }
-          } else if (letterSpacing <= minLetterSpacing) {
-            // Hit minimum, lock width, highlight and continue
+            // Fits now, lock width and continue
+            td.css({ width: td.width() + "px" });
+            if (callback) callback();
+            return;
+          } else if (currentFontSize <= minFontSize) {
+            // Hit minimum font-size, highlight red and continue
             td.css({
               width: td.width() + "px",
               background: "rgba(255,0,0,0.5)",
@@ -781,7 +774,33 @@ var addTranslationCell = function (tibetanTd, text, callback) {
             if (callback) callback();
             return;
           } else {
-            // Continue reducing
+            // Continue reducing font-size
+            setTimeout(adjustFontSize, delay / 10);
+          }
+        });
+      };
+
+      // Phase 1: Adjust letter-spacing
+      var adjustLetterSpacing = function () {
+        letterSpacing -= 0.1;
+        td.css({ "letter-spacing": letterSpacing + "px" });
+
+        requestAnimationFrame(function () {
+          td[0].offsetHeight; // Force reflow
+          var currentHeight = td[0].scrollHeight;
+
+          if (currentHeight <= maxHeight) {
+            // Fits now, lock width and continue
+            td.css({ width: td.width() + "px" });
+            if (callback) callback();
+            return;
+          } else if (letterSpacing <= minLetterSpacing) {
+            // Hit minimum letter-spacing, proceed to font-size reduction
+            td.css({ "letter-spacing": minLetterSpacing + "px" });
+            adjustFontSize();
+            return;
+          } else {
+            // Continue reducing letter-spacing
             setTimeout(adjustLetterSpacing, delay / 10);
           }
         });
