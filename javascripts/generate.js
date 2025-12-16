@@ -79,5 +79,17 @@ var endGeneration = function () {
     $("#color-mode-button").show();
     $("#inspect-td-button").show();
     $("#loading-overlay").fadeOut(500);
+
+    // Auto-create project if not already one
+    if (!ProjectManager.getCurrentProjectId()) {
+      var projectName =
+        pecha && pecha.title && pecha.title.english
+          ? pecha.title.english.title
+          : "Untitled Project";
+      var projectId = ProjectManager.saveAsProject(projectName);
+      var project = ProjectManager.getProject(projectId);
+      ProjectManager.startTrackingChanges();
+      ProjectManager.showProjectControls(project, 0);
+    }
   }, 500);
 };

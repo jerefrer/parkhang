@@ -383,10 +383,13 @@ var continueOnNewLineStartingWith = function (remainingWords) {
   }, delay);
 };
 
+var cellIdCounter = 0;
+
 var newTibetanCell = function (index) {
   var line = pecha.groups[index];
   var td = $("<td>");
   td.attr("data-index", index);
+  td.attr("data-cid", "t" + cellIdCounter++);
   if (line.smallWritings) td.addClass("small-writings");
   return td;
 };
@@ -706,6 +709,7 @@ var newTranslationCell = function (tibetanTd) {
   var line = pecha.groups[translationIndex];
   var td = $("<td>");
   td.attr("data-translation-index", translationIndex);
+  td.attr("data-cid", "r" + cellIdCounter++);
   if (space) td.css({ "padding-left": space + "px" });
   if (line.smallWritings) td.addClass("small-writings");
 

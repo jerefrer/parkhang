@@ -317,8 +317,66 @@ var prayersSelect = function () {
   );
 };
 
+var savedProjectsSection = function () {
+  var projects = ProjectManager.getProjectsList();
+  if (!projects || projects.length === 0) return "";
+
+  var projectCards = projects
+    .map(function (project) {
+      var date = new Date(project.updatedAt);
+      var dateStr = date.toLocaleDateString();
+      var layoutName = project.layout
+        ? project.layout.replace("-", " ").replace(/\b\w/g, function (l) {
+            return l.toUpperCase();
+          })
+        : "";
+
+      return (
+        '\
+      <div class="project-card" data-id="' +
+        project.id +
+        '">\
+        <button class="delete-project-btn ui mini red icon button"><i class="trash icon"></i></button>\
+        <div class="project-card-name">' +
+        escapeHtml(project.name) +
+        '</div>\
+        <div class="project-card-meta">\
+          <span class="project-card-layout">' +
+        layoutName +
+        '</span>\
+          <span class="project-card-date">Updated: ' +
+        dateStr +
+        "</span>\
+        </div>\
+      </div>\
+    "
+      );
+    })
+    .join("");
+
+  return (
+    '\
+    <div id="saved-projects-section">\
+      <h3>Saved Projects</h3>\
+      <div class="projects-grid">' +
+    projectCards +
+    '</div>\
+      <div class="ui horizontal inverted divider" style="width: 220px; margin-top: 25px">or create new</div>\
+    </div>\
+  '
+  );
+};
+
+var escapeHtml = function (text) {
+  if (!text) return "";
+  var div = document.createElement("div");
+  div.textContent = text;
+  return div.innerHTML;
+};
+
 var renderInputForm = function () {
   var form = $('<div id="input-form" class="ui form">');
+  form.append(savedProjectsSection());
   form.append(textSelect);
   if (texts.length)
     form.append(

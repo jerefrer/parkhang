@@ -1,0 +1,260 @@
+/* Project Manager Styles */
+
+/* Project Controls - Fixed position UI */
+#project-controls {
+  position: fixed;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  border-radius: 8px;
+  padding: 8px 15px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  z-index: 1000;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+#project-controls .project-info {
+  display: flex;
+  flex-direction: column;
+  color: white;
+}
+
+#project-controls .project-name {
+  font-weight: bold;
+  font-size: 14px;
+}
+
+#project-controls .version-info {
+  font-size: 11px;
+  opacity: 0.7;
+}
+
+#project-controls .project-buttons {
+  display: flex;
+  gap: 5px;
+}
+
+#project-controls .ui.button {
+  margin: 0;
+}
+
+/* Save Project Button - shown after generation */
+#save-project-btn {
+  position: fixed;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+}
+
+/* Saved Projects Section on Homepage */
+#saved-projects-section {
+  margin-bottom: 30px;
+}
+
+#saved-projects-section h3 {
+  color: white;
+  text-align: center;
+  margin-bottom: 15px;
+  font-weight: normal;
+}
+
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 15px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.project-card {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 15px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.project-card:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.project-card-name {
+  color: white;
+  font-weight: bold;
+  font-size: 14px;
+  margin-bottom: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.project-card-meta {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 11px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.project-card-layout {
+  text-transform: capitalize;
+}
+
+.project-card-date {
+  opacity: 0.8;
+}
+
+.delete-project-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  padding: 5px !important;
+}
+
+.project-card:hover .delete-project-btn {
+  opacity: 1;
+}
+
+/* Version History Modal */
+#version-history-modal .versions-list {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.version-item {
+  padding: 12px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.version-item:last-child {
+  border-bottom: none;
+}
+
+.version-item:hover {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+/* Dark mode support for version history modal */
+body.dark-mode #version-history-modal .version-number,
+body.dark-mode #version-history-modal .version-date,
+body.dark-mode #version-history-modal .header {
+  color: #333;
+}
+
+.version-header {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.version-number {
+  font-weight: bold;
+}
+
+.version-tag {
+  background: #2185d0;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+}
+
+.version-date {
+  color: rgba(0, 0, 0, 0.5);
+  font-size: 12px;
+  flex-basis: 100%;
+  margin-top: -5px;
+}
+
+.version-changes {
+  flex-basis: 100%;
+  margin-top: 5px;
+  font-size: 11px;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.version-changes ul {
+  margin: 5px 0 0 0;
+  padding-left: 20px;
+}
+
+.version-changes li {
+  margin-bottom: 2px;
+}
+
+.change-type {
+  display: inline-block;
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-size: 10px;
+  margin-right: 5px;
+  text-transform: uppercase;
+}
+
+.change-type.attribute {
+  background: #e8f4fd;
+  color: #2185d0;
+}
+
+.change-type.text {
+  background: #fdf6e8;
+  color: #f2711c;
+}
+
+.change-type.html {
+  background: #fde8e8;
+  color: #db2828;
+}
+
+.version-actions {
+  display: flex;
+  gap: 5px;
+}
+
+/* Tag Modal */
+#tag-modal .ui.input {
+  margin-top: 10px;
+}
+
+/* Save Project Modal */
+#save-project-modal .ui.input {
+  margin-top: 10px;
+}
+
+/* Print styles - hide project controls */
+@media print {
+  #project-controls,
+  #save-project-btn {
+    display: none !important;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  #project-controls {
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px;
+  }
+
+  .projects-grid {
+    grid-template-columns: 1fr;
+    padding: 0 15px;
+  }
+}
