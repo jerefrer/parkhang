@@ -566,8 +566,12 @@ var addNextGroup = function (remainingWords) {
 
       if ($currentTibetanRow.find("td:not(.page-beginning)").length) {
         // Add space only if needed (not after double shad or if tibetanAttachedToPrevious is true)
+        // Also add space if previous group had spaceAfter (between prayers)
+        var prevGroup = groupIndex > 0 ? pecha.groups[groupIndex - 1] : null;
+        var prevHasSpaceAfter = prevGroup && prevGroup.spaceAfter;
         var shouldAddSpace =
-          needsSpaceBefore(textConverted) && !group.tibetanAttachedToPrevious;
+          (needsSpaceBefore(textConverted) || prevHasSpaceAfter) &&
+          !group.tibetanAttachedToPrevious;
         var prefix = shouldAddSpace ? spaceBetweenGroups : "";
         td.html(prefix + textConverted);
       } else {
@@ -575,9 +579,12 @@ var addNextGroup = function (remainingWords) {
       }
     }
     // Calculate prefix before appending td (so needsSpaceBefore checks the previous td, not current)
+    // Also check if previous group had spaceAfter (between prayers)
+    var prevGroup = groupIndex > 0 ? pecha.groups[groupIndex - 1] : null;
+    var prevHasSpaceAfter = prevGroup && prevGroup.spaceAfter;
     var needsSpace =
       $currentTibetanRow.find("td:not(.page-beginning)").length > 0 &&
-      needsSpaceBefore(textConverted) &&
+      (needsSpaceBefore(textConverted) || prevHasSpaceAfter) &&
       !group.tibetanAttachedToPrevious;
 
     // Check if current group has only 1 syllable

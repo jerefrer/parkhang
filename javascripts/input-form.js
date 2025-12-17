@@ -46,45 +46,45 @@ var getDefaultLanguage = function () {
   return localStorage[appName + ".language"] || languages[0].id;
 };
 
-var layoutSelect = function () {
+// Generate layout cards HTML (without wrapper)
+var layoutSelectCards = function () {
   return (
-    '\
-    <div class="ui field">\
-      <div class="ui centered layouts cards">' +
+    '<div class="ui centered layouts cards">' +
     _(layouts)
       .map(function (layout) {
         return (
           '\
-            <div class="ui layout link card ' +
+          <div class="ui layout link card ' +
           ((layout.disabled && "disabled") || "") +
           '" data-id="' +
           layout.id +
           '">\
-              <div class="image">\
-                <img src="images/layouts/' +
+            <div class="image">\
+              <img src="images/layouts/' +
           layout.imageName +
-          '"</div>\
-                <div class="name">' +
+          '">\
+              <div class="name">' +
           layout.name +
           "</div>\
-              </div>\
             </div>\
-          "
+          </div>"
         );
       })
       .join("") +
-    "\
-      </div>\
-    </div>\
-  "
+    "</div>"
   );
 };
 
-var languageSelect = function () {
+// Legacy function for compatibility
+var layoutSelect = function () {
+  return '<div class="ui field">' + layoutSelectCards() + "</div>";
+};
+
+// Inline language select for new layout
+var languageSelectInline = function () {
   var defaultLanguageId = getDefaultLanguage();
   return (
-    '\
-    <div class="ui inline languages fields">' +
+    '<div class="ui inline languages fields">' +
     _(languages)
       .map(function (language) {
         return (
@@ -100,15 +100,17 @@ var languageSelect = function () {
           language.name +
           "</label>\
             </div>\
-          </div>\
-        "
+          </div>"
         );
       })
       .join("") +
-    "\
-    </div>\
-  "
+    "</div>"
   );
+};
+
+// Legacy function for compatibility
+var languageSelect = function () {
+  return languageSelectInline();
 };
 
 var mantraPhoneticCheckbox = function () {
@@ -159,44 +161,52 @@ var pageNumberTypeSelect = function () {
   ';
 };
 
-var texts =
-  (localStorage[appName + ".texts"] &&
-    JSON.parse(localStorage[appName + ".texts"])) ||
-  {};
-var textSelect = function () {
+// Generate text cards HTML (without wrapper)
+var textSelectCards = function () {
+  // Always read fresh from localStorage
+  var currentTexts =
+    (localStorage[appName + ".texts"] &&
+      JSON.parse(localStorage[appName + ".texts"])) ||
+    {};
   return (
-    '\
-    <div class="ui field">\
-      <div class="ui centered cards">' +
-    _(texts)
+    _(currentTexts)
       .map(function (name, id) {
         return (
           '\
-            <div class="ui text link card" data-id="' +
+        <div class="ui text link card" data-id="' +
           id +
           '">\
-              <div class="content">\
-                <div class="header">' +
-          name +
-          "</div>\
-              </div>\
-            </div>\
-          "
+          <div class="content">\
+            <div class="header">' +
+          escapeHtml(name) +
+          '</div>\
+          </div>\
+          <div class="extra content">\
+            <button class="ui mini icon button download-text-btn" data-id="' +
+          id +
+          '" title="Download as JSON"><i class="download icon"></i></button>\
+            <button class="ui mini icon button delete-text-btn" data-id="' +
+          id +
+          '" title="Delete"><i class="trash icon"></i></button>\
+          </div>\
+        </div>'
         );
       })
       .join("") +
-    // Add file input as a card with + icon
-    '\
-            <div class="ui file-upload link card" id="file-upload-card">\
-              <div class="content" style="text-align: center; padding: 20px;">\
-                <div class="header" style="font-size: 3em; color: #666; margin: 0;">+</div>\
-              </div>\
-            </div>\
-          ' +
-    "\
+    '<div class="ui file-upload link card" id="file-upload-card">\
+      <div class="content" style="text-align: center; padding: 16px;">\
+        <div class="header" style="font-size: 2em; color: rgba(255,255,255,0.3); margin: 0;"><i class="plus icon"></i></div>\
       </div>\
-    </div>\
-  "
+    </div>'
+  );
+};
+
+// Legacy function for compatibility
+var textSelect = function () {
+  return (
+    '<div class="ui field"><div class="ui centered cards">' +
+    textSelectCards() +
+    "</div></div>"
   );
 };
 
@@ -204,32 +214,117 @@ var extraTexts =
   (localStorage[appName + ".extra-texts"] &&
     JSON.parse(localStorage[appName + ".extra-texts"])) ||
   [];
-var extraTextsSelect = function () {
+
+// Conclusion prayers state - uses same prayers as extraTexts
+var conclusionPrayers =
+  (localStorage[appName + ".conclusion-prayers"] &&
+    JSON.parse(localStorage[appName + ".conclusion-prayers"])) ||
+  [];
+
+// Generate extra text cards HTML for introduction prayers (without wrapper)
+var extraTextsSelectCards = function (type) {
+  if (!extraTexts || extraTexts.length === 0) return "";
+  var prefix = type || "intro";
   return (
-    '\
-    <div class="ui field">\
-      <div class="ui centered cards">' +
+    '<div class="texts-grid">' +
     _(extraTexts)
       .map(function (extraText) {
         return (
           '\
-            <div class="ui extra-text link card" data-id="' +
+          <div class="ui extra-text link card" data-id="' +
           extraText.id +
+          '" data-type="' +
+          prefix +
           '">\
-              <div class="content">\
-                <div class="header">Include ' +
-          extraText.name +
+            <div class="content">\
+              <div class="header">' +
+          escapeHtml(extraText.name) +
           "</div>\
-              </div>\
             </div>\
-          "
+          </div>"
         );
       })
       .join("") +
-    "\
-      </div>\
-    </div>\
-  "
+    "</div>"
+  );
+};
+
+// Generate conclusion prayers cards HTML with enable/disable and reorder
+// Uses availablePrayers (same as marker insertions), not extraTexts
+var conclusionPrayersSelectCards = function () {
+  if (!availablePrayers || availablePrayers.length === 0) return "";
+
+  // Get saved order and enabled state, or use defaults
+  var savedState = localStorage[appName + ".conclusion-prayers-state"];
+  var prayerStates = savedState ? JSON.parse(savedState) : {};
+
+  // Build list with order preserved
+  var orderedPrayers = availablePrayers.map(function (prayer) {
+    var state = prayerStates[prayer.id] || { enabled: false, order: 999 };
+    return {
+      id: prayer.id,
+      name: prayer.name,
+      enabled: state.enabled,
+      order: state.order,
+    };
+  });
+
+  // Sort by order
+  orderedPrayers.sort(function (a, b) {
+    return a.order - b.order;
+  });
+
+  return (
+    '<div class="conclusion-prayers-list" id="conclusion-prayers-list">' +
+    _(orderedPrayers)
+      .map(function (prayer, index) {
+        var enabledClass = prayer.enabled ? "selected" : "";
+        return (
+          '<div class="conclusion-prayer-item ' +
+          enabledClass +
+          '" data-id="' +
+          prayer.id +
+          '" data-order="' +
+          index +
+          '" draggable="true">\
+            <div class="drag-handle"><i class="grip lines icon"></i></div>\
+            <div class="prayer-name">' +
+          escapeHtml(prayer.name) +
+          '</div>\
+            <div class="prayer-toggle">\
+              <div class="ui toggle checkbox conclusion-prayer-checkbox">\
+                <input type="checkbox" ' +
+          (prayer.enabled ? "checked" : "") +
+          ' data-id="' +
+          prayer.id +
+          '">\
+                <label></label>\
+              </div>\
+            </div>\
+          </div>'
+        );
+      })
+      .join("") +
+    "</div>"
+  );
+};
+
+// Legacy function for compatibility
+var extraTextsSelect = function () {
+  return (
+    '<div class="ui field"><div class="ui centered cards">' +
+    _(extraTexts)
+      .map(function (extraText) {
+        return (
+          '<div class="ui extra-text link card" data-id="' +
+          extraText.id +
+          '"><div class="content"><div class="header">Include ' +
+          extraText.name +
+          "</div></div></div>"
+        );
+      })
+      .join("") +
+    "</div></div>"
   );
 };
 
@@ -274,7 +369,8 @@ var detectMarkersInText = function () {
   return markers;
 };
 
-var prayersSelect = function () {
+// Generate prayer buttons content (without wrapper)
+var prayersSelectContent = function () {
   if (!availablePrayers || availablePrayers.length === 0) {
     return "";
   }
@@ -286,34 +382,38 @@ var prayersSelect = function () {
   }
 
   return (
-    '\
-    <div class="ui field">\
-      <h4 style="color: white; text-align: center; margin-bottom: 15px;">Prayer Insertions</h4>\
-      <div class="marker-buttons" style="width: 400px; margin: 0 auto;">' +
+    '<div class="marker-buttons">' +
     _(markers)
       .map(function (marker) {
         var prayerCount = (markerPrayers[marker.type] || []).length;
         return (
           '\
-            <button class="ui fluid button marker-button" data-marker-type="' +
+          <button class="ui fluid button marker-button" data-marker-type="' +
           marker.type +
-          '" style="margin: 8px 0; background: #333; color: white;">\
-              <i class="list icon"></i> ' +
+          '" style="margin: 8px 0; background: #1a1a1a; color: white; border: 1px solid rgba(255,255,255,0.1);">\
+            <i class="list icon"></i> ' +
           marker.displayName +
           " (" +
           prayerCount +
           " prayer" +
           (prayerCount !== 1 ? "s" : "") +
           ")\
-            </button>\
-          "
+          </button>"
         );
       })
       .join("") +
-    "\
-      </div>\
-    </div>\
-  "
+    "</div>"
+  );
+};
+
+// Legacy function for compatibility
+var prayersSelect = function () {
+  var content = prayersSelectContent();
+  if (!content) return "";
+  return (
+    '<div class="ui field"><h4 style="color: white; text-align: center; margin-bottom: 15px;">Prayer Insertions</h4>' +
+    content +
+    "</div>"
   );
 };
 
@@ -376,42 +476,113 @@ var escapeHtml = function (text) {
 
 var renderInputForm = function () {
   var form = $('<div id="input-form" class="ui form">');
+
+  // Hidden file input
+  form.append(
+    '<input type="file" id="hidden-file-input" style="display: none;" accept=".json,.xlsx,.docx" />'
+  );
+
+  // Saved projects section
   form.append(savedProjectsSection());
-  form.append(textSelect);
-  if (texts.length)
-    form.append(
-      '<div class="ui horizontal inverted divider" style="width: 220px; margin-top: 25px">or</div>'
+
+  // Main single-column content
+  var content = $('<div class="form-content">');
+
+  // 1. Text selection section
+  content.append(
+    '\
+    <div class="form-section">\
+      <h3><i class="file text icon"></i> Select Text</h3>\
+      <div class="texts-grid" id="main-texts-grid">' +
+      textSelectCards() +
+      "</div>\
+    </div>"
+  );
+
+  // 2. Introduction prayers section
+  var introTextsHtml = extraTextsSelectCards("intro");
+  if (introTextsHtml) {
+    content.append(
+      '\
+      <div class="form-section">\
+        <h3><i class="arrow right icon"></i> Introduction Prayers</h3>\
+        <p style="color: rgba(255,255,255,0.5); font-size: 12px; margin: -8px 0 12px 0;">These prayers will be added at the beginning of the document</p>\
+        ' +
+        introTextsHtml +
+        "\
+      </div>"
     );
-  // Add hidden file input that will be triggered by the upload card
-  form.append(
-    '<input type="file" id="hidden-file-input" style="display: none;" />'
+  }
+
+  // 3. Prayers section (only shows when text has markers)
+  content.append(
+    '\
+    <div class="form-section" id="prayers-section-wrapper" style="display: none;">\
+      <h3><i class="list icon"></i> Prayer Insertions</h3>\
+      <p style="color: rgba(255,255,255,0.5); font-size: 12px; margin: -8px 0 12px 0;">Select prayers to insert at marked positions in the text</p>\
+      <div id="prayers-section"></div>\
+    </div>'
   );
-  form.append(
-    '<div class="ui inverted divider" style="margin-bottom: 25px;"></div>'
+
+  // 4. Language & Options section
+  content.append(
+    '\
+    <div class="form-section">\
+      <h3><i class="cog icon"></i> Options</h3>\
+      <div style="margin-bottom: 16px;">\
+        <label style="color: rgba(255,255,255,0.6); font-size: 12px; display: block; margin-bottom: 8px;">Translation Language</label>\
+        ' +
+      languageSelectInline() +
+      '\
+      </div>\
+      <div id="mantra-phonetic-section"></div>\
+      <div id="page-number-type-section"></div>\
+    </div>'
   );
-  form.append(extraTextsSelect);
-  form.append(
-    '<div class="ui inverted divider" style="margin-top: 25px;"></div>'
+
+  // 5. Conclusion prayers section
+  var conclusionTextsHtml = conclusionPrayersSelectCards();
+  if (conclusionTextsHtml) {
+    content.append(
+      '\
+      <div class="form-section">\
+        <h3><i class="arrow left icon"></i> Conclusion Prayers</h3>\
+        <p style="color: rgba(255,255,255,0.5); font-size: 12px; margin: -8px 0 12px 0;">These prayers will be added at the end of the document</p>\
+        ' +
+        conclusionTextsHtml +
+        "\
+      </div>"
+    );
+  }
+
+  // 6. Layout selection section
+  content.append(
+    '\
+    <div class="form-section">\
+      <h3><i class="th icon"></i> Layout</h3>\
+      ' +
+      layoutSelectCards() +
+      "\
+    </div>"
   );
-  form.append('<div id="prayers-section"></div>');
+
+  form.append(content);
+
+  // Render button
   form.append(
-    '<div id="prayers-divider" style="display: none;"><div class="ui inverted divider" style="margin-top: 25px;"></div></div>'
+    '\
+    <div class="render-section">\
+      <button class="ui fluid green button" id="render-button">\
+        <i class="play icon"></i> Render\
+      </button>\
+    </div>'
   );
-  form.append(languageSelect);
-  form.append('<div id="mantra-phonetic-section"></div>');
-  form.append('<div class="ui inverted divider"></div>');
-  form.append(layoutSelect);
-  form.append('<div id="page-number-type-section"></div>');
-  form.append(
-    '<div class="ui inverted divider" style="margin: 15px auto 20px"></div>'
-  );
-  form.append(
-    '<div class="file field"><button class="ui fluid green button" id="render-button">Render!</button></div>'
-  );
+
   $("#main").html(form);
   $("#layout").dropdown({ showOnFocus: false });
   $(".extra-text.checkbox").checkbox();
   $(".language.checkbox").checkbox();
+  $(".conclusion-prayer-checkbox").checkbox();
   var textId = localStorage[appName + ".textId"];
   var layout = localStorage[appName + ".layout"];
   var language = localStorage[appName + ".language"];
@@ -454,46 +625,44 @@ var renderInputForm = function () {
 
   // Load prayers section if text is already selected
   if (textId) {
-    try {
-      pecha = JSON.parse(localStorage[appName + ".texts." + textId]);
-      updatePrayersSection();
-    } catch (e) {
-      console.error("Error loading pecha from localStorage:", e);
+    var storedText = localStorage[appName + ".texts." + textId];
+    if (storedText) {
+      try {
+        pecha = JSON.parse(storedText);
+        updatePrayersSection();
+      } catch (e) {
+        console.error("Error loading pecha from localStorage:", e);
+        // Clear invalid textId
+        localStorage.removeItem(appName + ".textId");
+      }
+    } else {
+      // Text was deleted, clear the reference
+      localStorage.removeItem(appName + ".textId");
     }
   }
 };
 
 // Update the prayers section based on current text
 var updatePrayersSection = function () {
-  var prayersHtml = prayersSelect();
+  var prayersHtml = prayersSelectContent();
   $("#prayers-section").html(prayersHtml);
   if (prayersHtml) {
-    $("#prayers-divider").show();
+    $("#prayers-section-wrapper").show();
   } else {
-    $("#prayers-divider").hide();
+    $("#prayers-section-wrapper").hide();
   }
 };
 
 // Refresh the text selection area with updated texts
 var refreshTextSelection = function () {
-  var textSelectHtml = textSelect();
-  $("#input-form .ui.field").first().replaceWith(textSelectHtml);
+  // Update the texts object from localStorage
+  texts =
+    (localStorage[appName + ".texts"] &&
+      JSON.parse(localStorage[appName + ".texts"])) ||
+    {};
 
-  // Re-attach the text click handler
-  $(".text")
-    .off("click")
-    .on("click", function (event) {
-      $(".text").removeClass("selected");
-      $("#file-upload-card").removeClass("selected");
-      $(event.currentTarget).addClass("selected");
-
-      // Load the text and update prayer markers
-      var textId = $(event.currentTarget).data("id");
-      if (textId) {
-        pecha = JSON.parse(localStorage[appName + ".texts." + textId]);
-        updatePrayersSection();
-      }
-    });
+  // Update the main texts grid (not the extra texts grid)
+  $("#main-texts-grid").html(textSelectCards());
 };
 
 $(document).on("click", ".layout:not(.disabled)", function (event) {
@@ -567,6 +736,111 @@ $(document).on("click", ".text", function (event) {
 
 $(document).on("click", ".extra-text", function (event) {
   $(event.currentTarget).toggleClass("selected");
+});
+
+// Conclusion prayers toggle
+$(document).on("change", ".conclusion-prayer-checkbox input", function (event) {
+  var $checkbox = $(event.currentTarget);
+  var prayerId = $checkbox.data("id");
+  var isEnabled = $checkbox.is(":checked");
+  var $item = $checkbox.closest(".conclusion-prayer-item");
+
+  if (isEnabled) {
+    $item.addClass("selected");
+  } else {
+    $item.removeClass("selected");
+  }
+
+  saveConclusionPrayersState();
+});
+
+// Save conclusion prayers state to localStorage
+var saveConclusionPrayersState = function () {
+  var state = {};
+  $("#conclusion-prayers-list .conclusion-prayer-item").each(function (index) {
+    var $item = $(this);
+    var prayerId = $item.data("id");
+    var isEnabled = $item.find("input[type=checkbox]").is(":checked");
+    state[prayerId] = {
+      enabled: isEnabled,
+      order: index,
+    };
+  });
+  localStorage[appName + ".conclusion-prayers-state"] = JSON.stringify(state);
+};
+
+// Conclusion prayers drag and drop
+var draggedConclusionItem = null;
+
+$(document).on("dragstart", ".conclusion-prayer-item", function (event) {
+  draggedConclusionItem = this;
+  $(this).addClass("dragging");
+  event.originalEvent.dataTransfer.effectAllowed = "move";
+});
+
+$(document).on("dragend", ".conclusion-prayer-item", function (event) {
+  $(this).removeClass("dragging");
+  $(".conclusion-prayer-item").removeClass("drag-over");
+  draggedConclusionItem = null;
+  saveConclusionPrayersState();
+});
+
+$(document).on("dragover", ".conclusion-prayer-item", function (event) {
+  event.preventDefault();
+  event.originalEvent.dataTransfer.dropEffect = "move";
+
+  if (this !== draggedConclusionItem) {
+    $(this).addClass("drag-over");
+  }
+});
+
+$(document).on("dragleave", ".conclusion-prayer-item", function (event) {
+  $(this).removeClass("drag-over");
+});
+
+$(document).on("drop", ".conclusion-prayer-item", function (event) {
+  event.preventDefault();
+  $(this).removeClass("drag-over");
+
+  if (draggedConclusionItem && this !== draggedConclusionItem) {
+    var $list = $("#conclusion-prayers-list");
+    var $draggedItem = $(draggedConclusionItem);
+    var $targetItem = $(this);
+
+    // Determine if we should insert before or after
+    var targetRect = this.getBoundingClientRect();
+    var mouseY = event.originalEvent.clientY;
+    var insertBefore = mouseY < targetRect.top + targetRect.height / 2;
+
+    if (insertBefore) {
+      $draggedItem.insertBefore($targetItem);
+    } else {
+      $draggedItem.insertAfter($targetItem);
+    }
+  }
+});
+
+// Download text as JSON
+$(document).on("click", ".download-text-btn", function (event) {
+  event.stopPropagation();
+  var textId = $(event.currentTarget).data("id");
+  if (textId) {
+    var textData = JSON.parse(localStorage[appName + ".texts." + textId]);
+    downloadPechaAsJSON(textData);
+  }
+});
+
+// Delete text
+$(document).on("click", ".delete-text-btn", function (event) {
+  event.stopPropagation();
+  var textId = $(event.currentTarget).data("id");
+  if (textId && confirm("Delete this text?")) {
+    var texts = JSON.parse(localStorage[appName + ".texts"] || "{}");
+    delete texts[textId];
+    localStorage[appName + ".texts"] = JSON.stringify(texts);
+    localStorage.removeItem(appName + ".texts." + textId);
+    refreshTextSelection();
+  }
 });
 
 // Open modal for marker-specific prayer selection

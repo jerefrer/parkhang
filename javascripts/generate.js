@@ -20,6 +20,7 @@ var beginGeneration = function () {
 };
 
 var continueGeneration = function () {
+  // Add introduction prayers (extra texts) at the beginning
   if (selectedExtraTexts.length) {
     var addedGroups = [];
     _(selectedExtraTexts).each(function (textId, index) {
@@ -47,6 +48,119 @@ var continueGeneration = function () {
       })
       .concat(pecha.groups);
   }
+
+  // Add conclusion prayers at the end
+  var conclusionState = localStorage[appName + ".conclusion-prayers-state"];
+  if (conclusionState) {
+    var prayerStates = JSON.parse(conclusionState);
+
+    // Get enabled prayers sorted by order
+    var enabledPrayers = [];
+    for (var prayerId in prayerStates) {
+      if (prayerStates[prayerId].enabled) {
+        enabledPrayers.push({
+          id: prayerId,
+          order: prayerStates[prayerId].order,
+        });
+      }
+    }
+    enabledPrayers.sort(function (a, b) {
+      return a.order - b.order;
+    });
+
+    // Append each enabled prayer's groups to the end
+    _(enabledPrayers).each(function (prayerInfo, index) {
+      var prayerData = getPrayerData(prayerInfo.id);
+      if (prayerData && prayerData.groups) {
+        // Convert prayer groups to pecha format (same as marker insertion)
+        var prayerGroups = prayerData.groups;
+        var convertedGroups = [];
+        var i = 0;
+        while (i < prayerGroups.length) {
+          var prayerGroup = prayerGroups[i];
+          var convertedGroup = {
+            tibetan: prayerGroup.tibetan || "",
+            english:
+              (prayerGroup.translations && prayerGroup.translations.english) ||
+              prayerGroup.english ||
+              "",
+            french:
+              (prayerGroup.translations && prayerGroup.translations.french) ||
+              prayerGroup.french ||
+              "",
+          };
+
+          // Check if this is a prayer-title followed by a prayer-subtitle with no Tibetan
+          if (
+            prayerGroup.type === "prayer-title" &&
+            i + 1 < prayerGroups.length &&
+            prayerGroups[i + 1].type === "prayer-subtitle" &&
+            (!prayerGroups[i + 1].tibetan ||
+              prayerGroups[i + 1].tibetan.trim() === "")
+          ) {
+            var subtitle = prayerGroups[i + 1];
+            convertedGroup.tibetan = prayerGroup.tibetan || "";
+            var titleEnglish =
+              (prayerGroup.translations && prayerGroup.translations.english) ||
+              prayerGroup.english ||
+              "";
+            var subtitleEnglish =
+              (subtitle.translations && subtitle.translations.english) ||
+              subtitle.english ||
+              "";
+            convertedGroup.english =
+              titleEnglish +
+              (titleEnglish && subtitleEnglish ? " " : "") +
+              subtitleEnglish;
+            var titleFrench =
+              (prayerGroup.translations && prayerGroup.translations.french) ||
+              prayerGroup.french ||
+              "";
+            var subtitleFrench =
+              (subtitle.translations && subtitle.translations.french) ||
+              subtitle.french ||
+              "";
+            convertedGroup.french =
+              titleFrench +
+              (titleFrench && subtitleFrench ? " " : "") +
+              subtitleFrench;
+            i++;
+          }
+
+          // Preserve type
+          if (prayerGroup.type) convertedGroup.type = prayerGroup.type;
+
+          // Preserve tibetanAttachedToPrevious
+          if (prayerGroup.tibetanAttachedToPrevious) {
+            convertedGroup.tibetanAttachedToPrevious =
+              prayerGroup.tibetanAttachedToPrevious;
+          }
+
+          // Set smallWritings for any type that is not verse or mantra
+          if (
+            prayerGroup.type &&
+            prayerGroup.type !== "verse" &&
+            prayerGroup.type !== "mantra"
+          ) {
+            convertedGroup.smallWritings = true;
+          } else if (prayerGroup.smallWritings) {
+            convertedGroup.smallWritings = prayerGroup.smallWritings;
+          }
+
+          convertedGroups.push(convertedGroup);
+          i++;
+        }
+
+        // Add yigo prefix to first group
+        if (convertedGroups.length > 0) {
+          convertedGroups[0].tibetan = "།" + (convertedGroups[0].tibetan || "");
+        }
+
+        pecha.groups = pecha.groups.concat(convertedGroups);
+      }
+    });
+  }
+
   startRendering();
 };
 

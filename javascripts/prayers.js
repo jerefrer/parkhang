@@ -13,6 +13,7 @@ var prayerDataRegistry = {
   "lamps-short": "prayerData_lampsShort",
   "tsikdun-tsok": "prayerData_tsikdunTsok",
   "tsikdun-tseguk": "prayerData_tsikdunTseguk",
+  "yeshe-tsogyal": "prayerData_prayerOfYesheTsogyal",
   // Add more prayers here as they are added to the prayers folder
 };
 
@@ -28,6 +29,7 @@ var loadPrayers = function () {
     "lamps-short": "Marmé mönlam – Lamp offering (short)",
     "tsikdun-tsok": "Tsikdün Tsok Offering",
     "tsikdun-tseguk": "Tsikdün Tseguk Offering",
+    "yeshe-tsogyal": "Prayer of Yeshe Tsogyal",
   };
 
   availablePrayers = [];
@@ -188,34 +190,17 @@ var insertPrayersAtSingleMarker = function (marker, callback) {
 
     // Collect all prayer groups
     var allPrayerGroups = [];
-    var yigos = ["༄", "༅", "༈"];
 
     prayersData.forEach(function (prayerData, prayerIndex) {
       if (prayerData && prayerData.data && prayerData.data.groups) {
         var prayerGroups = prayerData.data.groups;
 
-        // Add separator between prayers (except for the first one)
-        // Only add if the prayer doesn't already start with a yigo
-        if (prayerIndex > 0) {
-          var firstPrayerGroup = prayerGroups[0];
-          var startsWithYigo = false;
-
-          if (firstPrayerGroup && firstPrayerGroup.tibetan) {
-            for (var y = 0; y < yigos.length; y++) {
-              if (firstPrayerGroup.tibetan.startsWith(yigos[y])) {
-                startsWithYigo = true;
-                break;
-              }
-            }
-          }
-
-          if (!startsWithYigo) {
-            allPrayerGroups.push({
-              tibetan: "༄༅། །",
-              english: "",
-              french: "",
-              smallWritings: true,
-            });
+        // Add space between prayers (except before the first one)
+        if (prayerIndex > 0 && allPrayerGroups.length > 0) {
+          // Mark that we need space before this prayer's first group
+          var lastGroup = allPrayerGroups[allPrayerGroups.length - 1];
+          if (lastGroup) {
+            lastGroup.spaceAfter = true;
           }
         }
 
