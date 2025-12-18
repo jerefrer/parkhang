@@ -83,6 +83,8 @@ var getTranslationTd = function (target) {
   var td = $(target).closest("td");
   if (!td.length) return $();
   if (!td.closest("tr").hasClass("translation")) return $();
+  // Skip empty cells
+  if ($.trim(td.text()) === "") return $();
   return td;
 };
 
@@ -108,6 +110,8 @@ var stripTdStyles = function (td) {
 
 var updateInspectorHover = function (event) {
   if (!inspectorActive) return;
+  // Don't change highlight if popup is open (keep editing cell highlighted)
+  if (inspectorPopup && inspectorPopupTarget) return;
   var td = getTranslationTd(event.target);
   if (!td.length) {
     clearInspectorHighlight();
@@ -125,6 +129,8 @@ var closeInspectorPopup = function () {
     inspectorPopup.remove();
     inspectorPopup = null;
   }
+  // Clear highlight when popup closes
+  clearInspectorHighlight();
   inspectorPopupTarget = null;
   if (inspectorOutsideHandler) {
     $(document).off("mousedown", inspectorOutsideHandler);
@@ -245,9 +251,9 @@ var openInspectorPopup = function (td) {
       var secondWords = words.slice(firstCountValue);
       var firstTarget = isFirst ? td : pairedTd;
       var secondTarget = isFirst ? pairedTd : td;
-      renderTranslationWords(firstTarget, firstWords);
-      renderTranslationWords(secondTarget, secondWords);
-      annotateTranslationSplit(
+      window.renderTranslationWords(firstTarget, firstWords);
+      window.renderTranslationWords(secondTarget, secondWords);
+      window.annotateTranslationSplit(
         firstTarget,
         secondTarget,
         pairId,
@@ -339,3 +345,6 @@ $(document).on("click", "tr.translation td", function (event) {
   event.stopPropagation();
   openInspectorPopup(td);
 });
+
+// Export for ES module usage
+export {};

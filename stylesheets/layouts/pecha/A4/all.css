@@ -32,7 +32,6 @@
   letter-spacing: -0.1px;
   position: relative;
   top: 3px;
-  z-index: -1;
 }
 .pecha-a4 .line .translation td.small-writings,
 .pecha-a4 .line .translation td span.small-writings {

@@ -1,21 +1,28 @@
+/* Gold on Lapis Lazuli mode for rendered pecha only */
+/* This is toggled by the color-mode button after rendering */
+
+/* Pecha container background */
 .pecha-page-container {
   background-image: url(../images/pattern.jpg);
   background-blend-mode: color;
   background-color: #010119;
 }
-*:not(.pecha-page-container) {
+
+/* Pecha content colors */
+.pecha-page-container,
+.pecha-page-container * {
+  color: #a98f00 !important;
   border-color: #ac9100 !important;
-}
-* {
-  color: #a98f00;
   text-shadow: 0 0 3px rgba(231, 195, 0, 0.4);
 }
-.line td.small-writings,
-.line td.small-writings span {
+
+.pecha-page-container .line td.small-writings,
+.pecha-page-container .line td.small-writings span {
   color: rgba(169, 143, 0, 0.5) !important;
   text-shadow: 0 0 3px rgba(231, 195, 0, 0.2) !important;
 }
 
+/* Background for page layouts */
 body[class*="page"] .pecha-page-container {
   background: none;
 }
@@ -24,12 +31,30 @@ body[class*="page"] {
   background-blend-mode: color;
   background-color: #010119;
 }
+
+/* Text shadow for legibility */
 .pecha-a3 .line .tibetan td,
-.pecha-a4 .line .tibetan td {
-  text-shadow: 0 0 1px #010119;
+.pecha-a4 .line .tibetan td,
+.pecha-screen .line .tibetan td {
+  text-shadow: 0 0 1px #010119 !important;
 }
+
 .pecha-a3 .line .translation td,
-.pecha-a4 .line .translation td {
+.pecha-a4 .line .translation td,
+.pecha-screen .line .translation td {
   position: relative;
   z-index: 0;
+}
+
+/* Keep UI buttons visible */
+#print-button,
+#color-mode-button,
+#inspect-td-button {
+  background: #333 !important;
+}
+
+#print-button i,
+#color-mode-button i,
+#inspect-td-button i {
+  color: #fff !important;
 }

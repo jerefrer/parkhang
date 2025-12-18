@@ -47,32 +47,64 @@ var getDefaultLanguage = function () {
 };
 
 // Generate layout cards HTML (without wrapper)
+// Creates a 3x3 grid with the last 2 items centered
 var layoutSelectCards = function () {
-  return (
-    '<div class="ui centered layouts cards">' +
-    _(layouts)
-      .map(function (layout) {
-        return (
-          '\
-          <div class="ui layout link card ' +
-          ((layout.disabled && "disabled") || "") +
-          '" data-id="' +
-          layout.id +
-          '">\
-            <div class="image">\
-              <img src="images/layouts/' +
-          layout.imageName +
-          '">\
-              <div class="name">' +
-          layout.name +
-          "</div>\
-            </div>\
-          </div>"
-        );
-      })
-      .join("") +
-    "</div>"
-  );
+  var gridSize = 3;
+  var totalLayouts = layouts.length;
+  var fullRows = Math.floor(totalLayouts / gridSize);
+  var remainder = totalLayouts % gridSize;
+
+  var html = '<div class="ui centered layouts cards">';
+
+  // Generate full rows (first 9 items in 3x3)
+  var fullRowItems = fullRows * gridSize;
+  for (var i = 0; i < fullRowItems; i++) {
+    var layout = layouts[i];
+    html +=
+      '\
+      <div class="ui layout link card ' +
+      ((layout.disabled && "disabled") || "") +
+      '" data-id="' +
+      layout.id +
+      '">\
+        <div class="image">\
+          <img src="images/layouts/' +
+      layout.imageName +
+      '">\
+          <div class="name">' +
+      layout.name +
+      "</div>\
+        </div>\
+      </div>";
+  }
+
+  // Generate centered last row if there are remaining items
+  if (remainder > 0) {
+    html += '<div class="layouts-last-row">';
+    for (var j = fullRowItems; j < totalLayouts; j++) {
+      var layout = layouts[j];
+      html +=
+        '\
+        <div class="ui layout link card ' +
+        ((layout.disabled && "disabled") || "") +
+        '" data-id="' +
+        layout.id +
+        '">\
+          <div class="image">\
+            <img src="images/layouts/' +
+        layout.imageName +
+        '">\
+            <div class="name">' +
+        layout.name +
+        "</div>\
+          </div>\
+        </div>";
+    }
+    html += "</div>";
+  }
+
+  html += "</div>";
+  return html;
 };
 
 // Legacy function for compatibility
@@ -84,23 +116,18 @@ var layoutSelect = function () {
 var languageSelectInline = function () {
   var defaultLanguageId = getDefaultLanguage();
   return (
-    '<div class="ui inline languages fields">' +
+    '<div class="segmented-control language-control">' +
     _(languages)
       .map(function (language) {
+        var isSelected = language.id === defaultLanguageId;
         return (
-          '\
-          <div class="field">\
-            <div class="ui language radio checkbox">\
-              <input type="radio" name="language" value="' +
+          '<button type="button" class="segment-btn" data-value="' +
           language.id +
           '"' +
-          (language.id === defaultLanguageId ? " checked" : "") +
-          ">\
-              <label>" +
+          (isSelected ? ' data-selected="true"' : "") +
+          ">" +
           language.name +
-          "</label>\
-            </div>\
-          </div>"
+          "</button>"
         );
       })
       .join("") +
@@ -123,14 +150,23 @@ var mantraPhoneticCheckbox = function () {
     return "";
   }
 
-  return '\
-    <div class="ui field" style="text-align: center; margin-top: 15px;">\
-      <div class="ui mantra-phonetic checkbox">\
-        <input type="checkbox" id="mantra-phonetic-checkbox" checked>\
-        <label for="mantra-phonetic-checkbox" style="color: white;">Display mantra phonetics</label>\
+  var currentValue =
+    localStorage[appName + ".displayMantraPhonetics"] !== "false";
+  return (
+    '\
+    <div class="option-row">\
+      <span class="option-label">Display mantra phonetics</span>\
+      <div class="segmented-control mantra-phonetic-control">\
+        <button type="button" class="segment-btn" data-value="yes"' +
+    (currentValue ? ' data-selected="true"' : "") +
+    '>Yes</button>\
+        <button type="button" class="segment-btn" data-value="no"' +
+    (!currentValue ? ' data-selected="true"' : "") +
+    ">No</button>\
       </div>\
     </div>\
-  ';
+  "
+  );
 };
 
 var pageNumberTypeSelect = function () {
@@ -140,25 +176,22 @@ var pageNumberTypeSelect = function () {
     return "";
   }
 
-  return '\
-    <div class="ui field" style="text-align: center; margin-top: 15px;">\
-      <label style="color: white; display: block; margin-bottom: 8px; font-weight: bold;">Page Number Style</label>\
-      <div class="ui inline page-number-type fields" style="justify-content: center;">\
-        <div class="field">\
-          <div class="ui page-number-type radio checkbox">\
-            <input type="radio" name="page-number-type" value="tibetan">\
-            <label style="color: white;">Tibetan</label>\
-          </div>\
-        </div>\
-        <div class="field">\
-          <div class="ui page-number-type radio checkbox">\
-            <input type="radio" name="page-number-type" value="arabic" checked>\
-            <label style="color: white;">Arabic</label>\
-          </div>\
-        </div>\
+  var currentType = localStorage[appName + ".pageNumberType"] || "arabic";
+  return (
+    '\
+    <div class="option-row">\
+      <span class="option-label">Page Number Style</span>\
+      <div class="segmented-control page-number-type-control">\
+        <button type="button" class="segment-btn" data-value="tibetan"' +
+    (currentType === "tibetan" ? ' data-selected="true"' : "") +
+    '>Tibetan</button>\
+        <button type="button" class="segment-btn" data-value="arabic"' +
+    (currentType === "arabic" ? ' data-selected="true"' : "") +
+    ">Arabic</button>\
       </div>\
     </div>\
-  ';
+  "
+  );
 };
 
 // Generate text cards HTML (without wrapper)
@@ -222,26 +255,60 @@ var conclusionPrayers =
   [];
 
 // Generate extra text cards HTML for introduction prayers (without wrapper)
-var extraTextsSelectCards = function (type) {
+// Now uses same UI pattern as conclusion prayers - orderable and togglable
+var extraTextsSelectCards = function (type, textId) {
   if (!extraTexts || extraTexts.length === 0) return "";
-  var prefix = type || "intro";
+
+  // Get saved order and enabled state, or use defaults (per-text)
+  var savedState = textId
+    ? localStorage[appName + ".intro-prayers-state." + textId]
+    : null;
+  var prayerStates = savedState ? JSON.parse(savedState) : {};
+
+  // Build list with order preserved
+  var orderedPrayers = extraTexts.map(function (prayer) {
+    var state = prayerStates[prayer.id] || { enabled: false, order: 999 };
+    return {
+      id: prayer.id,
+      name: prayer.name,
+      enabled: state.enabled,
+      order: state.order,
+    };
+  });
+
+  // Sort by order
+  orderedPrayers.sort(function (a, b) {
+    return a.order - b.order;
+  });
+
   return (
-    '<div class="texts-grid">' +
-    _(extraTexts)
-      .map(function (extraText) {
+    '<div class="intro-prayers-list" id="intro-prayers-list">' +
+    _(orderedPrayers)
+      .map(function (prayer, index) {
+        var enabledClass = prayer.enabled ? "selected" : "";
         return (
-          '\
-          <div class="ui extra-text link card" data-id="' +
-          extraText.id +
-          '" data-type="' +
-          prefix +
+          '<div class="intro-prayer-item ' +
+          enabledClass +
+          '" data-id="' +
+          prayer.id +
+          '" data-order="' +
+          index +
+          '" draggable="true">\
+            <div class="drag-handle"><i class="grip lines icon"></i></div>\
+            <div class="prayer-name">' +
+          escapeHtml(prayer.name) +
+          '</div>\
+            <div class="prayer-toggle">\
+              <div class="ui toggle checkbox intro-prayer-checkbox">\
+                <input type="checkbox" ' +
+          (prayer.enabled ? "checked" : "") +
+          ' data-id="' +
+          prayer.id +
           '">\
-            <div class="content">\
-              <div class="header">' +
-          escapeHtml(extraText.name) +
-          "</div>\
+                <label></label>\
+              </div>\
             </div>\
-          </div>"
+          </div>'
         );
       })
       .join("") +
@@ -250,16 +317,18 @@ var extraTextsSelectCards = function (type) {
 };
 
 // Generate conclusion prayers cards HTML with enable/disable and reorder
-// Uses availablePrayers (same as marker insertions), not extraTexts
-var conclusionPrayersSelectCards = function () {
-  if (!availablePrayers || availablePrayers.length === 0) return "";
+// Uses conclusionPrayersList (only prayers from conclusion folder)
+var conclusionPrayersSelectCards = function (textId) {
+  if (!conclusionPrayersList || conclusionPrayersList.length === 0) return "";
 
-  // Get saved order and enabled state, or use defaults
-  var savedState = localStorage[appName + ".conclusion-prayers-state"];
+  // Get saved order and enabled state, or use defaults (per-text)
+  var savedState = textId
+    ? localStorage[appName + ".conclusion-prayers-state." + textId]
+    : null;
   var prayerStates = savedState ? JSON.parse(savedState) : {};
 
   // Build list with order preserved
-  var orderedPrayers = availablePrayers.map(function (prayer) {
+  var orderedPrayers = conclusionPrayersList.map(function (prayer) {
     var state = prayerStates[prayer.id] || { enabled: false, order: 999 };
     return {
       id: prayer.id,
@@ -456,14 +525,13 @@ var savedProjectsSection = function () {
 
   return (
     '\
-    <div id="saved-projects-section">\
-      <h3>Saved Projects</h3>\
-      <div class="projects-grid">' +
+    <div id="saved-projects-sidebar">\
+      <h3><i class="folder icon"></i> Saved Projects</h3>\
+      <div class="projects-list">' +
     projectCards +
-    '</div>\
-      <div class="ui horizontal inverted divider" style="width: 220px; margin-top: 25px">or create new</div>\
+    "</div>\
     </div>\
-  '
+    "
   );
 };
 
@@ -477,13 +545,37 @@ var escapeHtml = function (text) {
 var renderInputForm = function () {
   var form = $('<div id="input-form" class="ui form">');
 
+  // Theme toggle button - cycles through dark/light/lapis-lazuli
+  var currentTheme = localStorage[appName + ".theme"] || "dark";
+  $("body")
+    .removeClass("theme-dark theme-light theme-lapis")
+    .addClass("theme-" + currentTheme);
+
+  var themeIcons = { dark: "moon", light: "sun", lapis: "gem" };
+  form.append(
+    '<button type="button" id="theme-toggle" class="theme-toggle-btn" title="Toggle theme (dark/light/lapis-lazuli)">' +
+      '<i class="' +
+      themeIcons[currentTheme] +
+      ' icon"></i>' +
+      "</button>"
+  );
+
   // Hidden file input
   form.append(
     '<input type="file" id="hidden-file-input" style="display: none;" accept=".json,.xlsx,.docx" />'
   );
 
-  // Saved projects section
-  form.append(savedProjectsSection());
+  // Layout wrapper with sidebar and main content
+  var sidebarHtml = savedProjectsSection();
+  var hasSidebar = sidebarHtml && sidebarHtml.length > 0;
+  var layoutWrapper = $(
+    '<div class="form-layout-wrapper' + (hasSidebar ? "" : " no-sidebar") + '">'
+  );
+
+  // Sidebar for saved projects
+  if (hasSidebar) {
+    layoutWrapper.append(sidebarHtml);
+  }
 
   // Main single-column content
   var content = $('<div class="form-content">');
@@ -500,7 +592,8 @@ var renderInputForm = function () {
   );
 
   // 2. Introduction prayers section
-  var introTextsHtml = extraTextsSelectCards("intro");
+  var currentTextId = localStorage[appName + ".textId"];
+  var introTextsHtml = extraTextsSelectCards("intro", currentTextId);
   if (introTextsHtml) {
     content.append(
       '\
@@ -527,21 +620,23 @@ var renderInputForm = function () {
   // 4. Language & Options section
   content.append(
     '\
-    <div class="form-section">\
+    <div class="form-section" id="options-section">\
       <h3><i class="cog icon"></i> Options</h3>\
-      <div style="margin-bottom: 16px;">\
-        <label style="color: rgba(255,255,255,0.6); font-size: 12px; display: block; margin-bottom: 8px;">Translation Language</label>\
+      <div class="option-row">\
+        <span class="option-label">Translation Language</span>\
         ' +
       languageSelectInline() +
-      '\
+      "\
       </div>\
-      <div id="mantra-phonetic-section"></div>\
-      <div id="page-number-type-section"></div>\
-    </div>'
+      " +
+      mantraPhoneticCheckbox() +
+      pageNumberTypeSelect() +
+      "\
+    </div>"
   );
 
   // 5. Conclusion prayers section
-  var conclusionTextsHtml = conclusionPrayersSelectCards();
+  var conclusionTextsHtml = conclusionPrayersSelectCards(currentTextId);
   if (conclusionTextsHtml) {
     content.append(
       '\
@@ -566,10 +661,8 @@ var renderInputForm = function () {
     </div>"
   );
 
-  form.append(content);
-
-  // Render button
-  form.append(
+  // Render button - inside content so it aligns with form
+  content.append(
     '\
     <div class="render-section">\
       <button class="ui fluid green button" id="render-button">\
@@ -578,50 +671,25 @@ var renderInputForm = function () {
     </div>'
   );
 
+  // Add content to layout wrapper, then wrapper to form
+  layoutWrapper.append(content);
+  form.append(layoutWrapper);
+
   $("#main").html(form);
   $("#layout").dropdown({ showOnFocus: false });
   $(".extra-text.checkbox").checkbox();
   $(".language.checkbox").checkbox();
+  $(".intro-prayer-checkbox").checkbox();
   $(".conclusion-prayer-checkbox").checkbox();
   var textId = localStorage[appName + ".textId"];
   var layout = localStorage[appName + ".layout"];
   var language = localStorage[appName + ".language"];
   var selectedExtraTexts = localStorage[appName + ".selected-extra-texts"];
 
-  // Update mantra phonetic checkbox visibility based on layout
-  var updateMantraPhoneticSection = function () {
-    $("#mantra-phonetic-section").html(mantraPhoneticCheckbox());
-    $(".mantra-phonetic.checkbox").checkbox();
-    var displayMantraPhonetics =
-      localStorage[appName + ".displayMantraPhonetics"];
-    if (displayMantraPhonetics === "false") {
-      $("#mantra-phonetic-checkbox").prop("checked", false);
-    }
-  };
-
-  // Update page number type section visibility based on layout
-  var updatePageNumberTypeSection = function () {
-    $("#page-number-type-section").html(pageNumberTypeSelect());
-    $(".page-number-type.checkbox").checkbox();
-    var pageNumberType = localStorage[appName + ".pageNumberType"];
-    if (pageNumberType === "arabic") {
-      $("input[name=page-number-type][value=arabic]").prop("checked", true);
-    }
-  };
-
   if (textId) $(".text[data-id=" + textId + "]").click();
   if (layout) $(".layout[data-id=" + layout + "]").click();
-  if (language) $("input[name=language][value=" + language + "]").click();
-
-  // Initialize mantra phonetic section
-  updateMantraPhoneticSection();
-  // Initialize page number type section
-  updatePageNumberTypeSection();
-  if (selectedExtraTexts && selectedExtraTexts.length) {
-    _(JSON.parse(selectedExtraTexts)).each(function (extraTextId) {
-      $(".extra-text[data-id=" + extraTextId + "]").click();
-    });
-  }
+  if (language)
+    $(".language-control .segment-btn[data-value=" + language + "]").click();
 
   // Load prayers section if text is already selected
   if (textId) {
@@ -629,6 +697,10 @@ var renderInputForm = function () {
     if (storedText) {
       try {
         pecha = JSON.parse(storedText);
+        // Load marker prayers for this text before updating UI
+        if (window.loadMarkerPrayersForCurrentText) {
+          window.loadMarkerPrayersForCurrentText();
+        }
         updatePrayersSection();
       } catch (e) {
         console.error("Error loading pecha from localStorage:", e);
@@ -656,7 +728,7 @@ var updatePrayersSection = function () {
 // Refresh the text selection area with updated texts
 var refreshTextSelection = function () {
   // Update the texts object from localStorage
-  texts =
+  var texts =
     (localStorage[appName + ".texts"] &&
       JSON.parse(localStorage[appName + ".texts"])) ||
     {};
@@ -669,30 +741,120 @@ $(document).on("click", ".layout:not(.disabled)", function (event) {
   $(".layout").removeClass("selected");
   $(event.currentTarget).addClass("selected");
 
-  // Update mantra phonetic checkbox visibility when layout changes
+  // Update layout in localStorage
   var layout = $(event.currentTarget).data("id");
   localStorage[appName + ".layout"] = layout;
-  $("#mantra-phonetic-section").html(mantraPhoneticCheckbox());
-  $(".mantra-phonetic.checkbox").checkbox();
-  var displayMantraPhonetics =
-    localStorage[appName + ".displayMantraPhonetics"];
-  if (displayMantraPhonetics === "false") {
-    $("#mantra-phonetic-checkbox").prop("checked", false);
-  }
 
-  // Update page number type section visibility when layout changes
-  $("#page-number-type-section").html(pageNumberTypeSelect());
-  $(".page-number-type.checkbox").checkbox();
-  var pageNumberType = localStorage[appName + ".pageNumberType"];
-  if (pageNumberType === "arabic") {
-    $("input[name=page-number-type][value=arabic]").prop("checked", true);
-  }
+  // Rebuild options section with updated visibility for mantra phonetic and page number type
+  var defaultLanguageId = getDefaultLanguage();
+  var optionsHtml =
+    '<h3><i class="cog icon"></i> Options</h3>\
+    <div class="option-row">\
+      <span class="option-label">Translation Language</span>\
+      <div class="segmented-control language-control">' +
+    _(languages)
+      .map(function (lang) {
+        var isSelected = lang.id === defaultLanguageId;
+        return (
+          '<button type="button" class="segment-btn" data-value="' +
+          lang.id +
+          '"' +
+          (isSelected ? ' data-selected="true"' : "") +
+          ">" +
+          lang.name +
+          "</button>"
+        );
+      })
+      .join("") +
+    "</div>\
+    </div>" +
+    mantraPhoneticCheckbox() +
+    pageNumberTypeSelect();
+
+  $("#options-section").html(optionsHtml);
 });
 
-$(document).on("change", "input[type=radio]", function (event) {
-  $(".language.radio").removeClass("selected");
-  $(event.currentTarget).parents(".language.radio").addClass("selected");
+// Theme toggle handler - cycles through dark -> light -> lapis -> dark
+$(document).on("click", "#theme-toggle", function (event) {
+  var $body = $("body");
+  var $icon = $(this).find("i");
+  var themes = ["dark", "light", "lapis"];
+  var icons = { dark: "moon", light: "sun", lapis: "gem" };
+
+  // Find current theme
+  var currentTheme = "dark";
+  for (var i = 0; i < themes.length; i++) {
+    if ($body.hasClass("theme-" + themes[i])) {
+      currentTheme = themes[i];
+      break;
+    }
+  }
+
+  // Get next theme
+  var currentIndex = themes.indexOf(currentTheme);
+  var nextIndex = (currentIndex + 1) % themes.length;
+  var nextTheme = themes[nextIndex];
+
+  // Update body class
+  $body
+    .removeClass("theme-dark theme-light theme-lapis")
+    .addClass("theme-" + nextTheme);
+
+  // Update icon
+  $icon.removeClass("sun moon gem").addClass(icons[nextTheme]);
+
+  // Save to localStorage
+  localStorage[appName + ".theme"] = nextTheme;
 });
+
+// Language segmented control handler
+$(document).on("click", ".language-control .segment-btn", function (event) {
+  var $btn = $(event.currentTarget);
+  var value = $btn.data("value");
+
+  // Update visual state
+  $btn.siblings().removeAttr("data-selected");
+  $btn.attr("data-selected", "true");
+
+  // Save to localStorage and update global variable
+  localStorage[appName + ".language"] = value;
+  window.selectedLanguage = value;
+});
+
+// Page number type segmented control handler
+$(document).on(
+  "click",
+  ".page-number-type-control .segment-btn",
+  function (event) {
+    var $btn = $(event.currentTarget);
+    var value = $btn.data("value");
+
+    // Update visual state
+    $btn.siblings().removeAttr("data-selected");
+    $btn.attr("data-selected", "true");
+
+    // Save to localStorage
+    localStorage[appName + ".pageNumberType"] = value;
+  }
+);
+
+// Mantra phonetic segmented control handler
+$(document).on(
+  "click",
+  ".mantra-phonetic-control .segment-btn",
+  function (event) {
+    var $btn = $(event.currentTarget);
+    var value = $btn.data("value");
+
+    // Update visual state
+    $btn.siblings().removeAttr("data-selected");
+    $btn.attr("data-selected", "true");
+
+    // Save to localStorage (yes = true, no = false)
+    localStorage[appName + ".displayMantraPhonetics"] =
+      value === "yes" ? "true" : "false";
+  }
+);
 
 // Handle click on the upload card to trigger the hidden file input
 $(document).on("click", "#file-upload-card", function (event) {
@@ -729,14 +891,44 @@ $(document).on("click", ".text", function (event) {
   // Load the text and update prayer markers
   var textId = $(event.currentTarget).data("id");
   if (textId) {
+    localStorage[appName + ".textId"] = textId;
     pecha = JSON.parse(localStorage[appName + ".texts." + textId]);
+    // Reload marker prayers for this text
+    if (window.loadMarkerPrayersForCurrentText) {
+      window.loadMarkerPrayersForCurrentText();
+    }
     updatePrayersSection();
+    // Reload intro and conclusion prayers UI for this text
+    reloadPrayersUIForText(textId);
   }
 });
 
-$(document).on("click", ".extra-text", function (event) {
-  $(event.currentTarget).toggleClass("selected");
-});
+// Reload intro and conclusion prayers UI for a specific text
+var reloadPrayersUIForText = function (textId) {
+  // Reload intro prayers
+  var introHtml = extraTextsSelectCards("intro", textId);
+  if (introHtml) {
+    $("#intro-prayers-list").replaceWith(
+      $(introHtml).find("#intro-prayers-list").length
+        ? $(introHtml).find("#intro-prayers-list")
+        : introHtml
+    );
+    $(".intro-prayer-checkbox").checkbox();
+  }
+
+  // Reload conclusion prayers
+  var conclusionHtml = conclusionPrayersSelectCards(textId);
+  if (conclusionHtml) {
+    $("#conclusion-prayers-list").replaceWith(
+      $(conclusionHtml).find("#conclusion-prayers-list").length
+        ? $(conclusionHtml).find("#conclusion-prayers-list")
+        : conclusionHtml
+    );
+    $(".conclusion-prayer-checkbox").checkbox();
+  }
+};
+
+// Old extra-text click handler removed - now using intro-prayer-checkbox toggle
 
 // Conclusion prayers toggle
 $(document).on("change", ".conclusion-prayer-checkbox input", function (event) {
@@ -754,8 +946,11 @@ $(document).on("change", ".conclusion-prayer-checkbox input", function (event) {
   saveConclusionPrayersState();
 });
 
-// Save conclusion prayers state to localStorage
+// Save conclusion prayers state to localStorage (per-text)
 var saveConclusionPrayersState = function () {
+  var textId = getCurrentTextId();
+  if (!textId) return;
+
   var state = {};
   $("#conclusion-prayers-list .conclusion-prayer-item").each(function (index) {
     var $item = $(this);
@@ -766,7 +961,8 @@ var saveConclusionPrayersState = function () {
       order: index,
     };
   });
-  localStorage[appName + ".conclusion-prayers-state"] = JSON.stringify(state);
+  localStorage[appName + ".conclusion-prayers-state." + textId] =
+    JSON.stringify(state);
 };
 
 // Conclusion prayers drag and drop
@@ -820,6 +1016,97 @@ $(document).on("drop", ".conclusion-prayer-item", function (event) {
   }
 });
 
+// Introduction prayers toggle
+$(document).on("change", ".intro-prayer-checkbox input", function (event) {
+  var $checkbox = $(event.currentTarget);
+  var prayerId = $checkbox.data("id");
+  var isEnabled = $checkbox.is(":checked");
+  var $item = $checkbox.closest(".intro-prayer-item");
+
+  if (isEnabled) {
+    $item.addClass("selected");
+  } else {
+    $item.removeClass("selected");
+  }
+
+  saveIntroPrayersState();
+});
+
+// Get current selected text ID
+var getCurrentTextId = function () {
+  return $(".text.selected").data("id") || localStorage[appName + ".textId"];
+};
+
+// Save introduction prayers state to localStorage (per-text)
+var saveIntroPrayersState = function () {
+  var textId = getCurrentTextId();
+  if (!textId) return;
+
+  var state = {};
+  $("#intro-prayers-list .intro-prayer-item").each(function (index) {
+    var $item = $(this);
+    var prayerId = $item.data("id");
+    var isEnabled = $item.find("input[type=checkbox]").is(":checked");
+    state[prayerId] = {
+      enabled: isEnabled,
+      order: index,
+    };
+  });
+  localStorage[appName + ".intro-prayers-state." + textId] =
+    JSON.stringify(state);
+};
+
+// Introduction prayers drag and drop
+var draggedIntroItem = null;
+
+$(document).on("dragstart", ".intro-prayer-item", function (event) {
+  draggedIntroItem = this;
+  $(this).addClass("dragging");
+  event.originalEvent.dataTransfer.effectAllowed = "move";
+});
+
+$(document).on("dragend", ".intro-prayer-item", function (event) {
+  $(this).removeClass("dragging");
+  $(".intro-prayer-item").removeClass("drag-over");
+  draggedIntroItem = null;
+  saveIntroPrayersState();
+});
+
+$(document).on("dragover", ".intro-prayer-item", function (event) {
+  event.preventDefault();
+  event.originalEvent.dataTransfer.dropEffect = "move";
+
+  if (this !== draggedIntroItem) {
+    $(this).addClass("drag-over");
+  }
+});
+
+$(document).on("dragleave", ".intro-prayer-item", function (event) {
+  $(this).removeClass("drag-over");
+});
+
+$(document).on("drop", ".intro-prayer-item", function (event) {
+  event.preventDefault();
+  $(this).removeClass("drag-over");
+
+  if (draggedIntroItem && this !== draggedIntroItem) {
+    var $list = $("#intro-prayers-list");
+    var $draggedItem = $(draggedIntroItem);
+    var $targetItem = $(this);
+
+    // Determine if we should insert before or after
+    var targetRect = this.getBoundingClientRect();
+    var mouseY = event.originalEvent.clientY;
+    var insertBefore = mouseY < targetRect.top + targetRect.height / 2;
+
+    if (insertBefore) {
+      $draggedItem.insertBefore($targetItem);
+    } else {
+      $draggedItem.insertAfter($targetItem);
+    }
+  }
+});
+
 // Download text as JSON
 $(document).on("click", ".download-text-btn", function (event) {
   event.stopPropagation();
@@ -855,6 +1142,36 @@ var openPrayerModal = function (markerType) {
   var currentPrayers = markerPrayers[markerType] || [];
   var displayName = markerType.charAt(0) + markerType.slice(1).toLowerCase();
 
+  // Get prayers specific to this marker type (e.g., TSOK -> prayers/tsok, TSEGUK -> prayers/tseguk)
+  var markerSpecificPrayers = window.getPrayersForMarker
+    ? window.getPrayersForMarker(markerType)
+    : availablePrayers;
+
+  if (!markerSpecificPrayers || markerSpecificPrayers.length === 0) {
+    // Fallback to all available prayers if no specific prayers found
+    markerSpecificPrayers = availablePrayers;
+  }
+
+  // Sort prayers: selected ones first (in saved order), then unselected ones
+  var orderedPrayers = [];
+
+  // First, add selected prayers in their saved order
+  currentPrayers.forEach(function (prayerId) {
+    var prayer = _.find(markerSpecificPrayers, function (p) {
+      return p.id === prayerId;
+    });
+    if (prayer) {
+      orderedPrayers.push(prayer);
+    }
+  });
+
+  // Then add unselected prayers
+  markerSpecificPrayers.forEach(function (prayer) {
+    if (currentPrayers.indexOf(prayer.id) === -1) {
+      orderedPrayers.push(prayer);
+    }
+  });
+
   var modalHtml =
     '\
     <div class="ui modal prayer-modal" id="prayer-modal-' +
@@ -869,7 +1186,7 @@ var openPrayerModal = function (markerType) {
         <div class="ui prayers-list" id="modal-prayers-list-' +
     markerType +
     '">' +
-    _(availablePrayers)
+    _(orderedPrayers)
       .map(function (prayer) {
         var isSelected = currentPrayers.indexOf(prayer.id) !== -1;
         return (
@@ -947,7 +1264,12 @@ $(document).on("click", "#modal-save", function (event) {
   });
 
   markerPrayers[markerType] = selectedPrayerIds;
-  saveMarkerPrayers();
+  // Save marker prayers to localStorage (per-text)
+  var textId = localStorage[appName + ".textId"];
+  if (textId) {
+    localStorage[appName + ".marker-prayers." + textId] =
+      JSON.stringify(markerPrayers);
+  }
 
   // Update button text
   var prayerCount = selectedPrayerIds.length;
@@ -1045,48 +1367,90 @@ var initializeModalPrayerDragAndDrop = function (markerType) {
   });
 };
 
-var selectedLanguage = getDefaultLanguage();
-var selectedExtraTexts;
-var includeTransliteration = true;
-var displayMantraPhonetics = true;
+window.selectedLanguage = getDefaultLanguage();
+window.selectedExtraTexts = undefined;
+window.includeTransliteration = true;
+window.displayMantraPhonetics = true;
 $(document).on("click", "#render-button", function () {
   var textId = (localStorage[appName + ".textId"] =
     $(".text.selected").data("id"));
   var layout = (localStorage[appName + ".layout"] =
     $(".layout.selected").data("id"));
-  selectedLanguage = localStorage[appName + ".language"] = $(
-    "input[name=language]:checked"
-  ).val();
-  selectedExtraTexts = _($(".extra-text.selected")).map(function (text) {
-    return $(text).data("id");
+  window.selectedLanguage = localStorage[appName + ".language"] =
+    $(".language-control .segment-btn[data-selected]").data("value") ||
+    getDefaultLanguage();
+
+  // Get selected intro prayers from the per-text state format (ordered and enabled)
+  var introState = textId
+    ? localStorage[appName + ".intro-prayers-state." + textId]
+    : null;
+  var introPrayerStates = introState ? JSON.parse(introState) : {};
+  window.selectedExtraTexts = [];
+  // Get prayers in order from the state
+  var orderedIntroPrayers = [];
+  for (var prayerId in introPrayerStates) {
+    if (introPrayerStates[prayerId].enabled) {
+      orderedIntroPrayers.push({
+        id: prayerId,
+        order: introPrayerStates[prayerId].order,
+      });
+    }
+  }
+  orderedIntroPrayers.sort(function (a, b) {
+    return a.order - b.order;
   });
-  localStorage[appName + ".selected-extra-texts"] =
-    JSON.stringify(selectedExtraTexts);
+  window.selectedExtraTexts = orderedIntroPrayers.map(function (p) {
+    return p.id;
+  });
 
   // Save mantra phonetic preference
-  displayMantraPhonetics = $("#mantra-phonetic-checkbox").is(":checked");
-  localStorage[appName + ".displayMantraPhonetics"] = displayMantraPhonetics;
+  var mantraPhoneticValue = $(
+    ".mantra-phonetic-control .segment-btn[data-selected]"
+  ).data("value");
+  window.displayMantraPhonetics = mantraPhoneticValue !== "no";
+  localStorage[appName + ".displayMantraPhonetics"] =
+    window.displayMantraPhonetics ? "true" : "false";
 
   // Save page number type preference
   var pageNumberType =
-    $("input[name=page-number-type]:checked").val() || "tibetan";
+    $(".page-number-type-control .segment-btn[data-selected]").data("value") ||
+    "arabic";
   localStorage[appName + ".pageNumberType"] = pageNumberType;
 
   $("body").addClass(layout);
-  if (includeTransliteration) $("body").addClass("with-phonetics");
-  if (displayMantraPhonetics) $("body").addClass("with-mantra-phonetics");
+  if (window.includeTransliteration) $("body").addClass("with-phonetics");
+  if (window.displayMantraPhonetics)
+    $("body").addClass("with-mantra-phonetics");
   if (pageNumberType === "arabic") $("body").addClass("arabic-numbers");
   $("#input-form").remove();
   $("#loading-overlay").show();
 
   if (textId) {
     pecha = JSON.parse(localStorage[appName + ".texts." + textId]);
+    // Update window.pecha so prayers.js can access it
+    window.pecha = pecha;
     beginGeneration();
   } else if (pecha && pecha.groups && pecha.groups.length > 0) {
     // File was already imported, just start generation
+    window.pecha = pecha;
     beginGeneration();
   } else {
     // Import file and start generation
     importFile(true);
   }
 });
+
+// Export functions for ES module usage
+export {
+  getDefaultLanguage,
+  isAClassicPage,
+  isAPage,
+  isAPecha,
+  isASplitPage,
+  isPageA4,
+  isPageA5,
+  isPageScreen,
+  languages,
+  layouts,
+  renderInputForm,
+};

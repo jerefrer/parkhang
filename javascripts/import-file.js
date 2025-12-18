@@ -69,6 +69,7 @@ var persistPecha = function (pecha) {
 var importJSON = function (reader, file, shouldGenerate) {
   reader.onload = function () {
     pecha = JSON.parse(reader.result);
+    window.pecha = pecha; // Update global reference
     persistPecha(pecha);
     // Refresh the text selection UI
     if (typeof refreshTextSelection === "function") {
@@ -113,7 +114,7 @@ var importXLSX = function (reader, file, shouldGenerate) {
     };
 
     var isEmptyRow = function (row) {
-      return !_.any([cell(row, 0), cell(row, 1), cell(row, 2), cell(row, 3)]);
+      return !_.some([cell(row, 0), cell(row, 1), cell(row, 2), cell(row, 3)]);
     };
 
     while (!isEmptyRow(rowIndex)) {
@@ -155,6 +156,7 @@ var importXLSX = function (reader, file, shouldGenerate) {
       rowIndex++;
     }
 
+    window.pecha = pecha; // Update global reference
     persistPecha(pecha);
     // Refresh the text selection UI
     if (typeof refreshTextSelection === "function") {
@@ -460,6 +462,7 @@ var parseDOCXHtml = function (html, fileName, shouldGenerate) {
     pecha.groups = titleGroups.concat(pecha.groups);
   }
 
+  window.pecha = pecha; // Update global reference
   persistPecha(pecha);
 
   // Refresh the text selection UI
@@ -493,3 +496,6 @@ var downloadPechaAsJSON = function (pechaData) {
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 };
+
+// Export functions for ES module usage
+export { downloadPechaAsJSON, importFile, pecha, persistPecha };

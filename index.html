@@ -1,8 +1,8 @@
+<!DOCTYPE html>
 <html>
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <title>པར་ཁང་</title>
-  <link rel="stylesheet" href="vendor/stylesheets/semantic.min.css">
   <link rel="stylesheet" href="stylesheets/application.css">
   <link rel="stylesheet" href="stylesheets/scrollbar.css">
   <link rel="stylesheet" href="stylesheets/input-form.css">
@@ -31,62 +31,7 @@
   <link rel="stylesheet" href="stylesheets/project-manager.css">
   <link rel="stylesheet" href="stylesheets/effects.css" id="effects">
   <link rel="stylesheet" href="stylesheets/print.css">
-  <script src="vendor/javascripts/howler.min.js"></script>
-  <script src="vendor/javascripts/jquery-3.2.0.min.js"></script>
-  <script src="vendor/javascripts/jquery.scrollTo.js"></script>
-  <script src="vendor/javascripts/clipboard.min.js"></script>
-  <script src="vendor/javascripts/moment.js"></script>
-  <script src="vendor/javascripts/papaparse.min.js"></script>
-  <script src="vendor/javascripts/semantic.min.js"></script>
-  <script src="vendor/javascripts/underscore.min.js"></script>
-  <script src="vendor/javascripts/sugar.js"></script>
-  <script src="vendor/javascripts/xlsx.full.min.js"></script>
-  <script src="vendor/javascripts/mammoth.browser.min.js"></script>
-  <script src="javascripts/globals.js"></script>
-  <script src="javascripts/project-manager.js"></script>
-  <script src="javascripts/tibetan-page-numbers.js"></script>
-  <script src="pechas/extra-texts-starter-pack.js"></script>
-  <script src="prayers/tsikdun-kasung.js"></script>
-  <script src="prayers/lama-yidam.js"></script>
-  <script src="prayers/jetsun-lama.js"></script>
-  <script src="prayers/dom-zung.js"></script>
-  <script src="prayers/lamps.js"></script>
-  <script src="prayers/lamps-short.js"></script>
-  <script src="prayers/tsikdun-tsok.js"></script>
-  <script src="prayers/tsikdun-tseguk.js"></script>
-  <script src="prayers/prayer-of-yeshe-tsogyal.js"></script>
-  <script src="javascripts/prayers.js"></script>
-  <script src="javascripts/navigation.js"></script>
-  <script src="javascripts/color-mode.js"></script>
-  <script src="javascripts/input-form.js"></script>
-  <script src="javascripts/import-file.js"></script>
-  <script src="javascripts/generate.js"></script>
-  <script src="javascripts/generate-pecha.js"></script>
-  <script src="javascripts/generate-classic-pages.js"></script>
-  <script src="javascripts/generate-split-pages.js"></script>
-  <script src="javascripts/printing.js"></script>
-  <script src="javascripts/fading-buttons.js"></script>
-  <script src="javascripts/zoom-on-click.js"></script>
-  <script>
-    var delay = 1;
-    var autoloadPreviousPecha = false;
-
-    $(function() {
-      if (autoloadPreviousPecha) {
-        $('body').addClass(localStorage[appName+'.layout']);
-        textId = JSON.parse(localStorage[appName+'.textId']);
-        language = localStorage[appName+'.language'];
-        if (textId) {
-          pecha = localStorage[appName+'.texts.'+textId];
-          $('#file-input').remove();
-          beginGeneration();
-        }
-      } else {
-        renderInputForm();
-        $('#loading-overlay').fadeOut();
-      }
-    })
-  </script>
+  <script type="module" src="/src/main.js"></script>
   <body>
     <div id="masking-overlay"></div>
     <div id="loading-overlay">
@@ -104,7 +49,7 @@
         <i class="print icon"></i>
       </button>
       <button id="color-mode-button" class="circular ui black icon button">
-        <i class="adjust icon"></i>
+        <i class="moon icon"></i>
       </button>
       <button id="inspect-td-button" class="circular ui black icon button">
         <i class="eye icon"></i>

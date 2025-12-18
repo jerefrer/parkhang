@@ -1,4 +1,4 @@
-var tibetanPageNumbersInPlainText = [
+window.tibetanPageNumbersInPlainText = [
   "གཅིག་",
   "གཉིས་",
   "གསུམ་",
@@ -1000,3 +1000,7 @@ var tibetanPageNumbersInPlainText = [
   "དགུ་བརྒྱ་གོ་དགུ་",
   "ཆིག་སྟོང༌",
 ];
+
+// Export for ES module usage
+var tibetanPageNumbersInPlainText = window.tibetanPageNumbersInPlainText;
+export { tibetanPageNumbersInPlainText };

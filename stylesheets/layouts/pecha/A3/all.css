@@ -12,7 +12,6 @@
 .pecha-a3 .line .tibetan td {
   font-size: 31px;
   line-height: 31px;
-  text-shadow: 0 0 1px black;
 }
 .pecha-a3 .line .tibetan td.small-writings,
 .pecha-a3 .line .tibetan td span.small-writings {
@@ -32,7 +31,6 @@
   letter-spacing: -0.1px;
   position: relative;
   top: 3px;
-  z-index: -1;
 }
 .pecha-a3 .line .translation td.small-writings,
 .pecha-a3 .line .translation td span.small-writings {

@@ -1,32 +1,60 @@
-var colorMode = 0;
+// Unified theme system - cycles through dark -> light -> lapis
+// This uses body classes instead of dynamically loaded CSS files
 
-var switchColorMode = function () {
-  colorMode++;
-  if (colorMode > 2) colorMode = 0;
+var appName = "parkhang";
+var themeIcons = { dark: "moon", light: "sun", lapis: "gem" };
+
+// Update the color-mode button icon based on current theme
+var updateColorModeIcon = function () {
+  var $body = $("body");
+  var $icon = $("#color-mode-button i");
+  var currentTheme = "dark";
+
+  if ($body.hasClass("theme-light")) currentTheme = "light";
+  else if ($body.hasClass("theme-lapis")) currentTheme = "lapis";
+
+  $icon.removeClass("moon sun gem").addClass(themeIcons[currentTheme]);
 };
 
-$(document).on("click", "#color-mode-button", function () {
-  switchColorMode();
-  switch (colorMode) {
-    case 0:
-      $("#light-mode").remove();
-      $("#lapis-lazuli-mode").remove();
-      break;
-    case 1:
-      $("#lapis-lazuli-mode").remove();
-      $("head").append(
-        '<link id="light-mode" rel="stylesheet" href="stylesheets/color-modes/light-mode.css">'
-      );
-      break;
-    case 2:
-      $("#light-mode").remove();
-      $("head").append(
-        '<link id="lapis-lazuli-mode" rel="stylesheet" href="stylesheets/color-modes/gold-on-lapis-lazuli.css">'
-      );
-      break;
-  }
-  $("#effects").remove();
-  $("head").append(
-    '<link id="effects" rel="stylesheet" href="stylesheets/effects.css">'
-  );
+// Initialize icon on page load
+$(document).ready(function () {
+  updateColorModeIcon();
 });
+
+$(document).on("click", "#color-mode-button", function () {
+  var $body = $("body");
+  var $icon = $(this).find("i");
+  var themes = ["dark", "light", "lapis"];
+
+  // Find current theme
+  var currentTheme = "dark";
+  for (var i = 0; i < themes.length; i++) {
+    if ($body.hasClass("theme-" + themes[i])) {
+      currentTheme = themes[i];
+      break;
+    }
+  }
+
+  // Get next theme
+  var currentIndex = themes.indexOf(currentTheme);
+  var nextIndex = (currentIndex + 1) % themes.length;
+  var nextTheme = themes[nextIndex];
+
+  // Update body class
+  $body
+    .removeClass("theme-dark theme-light theme-lapis")
+    .addClass("theme-" + nextTheme);
+
+  // Update icon with rotation animation
+  $icon.css("transform", "rotate(360deg)");
+  setTimeout(function () {
+    $icon.removeClass("moon sun gem").addClass(themeIcons[nextTheme]);
+    $icon.css("transform", "rotate(0deg)");
+  }, 150);
+
+  // Save to localStorage
+  localStorage[appName + ".theme"] = nextTheme;
+});
+
+// Export for ES module usage
+export {};

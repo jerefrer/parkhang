@@ -32,3 +32,6 @@ var prepareAndPrint = function () {
 };
 
 $(document).on("click", "#print-button", prepareAndPrint);
+
+// Export functions for ES module usage
+export { prepareAndPrint };

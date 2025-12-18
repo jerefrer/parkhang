@@ -48,10 +48,38 @@ var loadPrayers = function () {
     selectedPrayers = JSON.parse(stored);
   }
 
-  // Load marker-specific prayers from localStorage
-  var storedMarkerPrayers = localStorage[appName + ".marker-prayers"];
-  if (storedMarkerPrayers) {
-    markerPrayers = JSON.parse(storedMarkerPrayers);
+  // Load marker-specific prayers from localStorage (per-text)
+  loadMarkerPrayersForCurrentText();
+};
+
+// Load marker prayers for the current text
+var loadMarkerPrayersForCurrentText = function () {
+  var textId = localStorage[appName + ".textId"];
+  var newPrayers = {};
+
+  if (textId) {
+    var storedMarkerPrayers =
+      localStorage[appName + ".marker-prayers." + textId];
+    if (storedMarkerPrayers) {
+      newPrayers = JSON.parse(storedMarkerPrayers);
+    }
+  }
+
+  // Fallback to legacy global storage for migration
+  if (Object.keys(newPrayers).length === 0) {
+    var legacyMarkerPrayers = localStorage[appName + ".marker-prayers"];
+    if (legacyMarkerPrayers) {
+      newPrayers = JSON.parse(legacyMarkerPrayers);
+    }
+  }
+
+  // Clear and update markerPrayers object (mutate, don't reassign)
+  // This preserves the reference that window.markerPrayers points to
+  for (var key in markerPrayers) {
+    delete markerPrayers[key];
+  }
+  for (var key in newPrayers) {
+    markerPrayers[key] = newPrayers[key];
   }
 };
 
@@ -60,14 +88,25 @@ var saveSelectedPrayers = function () {
   localStorage[appName + ".selected-prayers"] = JSON.stringify(selectedPrayers);
 };
 
-// Save marker-specific prayers to localStorage
+// Save marker-specific prayers to localStorage (per-text)
 var saveMarkerPrayers = function () {
-  localStorage[appName + ".marker-prayers"] = JSON.stringify(markerPrayers);
+  var textId = localStorage[appName + ".textId"];
+  if (textId) {
+    localStorage[appName + ".marker-prayers." + textId] =
+      JSON.stringify(markerPrayers);
+  }
 };
 
 // Get prayer data from global variable
 var getPrayerData = function (prayerId) {
-  var varName = prayerDataRegistry[prayerId];
+  // First try the global getPrayerData function (set by main.js from loader)
+  if (window.getPrayerData && window.getPrayerData !== getPrayerData) {
+    var data = window.getPrayerData(prayerId);
+    if (data) return data;
+  }
+  // Fallback to global registry
+  var registry = window.prayerDataRegistry || prayerDataRegistry;
+  var varName = registry[prayerId];
   if (varName && window[varName]) {
     return window[varName];
   }
@@ -124,8 +163,12 @@ var findAllMarkers = function () {
   var markers = [];
   var markerRegex = /^\[INSERT (.+?) HERE\]$/;
 
-  for (var i = 0; i < pecha.groups.length; i++) {
-    var group = pecha.groups[i];
+  if (!window.pecha || !window.pecha.groups) {
+    return markers;
+  }
+
+  for (var i = 0; i < window.pecha.groups.length; i++) {
+    var group = window.pecha.groups[i];
 
     // Check all language fields to find markers
     var languages = ["tibetan", "english", "french"];
@@ -181,9 +224,9 @@ var insertPrayersAtSingleMarker = function (marker, callback) {
   getPrayersDataForMarker(marker.type, function (prayersData) {
     // If no prayers are selected, remove the marker
     if (!prayersData || prayersData.length === 0) {
-      var beforeMarker = pecha.groups.slice(0, marker.index);
-      var afterMarker = pecha.groups.slice(marker.index + 1);
-      pecha.groups = beforeMarker.concat(afterMarker);
+      var beforeMarker = window.pecha.groups.slice(0, marker.index);
+      var afterMarker = window.pecha.groups.slice(marker.index + 1);
+      window.pecha.groups = beforeMarker.concat(afterMarker);
       callback();
       return;
     }
@@ -281,9 +324,11 @@ var insertPrayersAtSingleMarker = function (marker, callback) {
     });
 
     // Replace the marker with the prayer groups
-    var beforeMarker = pecha.groups.slice(0, marker.index);
-    var afterMarker = pecha.groups.slice(marker.index + 1);
-    pecha.groups = beforeMarker.concat(allPrayerGroups).concat(afterMarker);
+    var beforeMarker = window.pecha.groups.slice(0, marker.index);
+    var afterMarker = window.pecha.groups.slice(marker.index + 1);
+    window.pecha.groups = beforeMarker
+      .concat(allPrayerGroups)
+      .concat(afterMarker);
 
     callback();
   });
@@ -298,3 +343,18 @@ var insertPrayersAtMarker = function (callback) {
 $(function () {
   loadPrayers();
 });
+
+// Make loadMarkerPrayersForCurrentText available globally
+window.loadMarkerPrayersForCurrentText = loadMarkerPrayersForCurrentText;
+
+// Export functions for ES module usage
+export {
+  availablePrayers,
+  getPrayerData,
+  insertPrayersAtMarkers,
+  loadMarkerPrayersForCurrentText,
+  loadPrayers,
+  markerPrayers,
+  prayerDataRegistry,
+  selectedPrayers,
+};

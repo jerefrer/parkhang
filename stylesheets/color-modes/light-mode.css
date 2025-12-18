@@ -1,27 +1,112 @@
-* {
-  color: black !important;
-  border-color: black !important;
-}
-.line td.small-writings,
-.line td.small-writings span {
-  color: rgba(0, 0, 0, 0.7) !important;
-}
+/* Light mode for rendered pecha only (not form) */
+/* This is toggled by the color-mode button after rendering */
+
+/* Background and base text color - handle both dark and light form themes */
 body,
-body.pushable .pusher {
-  background: white;
+body.light-theme,
+body.pushable .pusher,
+body.light-theme.pushable .pusher {
+  background: white !important;
+  color: black !important;
 }
+
 #loading-overlay {
   background: white;
 }
-#file-input input {
-  background: white;
+
+/* Global override for all text in pecha */
+#main,
+#main *,
+.pecha-page-container,
+.pecha-page-container * {
+  color: black !important;
+  border-color: black !important;
 }
-#print-button i,
-#color-mode-button i {
-  color: #fff !important;
-  background: transparent !important;
+
+/* Pecha content colors - need high specificity to override layout CSS */
+.line td,
+.line td span,
+.line .tibetan td,
+.line .translation td,
+.pecha-a3 .pecha-standard-page,
+.pecha-a3 .pecha-beginning-page,
+.pecha-a3 .pecha-title-page,
+.pecha-a3 .pecha-content,
+.pecha-a3 .pecha-left-margin,
+.pecha-a3 .pecha-right-margin,
+.pecha-a3 .pecha-title-page-inner,
+.pecha-a3 .pecha-title-page-inner-inner,
+.pecha-a3 .pecha-beginning-page-inner,
+.pecha-a3 .pecha-beginning-page-inner-inner,
+.pecha-a3 .pecha-beginning-left-box,
+.pecha-a3 .pecha-beginning-right-box,
+.pecha-a3 .pecha-beginning-left-gap,
+.pecha-a3 .pecha-beginning-right-gap,
+.pecha-a3 .pecha-title-left-box,
+.pecha-a3 .pecha-title-right-box,
+.pecha-a3 .pecha-title-left-gap,
+.pecha-a3 .pecha-title-right-gap,
+.pecha-a4 .pecha-standard-page,
+.pecha-a4 .pecha-beginning-page,
+.pecha-a4 .pecha-title-page,
+.pecha-a4 .pecha-content,
+.pecha-a4 .pecha-left-margin,
+.pecha-a4 .pecha-right-margin,
+.pecha-a4 .pecha-title-page-inner,
+.pecha-a4 .pecha-title-page-inner-inner,
+.pecha-a4 .pecha-beginning-page-inner,
+.pecha-a4 .pecha-beginning-page-inner-inner,
+.pecha-a4 .pecha-beginning-left-box,
+.pecha-a4 .pecha-beginning-right-box,
+.pecha-a4 .pecha-beginning-left-gap,
+.pecha-a4 .pecha-beginning-right-gap,
+.pecha-a4 .pecha-title-left-box,
+.pecha-a4 .pecha-title-right-box,
+.pecha-a4 .pecha-title-left-gap,
+.pecha-a4 .pecha-title-right-gap,
+.pecha-screen .pecha-standard-page,
+.pecha-screen .pecha-beginning-page,
+.pecha-screen .pecha-title-page,
+.pecha-screen .pecha-content,
+.pecha-screen .pecha-left-margin,
+.pecha-screen .pecha-right-margin,
+.pecha-screen .pecha-title-page-inner,
+.pecha-screen .pecha-title-page-inner-inner,
+.pecha-screen .pecha-beginning-page-inner,
+.pecha-screen .pecha-beginning-page-inner-inner,
+.pecha-screen .pecha-beginning-left-box,
+.pecha-screen .pecha-beginning-right-box,
+.pecha-screen .pecha-beginning-left-gap,
+.pecha-screen .pecha-beginning-right-gap,
+.pecha-screen .pecha-title-left-box,
+.pecha-screen .pecha-title-right-box,
+.pecha-screen .pecha-title-left-gap,
+.pecha-screen .pecha-title-right-gap {
+  color: black !important;
+  border-color: black !important;
 }
+
+.pecha-page-container .line td.small-writings,
+.pecha-page-container .line td.small-writings span {
+  color: rgba(0, 0, 0, 0.7) !important;
+}
+
+/* Text shadow for legibility */
 .pecha-a3 .line .tibetan td,
-.pecha-a4 .line .tibetan td {
-  text-shadow: 0 0 1px white;
+.pecha-a4 .line .tibetan td,
+.pecha-screen .line .tibetan td {
+  text-shadow: 0 0 1px white !important;
+}
+
+/* Keep UI buttons visible */
+#print-button,
+#color-mode-button,
+#inspect-td-button {
+  background: #333 !important;
+}
+
+#print-button i,
+#color-mode-button i,
+#inspect-td-button i {
+  color: #fff !important;
 }

@@ -4,8 +4,155 @@
   flex-direction: column;
   align-items: center;
   padding: 30px 20px;
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
+  position: relative;
+}
+
+/* Layout wrapper - sidebar + main content + empty space (1/2/1 ratio) */
+.form-layout-wrapper {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  gap: 30px;
+  width: 100%;
+  align-items: start;
+}
+
+/* When no sidebar, center the form content (still half width) */
+.form-layout-wrapper.no-sidebar {
+  grid-template-columns: 1fr 2fr 1fr;
+}
+
+.form-layout-wrapper.no-sidebar .form-content {
+  grid-column: 2;
+}
+
+/* Saved projects sidebar */
+#saved-projects-sidebar {
+  width: 100%;
+  max-width: 320px;
+  justify-self: end;
+  background: linear-gradient(
+    145deg,
+    rgba(30, 30, 30, 0.95),
+    rgba(20, 20, 20, 0.98)
+  );
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 20px;
+  position: sticky;
+  top: 20px;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+#saved-projects-sidebar h3 {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 16px 0;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#saved-projects-sidebar h3 i {
+  margin-right: 8px;
+  opacity: 0.7;
+}
+
+#saved-projects-sidebar .projects-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#saved-projects-sidebar .project-card {
+  background: linear-gradient(
+    145deg,
+    rgba(45, 45, 45, 0.9),
+    rgba(35, 35, 35, 0.95)
+  );
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+#saved-projects-sidebar .project-card:hover {
+  background: linear-gradient(
+    145deg,
+    rgba(55, 55, 55, 0.95),
+    rgba(45, 45, 45, 0.98)
+  );
+  border-color: rgba(255, 255, 255, 0.12);
+  transform: translateX(4px);
+}
+
+#saved-projects-sidebar .project-card-name {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 6px;
+  padding-right: 24px;
+}
+
+#saved-projects-sidebar .project-card-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+#saved-projects-sidebar .project-card-layout,
+#saved-projects-sidebar .project-card-date {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 11px;
+}
+
+#saved-projects-sidebar .delete-project-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 4px 6px !important;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+#saved-projects-sidebar .project-card:hover .delete-project-btn {
+  opacity: 1;
+}
+
+/* Theme toggle button */
+.theme-toggle-btn {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(145deg, #2a2a2a, #1e1e1e);
+  color: rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.theme-toggle-btn:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(145deg, #333, #252525);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.theme-toggle-btn:active {
+  transform: translateY(0);
 }
 
 /* Main content - single column sequential layout */
@@ -14,7 +161,6 @@
   flex-direction: column;
   gap: 20px;
   width: 100%;
-  max-width: 600px;
 }
 
 /* Section styling */
@@ -23,6 +169,60 @@
   border-radius: 12px;
   padding: 24px;
   border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Option row - consistent layout for all options */
+#input-form .option-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 0;
+}
+
+#input-form .option-row:last-child {
+  padding-bottom: 0;
+}
+
+#input-form .option-row:first-child {
+  padding-top: 0;
+}
+
+#input-form .option-label {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Segmented control - button-like selector */
+.segmented-control {
+  display: flex;
+  gap: 0;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+  padding: 3px;
+}
+
+.segment-btn {
+  padding: 8px 16px;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.segment-btn:hover {
+  color: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.segment-btn[data-selected="true"] {
+  background: linear-gradient(145deg, #3b82f6, #2563eb);
+  color: white;
+  box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
 }
 
 #input-form .form-section h3 {
@@ -41,29 +241,46 @@
   opacity: 0.7;
 }
 
-/* Layout cards */
+/* Layout cards - 3x3 grid with centered extras */
 #input-form .layouts.cards {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
   width: 100%;
+  max-width: 320px;
+  margin: 0 auto;
+}
+
+/* Last row centering wrapper */
+#input-form .layouts-last-row {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+#input-form .layouts-last-row .layout {
+  width: calc((100% - 12px) / 3);
+  max-width: 96px;
 }
 
 #input-form .card {
   width: 100%;
   margin: 0;
   font-size: 11px;
-  background: #1a1a1a !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  border-radius: 8px !important;
-  box-shadow: none !important;
-  transition: all 0.2s ease;
+  background: linear-gradient(145deg, #1e1e1e, #161616) !important;
+  border: 2px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 10px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
 }
 
 #input-form .card:hover {
-  transform: translateY(-2px);
-  border-color: rgba(255, 255, 255, 0.2) !important;
-  background: #252525 !important;
+  transform: translateY(-3px);
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  background: linear-gradient(145deg, #252525, #1a1a1a) !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4) !important;
 }
 
 #input-form .card.disabled {
@@ -77,13 +294,16 @@
 }
 
 #input-form .card.selected {
-  border-color: #2185d0 !important;
-  box-shadow: 0 0 0 2px rgba(33, 133, 208, 0.3) !important;
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4),
+    0 4px 12px rgba(59, 130, 246, 0.2) !important;
+  background: linear-gradient(145deg, #1a2744, #141e30) !important;
 }
 
 #input-form .card .image {
-  background-color: #111 !important;
-  border-radius: 6px 6px 0 0 !important;
+  background-color: #0a0a0a !important;
+  border-radius: 8px 8px 0 0 !important;
+  position: relative;
 }
 
 #input-form .card .image .name {
@@ -92,9 +312,10 @@
   width: 100%;
   text-align: center;
   font-weight: 600;
-  font-size: 11px;
-  color: rgba(255, 255, 255, 0.6);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.7);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+  letter-spacing: 0.5px;
 }
 
 #input-form .card .content {
@@ -136,104 +357,107 @@
   gap: 10px;
 }
 
-/* Language selection */
-#input-form .languages {
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-  width: 100%;
-}
-
-#input-form .language {
-  padding: 10px 16px;
-  border-radius: 8px;
-  background: #1a1a1a;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  transition: all 0.2s ease;
-  cursor: pointer;
-}
-
-#input-form .language:hover {
-  background: #252525;
-  transform: translateY(-2px);
-}
-
-#input-form .language.selected {
-  border-color: #2185d0;
-  box-shadow: 0 0 0 2px rgba(33, 133, 208, 0.3);
-}
-
-#input-form .language label {
-  padding-left: 0;
-  color: rgba(255, 255, 255, 0.9);
-  cursor: pointer;
-}
-
-#input-form .language label:before,
-#input-form .language label:after {
-  display: none;
-}
-
 /* Options section */
 #input-form .options-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 16px;
+  gap: 12px;
   justify-content: center;
-  margin-top: 8px;
+  margin-top: 12px;
 }
 
 #input-form .option-group {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  background: #1a1a1a;
-  border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  gap: 10px;
+  padding: 12px 16px;
+  background: linear-gradient(145deg, #1a1a1a, #141414);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.2s ease;
+}
+
+#input-form .option-group:hover {
+  border-color: rgba(255, 255, 255, 0.15);
+  background: linear-gradient(145deg, #1e1e1e, #181818);
 }
 
 #input-form .option-group label {
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, 0.85);
   font-size: 13px;
+  font-weight: 500;
+}
+
+/* Modern checkbox styling */
+#input-form .ui.checkbox input:checked ~ label:before {
+  background: linear-gradient(145deg, #3b82f6, #2563eb) !important;
+  border-color: #3b82f6 !important;
+}
+
+#input-form .ui.toggle.checkbox input:checked ~ label:before {
+  background: linear-gradient(145deg, #3b82f6, #2563eb) !important;
+}
+
+/* Modern radio button styling */
+#input-form .ui.radio.checkbox input:checked ~ label:before {
+  border-color: #3b82f6 !important;
+}
+
+#input-form .ui.radio.checkbox input:checked ~ label:after {
+  background: #3b82f6 !important;
 }
 
 /* Render button */
 #input-form .render-section {
   width: 100%;
-  max-width: 1000px;
-  margin-top: 30px;
+  margin-top: 32px;
 }
 
 #input-form #render-button {
   width: 100%;
+  height: 4em;
   padding: 16px 32px;
   font-size: 1.1em;
   font-weight: 600;
-  border-radius: 8px;
-  background: linear-gradient(135deg, #21ba45 0%, #16ab39 100%);
+  border-radius: 12px;
+  background: linear-gradient(145deg, #22c55e, #16a34a);
   border: none;
-  transition: all 0.2s ease;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 14px rgba(34, 197, 94, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 #input-form #render-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(33, 186, 69, 0.4);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(34, 197, 94, 0.45);
+  background: linear-gradient(145deg, #4ade80, #22c55e);
+}
+
+#input-form #render-button:active {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
 }
 
 /* File upload card */
 #input-form #file-upload-card {
-  border: 2px dashed rgba(255, 255, 255, 0.2) !important;
-  background: transparent !important;
+  border: 2px dashed rgba(255, 255, 255, 0.15) !important;
+  background: rgba(255, 255, 255, 0.02) !important;
+  border-radius: 12px !important;
 }
 
 #input-form #file-upload-card:hover {
-  border-color: rgba(255, 255, 255, 0.4) !important;
-  background: rgba(255, 255, 255, 0.05) !important;
+  border-color: rgba(59, 130, 246, 0.5) !important;
+  background: rgba(59, 130, 246, 0.08) !important;
 }
 
 #input-form #file-upload-card .header {
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.35);
+  transition: color 0.2s ease;
+}
+
+#input-form #file-upload-card:hover .header {
+  color: rgba(59, 130, 246, 0.8);
 }
 
 /* Dividers */
@@ -250,36 +474,41 @@
 
 /* Prayer selection styles */
 .prayers-list {
-  width: 400px;
+  width: 100%;
+  max-width: 450px;
   margin: 0 auto;
-  background: #222;
-  border-radius: 4px;
-  padding: 10px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  padding: 12px;
 }
 
 .prayer-item {
   display: flex;
   align-items: center;
-  padding: 10px;
-  margin: 5px 0;
-  background: #333;
-  border-radius: 4px;
+  padding: 12px 14px;
+  margin: 6px 0;
+  background: linear-gradient(145deg, #1e1e1e, #181818);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
   cursor: move;
-  transition: all 0.2s ease;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .prayer-item:hover {
-  background: #3a3a3a;
+  background: linear-gradient(145deg, #252525, #1e1e1e);
   transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .prayer-item.dragging {
   opacity: 0.5;
+  transform: scale(1.02);
 }
 
 .prayer-item.drag-over {
-  border: 2px dashed #2185d0;
-  background: #2a2a3a;
+  border: 2px dashed #3b82f6;
+  background: rgba(59, 130, 246, 0.1);
 }
 
 .prayer-checkbox {
@@ -289,71 +518,91 @@
 }
 
 .prayer-checkbox input[type="checkbox"] {
-  margin-right: 10px;
+  margin-right: 12px;
   cursor: pointer;
+  width: 18px;
+  height: 18px;
+  accent-color: #3b82f6;
 }
 
 .prayer-checkbox label {
   color: rgba(255, 255, 255, 0.9);
   cursor: pointer;
   user-select: none;
+  font-size: 13px;
 }
 
-/* Conclusion prayers list */
+/* Introduction and Conclusion prayers list - shared styles */
+#input-form .intro-prayers-list,
 #input-form .conclusion-prayers-list {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
+#input-form .intro-prayer-item,
 #input-form .conclusion-prayer-item {
   display: flex;
   align-items: center;
-  padding: 12px;
-  background: #1a1a1a;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-  transition: all 0.2s ease;
+  padding: 14px 16px;
+  background: linear-gradient(145deg, #1a1a1a, #141414);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   opacity: 0.5;
 }
 
+#input-form .intro-prayer-item.selected,
 #input-form .conclusion-prayer-item.selected {
   opacity: 1;
-  border-color: rgba(33, 133, 208, 0.5);
+  border-color: rgba(59, 130, 246, 0.4);
+  background: linear-gradient(145deg, #1a2035, #141825);
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
 }
 
+#input-form .intro-prayer-item:hover,
 #input-form .conclusion-prayer-item:hover {
-  background: #252525;
+  background: linear-gradient(145deg, #1e1e1e, #181818);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
+#input-form .intro-prayer-item .drag-handle,
 #input-form .conclusion-prayer-item .drag-handle {
   cursor: grab;
-  padding: 0 8px 0 0;
-  color: rgba(255, 255, 255, 0.3);
+  padding: 0 12px 0 0;
+  color: rgba(255, 255, 255, 0.25);
+  transition: color 0.2s ease;
 }
 
+#input-form .intro-prayer-item .drag-handle:hover,
 #input-form .conclusion-prayer-item .drag-handle:hover {
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.5);
 }
 
+#input-form .intro-prayer-item .prayer-name,
 #input-form .conclusion-prayer-item .prayer-name {
   flex: 1;
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, 0.85);
   font-size: 13px;
+  font-weight: 450;
 }
 
+#input-form .intro-prayer-item .prayer-toggle,
 #input-form .conclusion-prayer-item .prayer-toggle {
-  margin-left: 12px;
+  margin-left: 16px;
 }
 
+#input-form .intro-prayer-item.dragging,
 #input-form .conclusion-prayer-item.dragging {
   opacity: 0.4;
-  background: #333;
+  background: #252525;
+  transform: scale(1.02);
 }
 
+#input-form .intro-prayer-item.drag-over,
 #input-form .conclusion-prayer-item.drag-over {
-  border: 2px dashed #2185d0;
-  background: #1a1a2a;
+  border: 2px dashed #3b82f6;
+  background: rgba(59, 130, 246, 0.1);
 }
 
 .prayer-order {
@@ -376,43 +625,686 @@
 .marker-buttons {
   display: flex;
   flex-direction: column;
+  gap: 8px;
 }
 
 .marker-button {
-  transition: all 0.2s ease;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  background: linear-gradient(145deg, #1e1e1e, #181818) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 10px !important;
+  padding: 14px 18px !important;
+  font-weight: 500 !important;
 }
 
 .marker-button:hover {
-  background: #3a3a3a !important;
+  background: linear-gradient(145deg, #252525, #1e1e1e) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
   transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
 }
 
 /* Prayer modal styles */
+.prayer-modal {
+  border-radius: 16px !important;
+  overflow: hidden;
+}
+
 .prayer-modal .header {
-  border-bottom: 1px solid #333 !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+  padding: 20px 24px !important;
+  font-size: 1.1em !important;
 }
 
 .prayer-modal .content {
-  padding: 20px !important;
+  padding: 24px !important;
 }
 
 .prayer-modal .actions {
-  border-top: 1px solid #333 !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+  padding: 16px 24px !important;
 }
 
 .prayer-modal .actions .button {
-  background: #333;
+  background: linear-gradient(145deg, #2a2a2a, #222) !important;
   color: white;
+  border-radius: 8px !important;
+  padding: 10px 20px !important;
+  transition: all 0.2s ease;
 }
 
 .prayer-modal .actions .button:hover {
-  background: #3a3a3a;
+  background: linear-gradient(145deg, #333, #2a2a2a) !important;
+  transform: translateY(-1px);
 }
 
 .prayer-modal .actions .primary.button {
-  background: #2185d0;
+  background: linear-gradient(145deg, #3b82f6, #2563eb) !important;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
 }
 
 .prayer-modal .actions .primary.button:hover {
-  background: #1678c2;
+  background: linear-gradient(145deg, #60a5fa, #3b82f6) !important;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+/* ==================== LIGHT THEME ==================== */
+body.theme-light {
+  background: #f0f2f5 !important;
+}
+
+body.theme-light .theme-toggle-btn {
+  background: linear-gradient(145deg, #ffffff, #e8eaed);
+  border-color: rgba(0, 0, 0, 0.1);
+  color: #374151;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+body.theme-light .theme-toggle-btn:hover {
+  background: linear-gradient(145deg, #f8f9fa, #e0e2e5);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+body.theme-light #input-form .form-section {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+body.theme-light #input-form .form-section h3 {
+  color: #1f2937;
+  border-bottom-color: rgba(0, 0, 0, 0.08);
+}
+
+body.theme-light #input-form .form-section h3 i {
+  color: #6b7280;
+}
+
+body.theme-light #input-form .form-section p {
+  color: rgba(0, 0, 0, 0.5) !important;
+}
+
+body.theme-light #input-form .option-row {
+  border-bottom-color: rgba(0, 0, 0, 0.06);
+}
+
+body.theme-light #input-form .option-label {
+  color: #374151;
+}
+
+body.theme-light .segmented-control {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+body.theme-light .segment-btn {
+  color: #6b7280;
+}
+
+body.theme-light .segment-btn:hover {
+  color: white !important;
+  background: rgba(0, 0, 0, 0.04);
+}
+
+body.theme-light .segment-btn[data-selected="true"] {
+  background: linear-gradient(145deg, #3b82f6, #2563eb);
+  color: white !important;
+}
+
+/* Light theme - Cards */
+body.theme-light #input-form .card {
+  background: linear-gradient(145deg, #ffffff, #f3f4f6) !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06) !important;
+}
+
+body.theme-light #input-form .card:hover {
+  background: linear-gradient(145deg, #f8f9fa, #eef0f2) !important;
+  border-color: rgba(0, 0, 0, 0.12) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+}
+
+body.theme-light #input-form .card.selected {
+  border-color: #3b82f6 !important;
+}
+
+body.theme-light #input-form .card .image {
+  background-color: #e5e7eb !important;
+}
+
+body.theme-light #input-form .layout.card .image img {
+  filter: invert(1);
+}
+
+body.theme-light #input-form .card .image .name {
+  color: #374151;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+}
+
+body.theme-light #input-form .card .header {
+  color: #374151;
+}
+
+body.theme-light #input-form .card .extra.content {
+  border-top-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+body.theme-light #input-form .card .extra.content .button {
+  color: #6b7280 !important;
+}
+
+body.theme-light #input-form .card .extra.content .button:hover {
+  color: #374151 !important;
+  background: rgba(0, 0, 0, 0.06) !important;
+}
+
+/* Light theme - File upload card */
+body.theme-light #input-form #file-upload-card {
+  border-color: rgba(0, 0, 0, 0.15) !important;
+  background: rgba(0, 0, 0, 0.02) !important;
+}
+
+body.theme-light #input-form #file-upload-card:hover {
+  border-color: rgba(59, 130, 246, 0.5) !important;
+  background: rgba(59, 130, 246, 0.06) !important;
+}
+
+body.theme-light #input-form #file-upload-card .header,
+body.theme-light #input-form #file-upload-card .header i {
+  color: rgba(0, 0, 0, 0.35) !important;
+}
+
+body.theme-light #input-form #file-upload-card:hover .header,
+body.theme-light #input-form #file-upload-card:hover .header i {
+  color: rgba(59, 130, 246, 0.8) !important;
+}
+
+/* Light theme - Intro/Conclusion prayer items */
+body.theme-light #input-form .intro-prayer-item,
+body.theme-light #input-form .conclusion-prayer-item {
+  background: linear-gradient(145deg, #ffffff, #f3f4f6);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+body.theme-light #input-form .intro-prayer-item.selected,
+body.theme-light #input-form .conclusion-prayer-item.selected {
+  background: linear-gradient(145deg, #eff6ff, #dbeafe);
+  border-color: rgba(59, 130, 246, 0.4);
+}
+
+body.theme-light #input-form .intro-prayer-item:hover,
+body.theme-light #input-form .conclusion-prayer-item:hover {
+  background: linear-gradient(145deg, #f8f9fa, #eef0f2);
+  border-color: rgba(0, 0, 0, 0.12);
+}
+
+body.theme-light #input-form .intro-prayer-item .drag-handle,
+body.theme-light #input-form .conclusion-prayer-item .drag-handle {
+  color: rgba(0, 0, 0, 0.25);
+}
+
+body.theme-light #input-form .intro-prayer-item .prayer-name,
+body.theme-light #input-form .conclusion-prayer-item .prayer-name {
+  color: #374151;
+}
+
+/* Light theme - Marker buttons */
+body.theme-light .marker-button {
+  background: linear-gradient(145deg, #ffffff, #f3f4f6) !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+  color: #374151 !important;
+}
+
+body.theme-light .marker-button:hover {
+  background: linear-gradient(145deg, #f8f9fa, #eef0f2) !important;
+  border-color: rgba(0, 0, 0, 0.12) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Light theme - Render button (keep green) */
+body.theme-light #input-form #render-button {
+  background: linear-gradient(145deg, #22c55e, #16a34a);
+  color: white;
+}
+
+/* Light theme - Toggle checkbox */
+body.theme-light .ui.toggle.checkbox label {
+  color: #374151 !important;
+}
+
+body.theme-light .ui.toggle.checkbox label:before {
+  background: rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Light theme - Dividers */
+body.theme-light #input-form .ui.divider {
+  color: rgba(0, 0, 0, 0.4) !important;
+}
+
+body.theme-light #input-form .ui.divider:before,
+body.theme-light #input-form .ui.divider:after {
+  background: rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Light theme - Projects section */
+body.theme-light .project-card {
+  background: linear-gradient(145deg, #ffffff, #f3f4f6) !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+body.theme-light .project-card:hover {
+  background: linear-gradient(145deg, #f8f9fa, #eef0f2) !important;
+}
+
+body.theme-light .project-card-name {
+  color: #1f2937 !important;
+}
+
+body.theme-light .project-card-meta {
+  color: #6b7280 !important;
+}
+
+/* Light theme - Sidebar */
+body.theme-light #saved-projects-sidebar {
+  background: linear-gradient(145deg, #ffffff, #f8f9fa) !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+body.theme-light #saved-projects-sidebar h3 {
+  color: #1f2937 !important;
+  border-bottom-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+body.theme-light #saved-projects-sidebar h3 i {
+  color: #6b7280 !important;
+}
+
+body.theme-light #saved-projects-sidebar .project-card {
+  background: linear-gradient(145deg, #ffffff, #f3f4f6) !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+body.theme-light #saved-projects-sidebar .project-card:hover {
+  background: linear-gradient(145deg, #f8f9fa, #eef0f2) !important;
+  border-color: rgba(0, 0, 0, 0.12) !important;
+}
+
+body.theme-light #saved-projects-sidebar .project-card-name {
+  color: #1f2937 !important;
+}
+
+body.theme-light #saved-projects-sidebar .project-card-layout,
+body.theme-light #saved-projects-sidebar .project-card-date {
+  color: #6b7280 !important;
+}
+
+/* Light theme - Prayer modal */
+body.theme-light .prayer-modal {
+  background: #ffffff !important;
+}
+
+body.theme-light .prayer-modal .header {
+  background: #f8f9fa !important;
+  color: #1f2937 !important;
+  border-bottom-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+body.theme-light .prayer-modal .content {
+  background: #ffffff !important;
+}
+
+body.theme-light .prayer-modal .actions {
+  background: #f8f9fa !important;
+  border-top-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+body.theme-light .prayer-modal .actions .button {
+  background: linear-gradient(145deg, #e5e7eb, #d1d5db) !important;
+  color: #374151 !important;
+}
+
+body.theme-light .prayer-modal .actions .button:hover {
+  background: linear-gradient(145deg, #d1d5db, #c5c9cf) !important;
+}
+
+body.theme-light .prayer-modal .actions .primary.button {
+  background: linear-gradient(145deg, #3b82f6, #2563eb) !important;
+  color: white !important;
+}
+
+body.theme-light .prayer-modal .actions .primary.button:hover {
+  background: linear-gradient(145deg, #60a5fa, #3b82f6) !important;
+}
+
+body.theme-light .prayer-modal .prayer-item {
+  background: linear-gradient(145deg, #ffffff, #f3f4f6);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+body.theme-light .prayer-modal .prayer-item:hover {
+  background: linear-gradient(145deg, #f8f9fa, #eef0f2);
+}
+
+body.theme-light .prayer-modal .prayer-item .prayer-checkbox label {
+  color: #374151;
+}
+
+body.theme-light .prayer-modal .prayer-item .prayer-handle {
+  color: rgba(0, 0, 0, 0.3);
+}
+
+/* ==================== LAPIS LAZULI THEME ==================== */
+body.theme-lapis {
+  background-image: url(images/pattern.jpg);
+  background-blend-mode: color;
+  background-color: #010119 !important;
+}
+
+body.theme-lapis .theme-toggle-btn {
+  background: linear-gradient(145deg, #1a1a3a, #0a0a2a);
+  border-color: #ac9100;
+  color: #a98f00;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+body.theme-lapis .theme-toggle-btn:hover {
+  background: linear-gradient(145deg, #2a2a4a, #1a1a3a);
+  box-shadow: 0 4px 12px rgba(169, 143, 0, 0.2);
+}
+
+body.theme-lapis #input-form .form-section {
+  background: rgba(1, 1, 25, 0.9);
+  border-color: #ac9100;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+body.theme-lapis #input-form .form-section h3 {
+  color: #a98f00;
+  border-bottom-color: rgba(169, 143, 0, 0.3);
+}
+
+body.theme-lapis #input-form .form-section h3 i {
+  color: #ac9100;
+}
+
+body.theme-lapis #input-form .form-section p {
+  color: rgba(169, 143, 0, 0.6) !important;
+}
+
+body.theme-lapis #input-form .option-row {
+  border-bottom-color: rgba(169, 143, 0, 0.2);
+}
+
+body.theme-lapis #input-form .option-label {
+  color: #a98f00;
+}
+
+body.theme-lapis .segmented-control {
+  background: rgba(169, 143, 0, 0.1);
+}
+
+body.theme-lapis .segment-btn {
+  color: rgba(169, 143, 0, 0.6);
+}
+
+body.theme-lapis .segment-btn:hover {
+  color: #a98f00;
+  background: rgba(169, 143, 0, 0.1);
+}
+
+body.theme-lapis .segment-btn[data-selected="true"] {
+  background: linear-gradient(145deg, #ac9100, #8a7400);
+  color: #010119 !important;
+}
+
+/* Lapis theme - Cards */
+body.theme-lapis #input-form .card {
+  background: linear-gradient(145deg, #1a1a3a, #0a0a2a) !important;
+  border-color: #ac9100 !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3) !important;
+}
+
+body.theme-lapis #input-form .card:hover {
+  background: linear-gradient(145deg, #2a2a4a, #1a1a3a) !important;
+  border-color: #c9a800 !important;
+  box-shadow: 0 4px 12px rgba(169, 143, 0, 0.2) !important;
+}
+
+body.theme-lapis #input-form .card.selected {
+  border-color: #e7c300 !important;
+  background: linear-gradient(145deg, #2a2a4a, #1a1a3a) !important;
+}
+
+body.theme-lapis #input-form .card .image {
+  background-color: #0a0a2a !important;
+}
+
+body.theme-lapis #input-form .card .image .name {
+  color: #a98f00;
+  text-shadow: 0 0 3px rgba(231, 195, 0, 0.4);
+}
+
+body.theme-lapis #input-form .card .header {
+  color: #a98f00;
+}
+
+body.theme-lapis #input-form .card .extra.content {
+  border-top-color: rgba(169, 143, 0, 0.3) !important;
+}
+
+body.theme-lapis #input-form .card .extra.content .button {
+  color: rgba(169, 143, 0, 0.7) !important;
+}
+
+body.theme-lapis #input-form .card .extra.content .button:hover {
+  color: #a98f00 !important;
+  background: rgba(169, 143, 0, 0.1) !important;
+}
+
+/* Lapis theme - File upload card */
+body.theme-lapis #input-form #file-upload-card {
+  border-color: rgba(169, 143, 0, 0.4) !important;
+  background: rgba(169, 143, 0, 0.05) !important;
+}
+
+body.theme-lapis #input-form #file-upload-card:hover {
+  border-color: #ac9100 !important;
+  background: rgba(169, 143, 0, 0.1) !important;
+}
+
+body.theme-lapis #input-form #file-upload-card .header,
+body.theme-lapis #input-form #file-upload-card .header i {
+  color: rgba(169, 143, 0, 0.5) !important;
+}
+
+body.theme-lapis #input-form #file-upload-card:hover .header,
+body.theme-lapis #input-form #file-upload-card:hover .header i {
+  color: #ac9100 !important;
+}
+
+/* Lapis theme - Intro/Conclusion prayer items */
+body.theme-lapis #input-form .intro-prayer-item,
+body.theme-lapis #input-form .conclusion-prayer-item {
+  background: linear-gradient(145deg, #1a1a3a, #0a0a2a);
+  border-color: rgba(169, 143, 0, 0.3);
+}
+
+body.theme-lapis #input-form .intro-prayer-item.selected,
+body.theme-lapis #input-form .conclusion-prayer-item.selected {
+  background: linear-gradient(145deg, #2a2a4a, #1a1a3a);
+  border-color: #ac9100;
+}
+
+body.theme-lapis #input-form .intro-prayer-item:hover,
+body.theme-lapis #input-form .conclusion-prayer-item:hover {
+  background: linear-gradient(145deg, #2a2a4a, #1a1a3a);
+  border-color: rgba(169, 143, 0, 0.5);
+}
+
+body.theme-lapis #input-form .intro-prayer-item .drag-handle,
+body.theme-lapis #input-form .conclusion-prayer-item .drag-handle {
+  color: rgba(169, 143, 0, 0.4);
+}
+
+body.theme-lapis #input-form .intro-prayer-item .prayer-name,
+body.theme-lapis #input-form .conclusion-prayer-item .prayer-name {
+  color: #a98f00;
+}
+
+/* Lapis theme - Marker buttons */
+body.theme-lapis .marker-button {
+  background: linear-gradient(145deg, #1a1a3a, #0a0a2a) !important;
+  border-color: #ac9100 !important;
+  color: #a98f00 !important;
+}
+
+body.theme-lapis .marker-button:hover {
+  background: linear-gradient(145deg, #2a2a4a, #1a1a3a) !important;
+  border-color: #c9a800 !important;
+  box-shadow: 0 4px 12px rgba(169, 143, 0, 0.2) !important;
+}
+
+/* Lapis theme - Render button */
+body.theme-lapis #input-form #render-button {
+  background: linear-gradient(145deg, #ac9100, #8a7400);
+  color: #010119;
+}
+
+body.theme-lapis #input-form #render-button:hover {
+  background: linear-gradient(145deg, #c9a800, #ac9100);
+}
+
+/* Lapis theme - Toggle checkbox */
+body.theme-lapis .ui.toggle.checkbox label {
+  color: #a98f00 !important;
+}
+
+body.theme-lapis .ui.toggle.checkbox label:before {
+  background: rgba(169, 143, 0, 0.2) !important;
+}
+
+/* Lapis theme - Dividers */
+body.theme-lapis #input-form .ui.divider {
+  color: rgba(169, 143, 0, 0.6) !important;
+}
+
+body.theme-lapis #input-form .ui.divider:before,
+body.theme-lapis #input-form .ui.divider:after {
+  background: rgba(169, 143, 0, 0.3) !important;
+}
+
+/* Lapis theme - Sidebar */
+body.theme-lapis #saved-projects-sidebar {
+  background: linear-gradient(145deg, #1a1a3a, #0a0a2a) !important;
+  border-color: #ac9100 !important;
+}
+
+body.theme-lapis #saved-projects-sidebar h3 {
+  color: #a98f00 !important;
+  border-bottom-color: rgba(169, 143, 0, 0.3) !important;
+}
+
+body.theme-lapis #saved-projects-sidebar h3 i {
+  color: #ac9100 !important;
+}
+
+body.theme-lapis #saved-projects-sidebar .project-card {
+  background: linear-gradient(145deg, #0a0a2a, #050515) !important;
+  border-color: rgba(169, 143, 0, 0.3) !important;
+}
+
+body.theme-lapis #saved-projects-sidebar .project-card:hover {
+  background: linear-gradient(145deg, #1a1a3a, #0a0a2a) !important;
+  border-color: rgba(169, 143, 0, 0.5) !important;
+}
+
+body.theme-lapis #saved-projects-sidebar .project-card-name {
+  color: #a98f00 !important;
+}
+
+body.theme-lapis #saved-projects-sidebar .project-card-layout,
+body.theme-lapis #saved-projects-sidebar .project-card-date {
+  color: rgba(169, 143, 0, 0.6) !important;
+}
+
+/* Lapis theme - Prayer modal */
+body.theme-lapis .prayer-modal {
+  background: #010119 !important;
+  background-image: url(images/pattern.jpg);
+  background-blend-mode: color;
+}
+
+body.theme-lapis .prayer-modal .header {
+  background: rgba(1, 1, 25, 0.9) !important;
+  color: #a98f00 !important;
+  border-bottom-color: rgba(169, 143, 0, 0.3) !important;
+}
+
+body.theme-lapis .prayer-modal .content {
+  background: transparent !important;
+}
+
+body.theme-lapis .prayer-modal .actions {
+  background: rgba(1, 1, 25, 0.9) !important;
+  border-top-color: rgba(169, 143, 0, 0.3) !important;
+}
+
+body.theme-lapis .prayer-modal .actions .button {
+  background: linear-gradient(145deg, #1a1a3a, #0a0a2a) !important;
+  color: #a98f00 !important;
+  border-color: rgba(169, 143, 0, 0.3) !important;
+}
+
+body.theme-lapis .prayer-modal .actions .button:hover {
+  background: linear-gradient(145deg, #2a2a4a, #1a1a3a) !important;
+  border-color: rgba(169, 143, 0, 0.5) !important;
+}
+
+body.theme-lapis .prayer-modal .actions .primary.button {
+  background: linear-gradient(145deg, #ac9100, #8a7400) !important;
+  color: #010119 !important;
+  border-color: #ac9100 !important;
+}
+
+body.theme-lapis .prayer-modal .actions .primary.button:hover {
+  background: linear-gradient(145deg, #c9a800, #ac9100) !important;
+}
+
+body.theme-lapis .prayer-modal .prayer-item {
+  background: linear-gradient(145deg, #1a1a3a, #0a0a2a);
+  border-color: rgba(169, 143, 0, 0.3);
+}
+
+body.theme-lapis .prayer-modal .prayer-item:hover {
+  background: linear-gradient(145deg, #2a2a4a, #1a1a3a);
+  border-color: rgba(169, 143, 0, 0.5);
+}
+
+body.theme-lapis .prayer-modal .prayer-item .prayer-checkbox label {
+  color: #a98f00;
+}
+
+body.theme-lapis .prayer-modal .prayer-item .prayer-handle {
+  color: rgba(169, 143, 0, 0.4);
+}
+
+/* Lapis theme - Form buttons fix (dark background with gold text) */
+body.theme-lapis #input-form .ui.button {
+  background: linear-gradient(145deg, #1a1a3a, #0a0a2a) !important;
+  color: #a98f00 !important;
+  border: 1px solid rgba(169, 143, 0, 0.3) !important;
+}
+
+body.theme-lapis #input-form .ui.button:hover {
+  background: linear-gradient(145deg, #2a2a4a, #1a1a3a) !important;
+  border-color: rgba(169, 143, 0, 0.5) !important;
+}
+
+body.theme-lapis #input-form .ui.primary.button {
+  background: linear-gradient(145deg, #ac9100, #8a7400) !important;
+  color: #010119 !important;
+  border-color: #ac9100 !important;
+}
+
+body.theme-lapis #input-form .ui.primary.button:hover {
+  background: linear-gradient(145deg, #c9a800, #ac9100) !important;
 }

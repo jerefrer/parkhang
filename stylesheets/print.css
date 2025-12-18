@@ -7,19 +7,25 @@
 
   body,
   body.pushable .pusher {
-    background: white;
+    background: white !important;
   }
 
   .pecha-page-container {
     margin: 0 auto !important;
+    background: white !important;
   }
 
   .pecha-page-container .line .tibetan td {
-    text-shadow: 0 0 1px white;
+    text-shadow: 0 0 1px white !important;
   }
 
   * {
     color: black !important;
     border-color: black !important;
+  }
+
+  .line td.small-writings,
+  .line td.small-writings span {
+    color: rgba(0, 0, 0, 0.7) !important;
   }
 }

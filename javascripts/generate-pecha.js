@@ -346,7 +346,7 @@ var addNextPechaPage = function () {
   }
   pageNumber++;
   if (evenPage()) physicalPageNumber++;
-  if (delay) $(window).scrollTop(pechaPageContainer.offset().top);
+  if (window.delay) $(window).scrollTop(pechaPageContainer.offset().top);
 };
 
 var addNewEmptyLine = function () {
@@ -380,7 +380,7 @@ var continueOnNewLineStartingWith = function (remainingWords) {
   }
   setTimeout(function () {
     addNextGroup(remainingWords);
-  }, delay);
+  }, window.delay);
 };
 
 var cellIdCounter = 0;
@@ -400,6 +400,7 @@ var renderTranslationWords = function (td, words) {
     td.append("<span>" + word + " </span>");
   });
 };
+window.renderTranslationWords = renderTranslationWords;
 
 var annotateTranslationSplit = function (
   firstTd,
@@ -417,6 +418,7 @@ var annotateTranslationSplit = function (
   firstTd.attr(metadata).attr("data-split-role", "first");
   secondTd.attr(metadata).attr("data-split-role", "second");
 };
+window.annotateTranslationSplit = annotateTranslationSplit;
 
 var addRowspanCell = function (td, text) {
   // Handle undefined or null text
@@ -468,7 +470,7 @@ var fitWordsOnLine = function (text) {
         syllableIndex++;
         setTimeout(function () {
           addNextSyllable();
-        }, delay);
+        }, window.delay);
       } else if (syllables.slice(syllableIndex).length == 1) {
         // Just one syllable left - squeeze line to fit it instead of overflowing
         // This prevents single-syllable orphans on the next line
@@ -477,7 +479,7 @@ var fitWordsOnLine = function (text) {
         decreaseUntilItFits($("table:last"));
         setTimeout(function () {
           addNextGroup();
-        }, delay);
+        }, window.delay);
       } else {
         // Doesn't fit, need to overflow
         td.find("span:last").remove();
@@ -549,10 +551,15 @@ var addNextGroup = function (remainingWords) {
         groupIndex++;
         setTimeout(function () {
           addNextGroup();
-        }, delay);
+        }, window.delay);
         return;
       }
       addRowspanCell(td, text);
+      groupIndex++;
+      setTimeout(function () {
+        addNextGroup();
+      }, window.delay);
+      return;
     } else {
       // Strip leading yigo if this row already has a page-beginning marker
       text = stripLeadingYigo(text, $currentTibetanRow);
@@ -628,7 +635,7 @@ var addNextGroup = function (remainingWords) {
           // Retry adding this group on the new line
           setTimeout(function () {
             addNextGroup();
-          }, delay);
+          }, window.delay);
           return;
         }
       }
@@ -675,7 +682,7 @@ var addNextGroup = function (remainingWords) {
           // Retry adding this group on the new line
           setTimeout(function () {
             addNextGroup();
-          }, delay);
+          }, window.delay);
           return;
         }
       }
@@ -689,7 +696,7 @@ var addNextGroup = function (remainingWords) {
       groupIndex++;
       setTimeout(function () {
         addNextGroup();
-      }, delay);
+      }, window.delay);
     } else {
       // If group overflows
       if ($currentTibetanRow.find("td").length == 1) {
@@ -741,7 +748,7 @@ var addTranslationCell = function (tibetanTd, text, callback) {
   td.html(text);
   table.find("tr.translation").append(td);
   translationIndex++;
-  if (delay) {
+  if (window.delay) {
     var pageContainer = table.parents(".pecha-page-container");
     var offset = pageContainer.offset();
     if (offset) $(window).scrollTop(offset.top);
@@ -786,7 +793,7 @@ var addTranslationCell = function (tibetanTd, text, callback) {
             return;
           } else {
             // Continue reducing font-size
-            setTimeout(adjustFontSize, delay / 10);
+            setTimeout(adjustFontSize, window.delay / 10);
           }
         });
       };
@@ -812,7 +819,7 @@ var addTranslationCell = function (tibetanTd, text, callback) {
             return;
           } else {
             // Continue reducing letter-spacing
-            setTimeout(adjustLetterSpacing, delay / 10);
+            setTimeout(adjustLetterSpacing, window.delay / 10);
           }
         });
       };
@@ -830,7 +837,8 @@ var addTranslationCell = function (tibetanTd, text, callback) {
 };
 
 var rowSpansSum = function (table, position) {
-  return _(table.find("tr.tibetan td").toArray().slice(0, position)).inject(
+  return _.reduce(
+    table.find("tr.tibetan td").toArray().slice(0, position),
     function (sum, cell) {
       if ($(cell).attr("rowspan")) sum += 1;
       return sum;
@@ -857,11 +865,11 @@ var findFirstTibetanForGroupWhereTranslationIsEmpty = function () {
 var addEmptyTdsIfNeeded = function (table, td) {
   var position = table.find("tr.tibetan td").toArray().indexOf(td.get(0));
   if (position > 0) {
-    missingTds =
+    var missingTds =
       position -
       table.find("tr.translation td").length -
       rowSpansSum(table, position);
-    _(missingTds).times(function () {
+    _.times(missingTds, function () {
       table.find("tr.translation").append("<td></td>");
     });
   }
@@ -907,13 +915,13 @@ var addNextTranslation = function () {
 
     if (!translation) {
       addTranslationCell(tibetanTd, "", function () {
-        setTimeout(addNextTranslation, delay);
+        setTimeout(addNextTranslation, window.delay);
       });
       return;
     }
     if (!group.tibetan) {
       translationIndex++;
-      setTimeout(addNextTranslation, delay);
+      setTimeout(addNextTranslation, window.delay);
       return;
     }
     if (groupIsSplit) {
@@ -935,7 +943,7 @@ var addNextTranslation = function () {
         var translationRow = nextTable.find("tr.translation");
         var previousCount = translationRow.children().length;
         addTranslationCell(tibetan, remainingWords.join(" "), function () {
-          setTimeout(addNextTranslation, delay);
+          setTimeout(addNextTranslation, window.delay);
         });
         var newTd = translationRow.children().eq(previousCount);
         renderTranslationWords(newTd, remainingWords);
@@ -951,7 +959,7 @@ var addNextTranslation = function () {
             wordIndex++;
             setTimeout(function () {
               addNextWord();
-            }, delay);
+            }, window.delay);
           } else {
             // If the word doesn't fit then continue in the next cell
             td.find("span:last").remove();
@@ -966,7 +974,7 @@ var addNextTranslation = function () {
       addNextWord();
     } else {
       addTranslationCell(tibetanTd, translation, function () {
-        setTimeout(addNextTranslation, delay);
+        setTimeout(addNextTranslation, window.delay);
       });
     }
   } else {
@@ -1036,7 +1044,7 @@ var increaseUntilItFits = function (table) {
         return;
       } else {
         spaceMultiplier += 0.1;
-        setTimeout(adjustSpaces, delay / 10);
+        setTimeout(adjustSpaces, window.delay / 10);
         return;
       }
     } else {
@@ -1058,7 +1066,7 @@ var increaseUntilItFits = function (table) {
       table.css({ "letter-spacing": maxSpacing + "px" });
     } else {
       spacing += 0.01;
-      setTimeout(adjustLetterSpacing, delay / 10);
+      setTimeout(adjustLetterSpacing, window.delay / 10);
     }
   };
 
@@ -1089,7 +1097,7 @@ var decreaseUntilItFits = function (table) {
         return;
       } else {
         spaceMultiplier -= 0.1;
-        setTimeout(adjustSpaces, delay / 10);
+        setTimeout(adjustSpaces, window.delay / 10);
         return;
       }
     } else {
@@ -1113,9 +1121,18 @@ var decreaseUntilItFits = function (table) {
       table.css({ "letter-spacing": minSpacing + "px" });
     } else {
       spacing -= 0.01;
-      setTimeout(adjustLetterSpacing, delay / 10);
+      setTimeout(adjustLetterSpacing, window.delay / 10);
     }
   };
 
   adjustSpaces();
+};
+
+// Export functions for ES module usage
+export {
+  addNextGroup,
+  addNextPechaPage,
+  addNextTranslation,
+  addPageTitlePage,
+  addPechaTitlePage,
 };

@@ -427,8 +427,13 @@ var ProjectManager = (function () {
     // Rebuild HTML at this version
     var html = rebuildHtmlAtVersion(project.versions, versionIdx);
 
-    // Clear current state
+    // Clear current state - preserve theme from localStorage
+    var currentTheme = localStorage[appName + ".theme"] || "dark";
     $("body").removeClass().addClass(project.bodyClasses);
+    // Restore theme from localStorage (user preference should persist)
+    $("body")
+      .removeClass("theme-dark theme-light theme-lapis")
+      .addClass("theme-" + currentTheme);
     $("#main").html(html);
     $("#input-form").remove();
     $("#save-project-btn").remove();
@@ -1156,3 +1161,6 @@ $(document).ready(function () {
     }
   });
 });
+
+// Export for ES module usage
+export { ProjectManager };

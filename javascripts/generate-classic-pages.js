@@ -7,7 +7,10 @@ var removeOptionalMarkers = function (text) {
 // Convert <small>...</small> markers to span.small-writings for Tibetan text
 var convertSmallMarkers = function (text) {
   if (!text) return text;
-  return text.replace(/<small>(.*?)<\/small>/g, '<span class="small-writings">$1</span>');
+  return text.replace(
+    /<small>(.*?)<\/small>/g,
+    '<span class="small-writings">$1</span>'
+  );
 };
 
 var ClassicPage = {
@@ -62,8 +65,12 @@ var ClassicPage = {
       if (group.mergeNextWhenLineByLine) {
         this.currentGroupIndex++;
         var nextGroup = pecha.groups[this.currentGroupIndex];
-        tibetanLine.append('<span class="space"></span>' + convertSmallMarkers(nextGroup.tibetan));
-        translationLine.append(removeOptionalMarkers(nextGroup[selectedLanguage]));
+        tibetanLine.append(
+          '<span class="space"></span>' + convertSmallMarkers(nextGroup.tibetan)
+        );
+        translationLine.append(
+          removeOptionalMarkers(nextGroup[selectedLanguage])
+        );
         if (includeTransliteration && phoneticsLine)
           phoneticsLine.append(nextGroup.phonetics);
       }
@@ -87,3 +94,6 @@ var ClassicPage = {
 var generateClassicPages = function () {
   ClassicPage.initialize();
 };
+
+// Export functions for ES module usage
+export { generateClassicPages };

@@ -95,3 +95,6 @@ $(document).on("scroll", function (event) {
     currentPageIndex = $(stepsClass()).index(element) - 1;
   }
 });
+
+// Export functions for ES module usage
+export { scroll, scrollToElement, textHasBeenRendered };

@@ -1,17 +1,18 @@
 var beginGeneration = function () {
-  if (delay) $("#loading-overlay").remove();
+  if (window.delay) $("#loading-overlay").remove();
 
   // First, handle prayer insertion at markers
   // Check if there are any markers or legacy selected prayers
   var hasMarkerPrayers =
-    markerPrayers &&
-    Object.keys(markerPrayers).some(function (key) {
-      return markerPrayers[key] && markerPrayers[key].length > 0;
+    window.markerPrayers &&
+    Object.keys(window.markerPrayers).some(function (key) {
+      return window.markerPrayers[key] && window.markerPrayers[key].length > 0;
     });
-  var hasLegacyPrayers = selectedPrayers && selectedPrayers.length > 0;
+  var hasLegacyPrayers =
+    window.selectedPrayers && window.selectedPrayers.length > 0;
 
   if (hasMarkerPrayers || hasLegacyPrayers) {
-    insertPrayersAtMarkers(function () {
+    window.insertPrayersAtMarkers(function () {
       continueGeneration();
     });
   } else {
@@ -21,22 +22,110 @@ var beginGeneration = function () {
 
 var continueGeneration = function () {
   // Add introduction prayers (extra texts) at the beginning
+  // Get selectedExtraTexts from localStorage if not defined globally
+  var selectedExtraTexts =
+    window.selectedExtraTexts ||
+    (localStorage[appName + ".selected-extra-texts"] &&
+      JSON.parse(localStorage[appName + ".selected-extra-texts"])) ||
+    [];
   if (selectedExtraTexts.length) {
     var addedGroups = [];
     _(selectedExtraTexts).each(function (textId, index) {
       var extraText = JSON.parse(
         localStorage[appName + ".extra-texts." + textId]
       );
-      var groups = extraText.groups;
+      var prayerGroups = extraText.groups;
+
+      // Convert prayer groups to pecha format (same as conclusion prayers)
+      var convertedGroups = [];
+      var i = 0;
+      while (i < prayerGroups.length) {
+        var prayerGroup = prayerGroups[i];
+        var convertedGroup = {
+          tibetan: prayerGroup.tibetan || "",
+          english:
+            (prayerGroup.translations && prayerGroup.translations.english) ||
+            prayerGroup.english ||
+            "",
+          french:
+            (prayerGroup.translations && prayerGroup.translations.french) ||
+            prayerGroup.french ||
+            "",
+        };
+
+        // Check if this is a prayer-title followed by a prayer-subtitle with no Tibetan
+        if (
+          prayerGroup.type === "prayer-title" &&
+          i + 1 < prayerGroups.length &&
+          prayerGroups[i + 1].type === "prayer-subtitle" &&
+          (!prayerGroups[i + 1].tibetan ||
+            prayerGroups[i + 1].tibetan.trim() === "")
+        ) {
+          var subtitle = prayerGroups[i + 1];
+          convertedGroup.tibetan = prayerGroup.tibetan || "";
+          var titleEnglish =
+            (prayerGroup.translations && prayerGroup.translations.english) ||
+            prayerGroup.english ||
+            "";
+          var subtitleEnglish =
+            (subtitle.translations && subtitle.translations.english) ||
+            subtitle.english ||
+            "";
+          convertedGroup.english =
+            titleEnglish +
+            (titleEnglish && subtitleEnglish ? " " : "") +
+            subtitleEnglish;
+          var titleFrench =
+            (prayerGroup.translations && prayerGroup.translations.french) ||
+            prayerGroup.french ||
+            "";
+          var subtitleFrench =
+            (subtitle.translations && subtitle.translations.french) ||
+            subtitle.french ||
+            "";
+          convertedGroup.french =
+            titleFrench +
+            (titleFrench && subtitleFrench ? " " : "") +
+            subtitleFrench;
+          i++;
+        }
+
+        // Preserve type
+        if (prayerGroup.type) convertedGroup.type = prayerGroup.type;
+
+        // Preserve tibetanAttachedToPrevious
+        if (prayerGroup.tibetanAttachedToPrevious) {
+          convertedGroup.tibetanAttachedToPrevious =
+            prayerGroup.tibetanAttachedToPrevious;
+        }
+
+        // Set smallWritings for any type that is not verse or mantra
+        if (
+          prayerGroup.type &&
+          prayerGroup.type !== "verse" &&
+          prayerGroup.type !== "mantra"
+        ) {
+          convertedGroup.smallWritings = true;
+        } else if (prayerGroup.smallWritings) {
+          convertedGroup.smallWritings = prayerGroup.smallWritings;
+        }
+
+        convertedGroups.push(convertedGroup);
+        i++;
+      }
+
+      // Add yigo prefix for prayers after the first one (or for split/classic pages)
       if (index > 0 || isASplitPage() || isAClassicPage()) {
         addedGroups = addedGroups.concat({
           tibetan: "༄༅།",
           smallWritings: true,
           mergeNext: true,
         });
-        groups[0].tibetan = "།" + groups[0].tibetan;
+        if (convertedGroups.length > 0) {
+          convertedGroups[0].tibetan = "།" + (convertedGroups[0].tibetan || "");
+        }
       }
-      addedGroups = addedGroups.concat(groups);
+      addedGroups = addedGroups.concat(convertedGroups);
     });
     pecha.groups = addedGroups
       .concat({
@@ -49,8 +138,11 @@ var continueGeneration = function () {
       .concat(pecha.groups);
   }
 
-  // Add conclusion prayers at the end
-  var conclusionState = localStorage[appName + ".conclusion-prayers-state"];
+  // Add conclusion prayers at the end (per-text)
+  var currentTextId = localStorage[appName + ".textId"];
+  var conclusionState = currentTextId
+    ? localStorage[appName + ".conclusion-prayers-state." + currentTextId]
+    : null;
   if (conclusionState) {
     var prayerStates = JSON.parse(conclusionState);
 
@@ -207,3 +299,6 @@ var endGeneration = function () {
     }
   }, 500);
 };
+
+// Export functions for ES module usage
+export { beginGeneration, continueGeneration, endGeneration };

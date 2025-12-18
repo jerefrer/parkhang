@@ -7,7 +7,10 @@ var removeOptionalMarkers = function (text) {
 // Convert <small>...</small> markers to span.small-writings for Tibetan text
 var convertSmallMarkers = function (text) {
   if (!text) return text;
-  return text.replace(/<small>(.*?)<\/small>/g, '<span class="small-writings">$1</span>');
+  return text.replace(
+    /<small>(.*?)<\/small>/g,
+    '<span class="small-writings">$1</span>'
+  );
 };
 
 var SplitPages = {
@@ -267,7 +270,7 @@ var SplitPages = {
               wordIndex++;
               // setTimeout(function() {
               addNextWord();
-              // }, delay);
+              // }, window.delay);
             }
           } else {
             this.tibetanGroupIndex++;
@@ -362,7 +365,7 @@ var SplitPages = {
               wordIndex++;
               // setTimeout(function() {
               addNextWord();
-              // }, delay);
+              // }, window.delay);
             }
           } else {
             this.translationGroupIndex++;
@@ -432,3 +435,6 @@ var SplitPages = {
 var generateSplitPages = function () {
   SplitPages.initialize();
 };
+
+// Export functions for ES module usage
+export { generateSplitPages };

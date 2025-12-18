@@ -9,10 +9,105 @@
   src: url("../vendor/fonts/Lato-Regular.ttf") format("truetype");
 }
 
+/* ==================== THEME: DARK (default) ==================== */
 body,
+body.theme-dark,
 body.pushable > .pusher {
-  background: #001211;
+  background: #0f0f0f !important;
   color: white;
+}
+
+body.theme-dark .pecha-page-container,
+body.theme-dark .pecha-page-container *,
+.pecha-page-container,
+.pecha-page-container * {
+  color: white;
+  border-color: white;
+}
+
+body.theme-dark .pecha-page-container .line td.small-writings,
+body.theme-dark .pecha-page-container .line td.small-writings span,
+.pecha-page-container .line td.small-writings,
+.pecha-page-container .line td.small-writings span {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* ==================== THEME: LIGHT ==================== */
+body.theme-light,
+body.theme-light.pushable > .pusher {
+  background: white !important;
+  color: black;
+}
+
+body.theme-light .pecha-page-container,
+body.theme-light .pecha-page-container *,
+body.theme-light #main,
+body.theme-light #main * {
+  color: black;
+  border-color: black;
+}
+
+body.theme-light .pecha-page-container .line td.small-writings,
+body.theme-light .pecha-page-container .line td.small-writings span {
+  color: rgba(0, 0, 0, 0.7) !important;
+}
+
+body.theme-light .line .tibetan td,
+body.theme-light .line .translation td {
+  text-shadow: 0 0 1px white !important;
+}
+
+body.theme-light #loading-overlay {
+  background: white;
+}
+
+/* ==================== THEME: LAPIS LAZULI ==================== */
+body.theme-lapis,
+body.theme-lapis.pushable > .pusher {
+  background-image: url(images/pattern.jpg);
+  background-blend-mode: color;
+  background-color: #010119 !important;
+  color: #a98f00;
+}
+
+body.theme-lapis .pecha-page-container {
+  background-image: url(images/pattern.jpg);
+  background-blend-mode: color;
+  background-color: #010119;
+}
+
+body.theme-lapis .pecha-page-container,
+body.theme-lapis .pecha-page-container *,
+body.theme-lapis #main,
+body.theme-lapis #main * {
+  color: #a98f00;
+  border-color: #ac9100;
+  text-shadow: 0 0 3px rgba(231, 195, 0, 0.4);
+}
+
+body.theme-lapis .pecha-page-container .line td.small-writings,
+body.theme-lapis .pecha-page-container .line td.small-writings span {
+  color: rgba(169, 143, 0, 0.5) !important;
+  text-shadow: 0 0 3px rgba(231, 195, 0, 0.2) !important;
+}
+
+body.theme-lapis .pecha-a3 .line .tibetan td,
+body.theme-lapis .pecha-a4 .line .tibetan td,
+body.theme-lapis .pecha-screen .line .tibetan td {
+  text-shadow: 0 0 1px #010119 !important;
+}
+
+body.theme-lapis .pecha-a3 .line .translation td,
+body.theme-lapis .pecha-a4 .line .translation td,
+body.theme-lapis .pecha-screen .line .translation td {
+  color: #a98f00 !important;
+  text-shadow: 0 0 3px rgba(231, 195, 0, 0.4) !important;
+}
+
+body.theme-lapis #loading-overlay {
+  background-image: url(images/pattern.jpg);
+  background-blend-mode: color;
+  background-color: #010119;
 }
 
 /* Fix for Tibetan character ྅ (U+0F45) which needs spacing 
@@ -38,7 +133,7 @@ body.pushable > .pusher {
 }
 #loading-overlay {
   display: block;
-  background: #001211;
+  background: #0f0f0f;
 }
 
 #menu-button {
@@ -53,31 +148,157 @@ body.pushable > .pusher {
   opacity: 0;
 }
 
-#print-button {
-  display: none;
-  position: fixed;
-  top: 20px;
-  left: 20px;
-}
-
-#color-mode-button {
-  display: none;
-  position: fixed;
-  top: 65px;
-  left: 20px;
-}
-
+/* Pecha page buttons - unified styling */
+#print-button,
+#color-mode-button,
 #inspect-td-button {
   display: none;
   position: fixed;
-  top: 110px;
   left: 20px;
+  z-index: 1000;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(30, 30, 30, 0.9) !important;
+  color: white !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
+#print-button {
+  top: 20px;
+}
+#color-mode-button {
+  top: 74px;
+}
+#inspect-td-button {
+  top: 128px;
+}
+
+#print-button:hover,
+#color-mode-button:hover,
+#inspect-td-button:hover {
+  background: rgba(50, 50, 50, 0.95) !important;
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+  transform: scale(1.05);
+}
+
+#print-button:active,
+#color-mode-button:active,
+#inspect-td-button:active {
+  transform: scale(0.95);
+}
+
+#print-button i,
+#color-mode-button i,
+#inspect-td-button i {
+  color: white !important;
+  margin: 0 !important;
+  transition: transform 0.3s ease;
+}
+
+/* Edit mode active state */
+#inspect-td-button.active {
+  background: linear-gradient(145deg, #3b82f6, #2563eb) !important;
+  border-color: #60a5fa;
+  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.4);
+}
+
+#inspect-td-button.active i {
+  color: white !important;
+}
+
+/* Theme button icon rotation on click */
+#color-mode-button i {
+  display: inline-block;
+}
+
+/* Light theme pecha buttons */
+body.theme-light #print-button,
+body.theme-light #color-mode-button,
+body.theme-light #inspect-td-button {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-color: rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+body.theme-light #print-button i,
+body.theme-light #color-mode-button i,
+body.theme-light #inspect-td-button i {
+  color: #374151 !important;
+}
+
+body.theme-light #print-button:hover,
+body.theme-light #color-mode-button:hover,
+body.theme-light #inspect-td-button:hover {
+  background: rgba(248, 249, 250, 1) !important;
+  border-color: rgba(0, 0, 0, 0.15);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+body.theme-light #inspect-td-button.active {
+  background: linear-gradient(145deg, #3b82f6, #2563eb) !important;
+  border-color: #3b82f6;
+}
+
+body.theme-light #inspect-td-button.active i {
+  color: white !important;
+}
+
+/* Lapis theme pecha buttons */
+body.theme-lapis #print-button,
+body.theme-lapis #color-mode-button,
+body.theme-lapis #inspect-td-button {
+  background: rgba(10, 10, 42, 0.95) !important;
+  border-color: rgba(169, 143, 0, 0.4);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+body.theme-lapis #print-button i,
+body.theme-lapis #color-mode-button i,
+body.theme-lapis #inspect-td-button i {
+  color: #a98f00 !important;
+}
+
+body.theme-lapis #print-button:hover,
+body.theme-lapis #color-mode-button:hover,
+body.theme-lapis #inspect-td-button:hover {
+  background: rgba(26, 26, 58, 0.95) !important;
+  border-color: rgba(169, 143, 0, 0.6);
+  box-shadow: 0 6px 16px rgba(169, 143, 0, 0.2);
+}
+
+body.theme-lapis #inspect-td-button.active {
+  background: linear-gradient(145deg, #ac9100, #8a7400) !important;
+  border-color: #ac9100;
+}
+
+body.theme-lapis #inspect-td-button.active i {
+  color: #010119 !important;
+}
+
+/* Inspector highlight for translation cells */
 .inspect-td-highlight {
-  background-color: rgba(255, 255, 255, 0.15) !important;
-  filter: brightness(1.2);
-  transition: background-color 0.2s ease, filter 0.2s ease;
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  border-radius: 3px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+/* Light theme inspector highlight */
+body.theme-light .inspect-td-highlight {
+  background-color: rgba(0, 0, 0, 0.06) !important;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.25);
+}
+
+/* Lapis theme inspector highlight */
+body.theme-lapis .inspect-td-highlight {
+  background-color: rgba(169, 143, 0, 0.1) !important;
+  box-shadow: inset 0 0 0 1px rgba(169, 143, 0, 0.5);
 }
 
 .inspect-td-popup {
@@ -115,4 +336,15 @@ body.pushable > .pusher {
 
 .inspect-td-popup .popup-actions button {
   flex: 1;
+}
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+td,
+th {
+  padding: 0;
+  margin: 0;
 }
