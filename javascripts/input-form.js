@@ -402,13 +402,15 @@ var detectMarkersInText = function () {
   var markers = [];
   var markerRegex = /^\[INSERT (.+?) HERE\]$/;
 
-  if (!pecha || !pecha.groups) {
+  // Use window.pecha or local pecha variable
+  var currentPecha = window.pecha || pecha;
+  if (!currentPecha || !currentPecha.groups) {
     return markers;
   }
 
   var seenTypes = {};
-  for (var i = 0; i < pecha.groups.length; i++) {
-    var group = pecha.groups[i];
+  for (var i = 0; i < currentPecha.groups.length; i++) {
+    var group = currentPecha.groups[i];
     // Check all language fields, but only add the first match per group
     var foundInGroup = false;
     ["tibetan", "english", "french"].forEach(function (lang) {
@@ -438,7 +440,189 @@ var detectMarkersInText = function () {
   return markers;
 };
 
-// Generate prayer buttons content (without wrapper)
+// Get insertion points for a prayer (uses global function set by main.js)
+var getInsertionPointsForPrayer = function (prayerId) {
+  if (!window.getInsertionPointsFromPrayer || !window.getPrayerData) return [];
+  var prayerData = window.getPrayerData(prayerId);
+  if (!prayerData) return [];
+  return window.getInsertionPointsFromPrayer(prayerData);
+};
+
+// Get prayers for a category (uses global function set by main.js)
+var getPrayersForInsertionCategory = function (category) {
+  if (!window.getPrayersForCategory) return [];
+  return window.getPrayersForCategory(category);
+};
+
+// Render a single prayer item for the tree
+var renderPrayerTreeItem = function (
+  prayer,
+  markerType,
+  isSelected,
+  level,
+  parentPath
+) {
+  var itemPath = parentPath
+    ? parentPath + "." + prayer.id
+    : markerType + "." + prayer.id;
+  var insertionPoints = isSelected
+    ? getInsertionPointsForPrayer(prayer.id)
+    : [];
+  var hasChildren = insertionPoints.length > 0;
+  var selectedClass = isSelected ? " selected" : "";
+
+  var html =
+    '<div class="prayer-tree-item' +
+    selectedClass +
+    '" data-id="' +
+    prayer.id +
+    '" data-marker="' +
+    markerType +
+    '" data-level="' +
+    level +
+    '" data-path="' +
+    itemPath +
+    '" draggable="true">';
+  html += '<div class="prayer-tree-row">';
+  html += '<div class="drag-handle"><i class="grip lines icon"></i></div>';
+  html += '<div class="prayer-name">' + prayer.name + "</div>";
+  html += '<div class="prayer-toggle">';
+  html += '<div class="ui toggle checkbox prayer-tree-checkbox">';
+  html +=
+    '<input type="checkbox" ' +
+    (isSelected ? "checked" : "") +
+    ' data-id="' +
+    prayer.id +
+    '">';
+  html += "<label></label>";
+  html += "</div>";
+  html += "</div>";
+  html += "</div>";
+
+  // Render children (insertion points) if selected and has insertion points
+  if (isSelected && hasChildren) {
+    html += '<div class="prayer-tree-children">';
+    insertionPoints.forEach(function (insertionPoint) {
+      html += renderInsertionPointSection(insertionPoint, markerType, itemPath);
+    });
+    html += "</div>";
+  }
+
+  html += "</div>";
+  return html;
+};
+
+// Render an insertion point section with its available prayers
+var renderInsertionPointSection = function (
+  insertionPoint,
+  markerType,
+  parentPath
+) {
+  var categoryPrayers = getPrayersForInsertionCategory(insertionPoint.category);
+  if (categoryPrayers.length === 0) return "";
+
+  var sectionPath = parentPath + "." + insertionPoint.category;
+  var savedState = getInsertionPointState(sectionPath);
+
+  // Sort prayers: selected ones first (in saved order), then unselected ones
+  var orderedPrayers = [];
+  if (savedState && savedState.selectedIds) {
+    savedState.selectedIds.forEach(function (prayerId) {
+      var prayer = _.find(categoryPrayers, function (p) {
+        return p.id === prayerId;
+      });
+      if (prayer) orderedPrayers.push(prayer);
+    });
+  }
+  categoryPrayers.forEach(function (prayer) {
+    if (
+      !savedState ||
+      !savedState.selectedIds ||
+      savedState.selectedIds.indexOf(prayer.id) === -1
+    ) {
+      orderedPrayers.push(prayer);
+    }
+  });
+
+  var html =
+    '<div class="prayer-tree-insertion-point" data-category="' +
+    insertionPoint.category +
+    '" data-path="' +
+    sectionPath +
+    '">';
+  html +=
+    '<div class="prayer-tree-insertion-header">' +
+    insertionPoint.name +
+    "</div>";
+  html += '<div class="prayer-tree-insertion-list">';
+
+  orderedPrayers.forEach(function (prayer) {
+    var isSelected =
+      savedState &&
+      savedState.selectedIds &&
+      savedState.selectedIds.indexOf(prayer.id) !== -1;
+    html += renderNestedPrayerItem(prayer, sectionPath, isSelected);
+  });
+
+  html += "</div>";
+  html += "</div>";
+  return html;
+};
+
+// Render a nested prayer item (level 2)
+var renderNestedPrayerItem = function (prayer, sectionPath, isSelected) {
+  var itemPath = sectionPath + "." + prayer.id;
+  var selectedClass = isSelected ? " selected" : "";
+  var html =
+    '<div class="prayer-tree-nested-item' +
+    selectedClass +
+    '" data-id="' +
+    prayer.id +
+    '" data-path="' +
+    itemPath +
+    '" draggable="true">';
+  html += '<div class="prayer-tree-row">';
+  html += '<div class="drag-handle"><i class="grip lines icon"></i></div>';
+  html += '<div class="prayer-name">' + prayer.name + "</div>";
+  html += '<div class="prayer-toggle">';
+  html += '<div class="ui toggle checkbox prayer-tree-nested-checkbox">';
+  html +=
+    '<input type="checkbox" ' +
+    (isSelected ? "checked" : "") +
+    ' data-id="' +
+    prayer.id +
+    '">';
+  html += "<label></label>";
+  html += "</div>";
+  html += "</div>";
+  html += "</div>";
+  html += "</div>";
+  return html;
+};
+
+// Get saved state for an insertion point
+var getInsertionPointState = function (path) {
+  var textId = localStorage[appName + ".textId"];
+  if (!textId) return null;
+  var stateKey = appName + ".insertion-point-state." + textId;
+  var allState = localStorage[stateKey];
+  if (!allState) return null;
+  var parsed = JSON.parse(allState);
+  return parsed[path] || null;
+};
+
+// Save state for an insertion point
+var saveInsertionPointState = function (path, selectedIds) {
+  var textId = localStorage[appName + ".textId"];
+  if (!textId) return;
+  var stateKey = appName + ".insertion-point-state." + textId;
+  var allState = localStorage[stateKey];
+  var parsed = allState ? JSON.parse(allState) : {};
+  parsed[path] = { selectedIds: selectedIds };
+  localStorage[stateKey] = JSON.stringify(parsed);
+};
+
+// Generate prayer tree content (without wrapper)
 var prayersSelectContent = function () {
   if (!availablePrayers || availablePrayers.length === 0) {
     return "";
@@ -450,29 +634,49 @@ var prayersSelectContent = function () {
     return "";
   }
 
-  return (
-    '<div class="marker-buttons">' +
-    _(markers)
-      .map(function (marker) {
-        var prayerCount = (markerPrayers[marker.type] || []).length;
-        return (
-          '\
-          <button class="ui fluid button marker-button" data-marker-type="' +
-          marker.type +
-          '" style="margin: 8px 0; background: #1a1a1a; color: white; border: 1px solid rgba(255,255,255,0.1);">\
-            <i class="list icon"></i> ' +
-          marker.displayName +
-          " (" +
-          prayerCount +
-          " prayer" +
-          (prayerCount !== 1 ? "s" : "") +
-          ")\
-          </button>"
-        );
-      })
-      .join("") +
-    "</div>"
-  );
+  var html = '<div class="prayer-tree-container">';
+
+  markers.forEach(function (marker) {
+    var markerSpecificPrayers = window.getPrayersForMarker
+      ? window.getPrayersForMarker(marker.type)
+      : availablePrayers;
+
+    if (!markerSpecificPrayers || markerSpecificPrayers.length === 0) {
+      markerSpecificPrayers = availablePrayers;
+    }
+
+    var currentPrayers = markerPrayers[marker.type] || [];
+
+    // Sort prayers: selected ones first (in saved order), then unselected ones
+    var orderedPrayers = [];
+    currentPrayers.forEach(function (prayerId) {
+      var prayer = _.find(markerSpecificPrayers, function (p) {
+        return p.id === prayerId;
+      });
+      if (prayer) orderedPrayers.push(prayer);
+    });
+    markerSpecificPrayers.forEach(function (prayer) {
+      if (currentPrayers.indexOf(prayer.id) === -1) {
+        orderedPrayers.push(prayer);
+      }
+    });
+
+    html +=
+      '<div class="prayer-tree-section" data-marker="' + marker.type + '">';
+    html += '<div class="prayer-tree-header">' + marker.displayName + "</div>";
+    html += '<div class="prayer-tree-list">';
+
+    orderedPrayers.forEach(function (prayer) {
+      var isSelected = currentPrayers.indexOf(prayer.id) !== -1;
+      html += renderPrayerTreeItem(prayer, marker.type, isSelected, 1, "");
+    });
+
+    html += "</div>";
+    html += "</div>";
+  });
+
+  html += "</div>";
+  return html;
 };
 
 // Legacy function for compatibility
@@ -697,6 +901,7 @@ var renderInputForm = function () {
     if (storedText) {
       try {
         pecha = JSON.parse(storedText);
+        window.pecha = pecha; // Also set window.pecha for detectMarkersInText
         // Load marker prayers for this text before updating UI
         if (window.loadMarkerPrayersForCurrentText) {
           window.loadMarkerPrayersForCurrentText();
@@ -720,6 +925,9 @@ var updatePrayersSection = function () {
   $("#prayers-section").html(prayersHtml);
   if (prayersHtml) {
     $("#prayers-section-wrapper").show();
+    // Initialize Semantic UI toggle checkboxes
+    $(".prayer-tree-checkbox").checkbox();
+    $(".prayer-tree-nested-checkbox").checkbox();
   } else {
     $("#prayers-section-wrapper").hide();
   }
@@ -893,6 +1101,7 @@ $(document).on("click", ".text", function (event) {
   if (textId) {
     localStorage[appName + ".textId"] = textId;
     pecha = JSON.parse(localStorage[appName + ".texts." + textId]);
+    window.pecha = pecha; // Also set window.pecha for detectMarkersInText
     // Reload marker prayers for this text
     if (window.loadMarkerPrayersForCurrentText) {
       window.loadMarkerPrayersForCurrentText();
@@ -1130,242 +1339,293 @@ $(document).on("click", ".delete-text-btn", function (event) {
   }
 });
 
-// Open modal for marker-specific prayer selection
-$(document).on("click", ".marker-button", function (event) {
-  event.preventDefault();
-  var markerType = $(event.currentTarget).data("marker-type");
-  openPrayerModal(markerType);
-});
+// Prayer tree: Level 1 checkbox toggle (marker prayers)
+$(document).on(
+  "change",
+  ".prayer-tree-item > .prayer-tree-row .prayer-tree-checkbox input",
+  function (event) {
+    var $checkbox = $(event.currentTarget);
+    var $item = $checkbox.closest(".prayer-tree-item");
+    var prayerId = $checkbox.data("id");
+    var markerType = $item.data("marker");
+    var isChecked = $checkbox.is(":checked");
 
-// Open prayer selection modal for a specific marker
-var openPrayerModal = function (markerType) {
-  var currentPrayers = markerPrayers[markerType] || [];
-  var displayName = markerType.charAt(0) + markerType.slice(1).toLowerCase();
+    // Update markerPrayers
+    if (!markerPrayers[markerType]) {
+      markerPrayers[markerType] = [];
+    }
 
-  // Get prayers specific to this marker type (e.g., TSOK -> prayers/tsok, TSEGUK -> prayers/tseguk)
-  var markerSpecificPrayers = window.getPrayersForMarker
-    ? window.getPrayersForMarker(markerType)
-    : availablePrayers;
+    if (isChecked) {
+      if (markerPrayers[markerType].indexOf(prayerId) === -1) {
+        markerPrayers[markerType].push(prayerId);
+      }
+      $item.addClass("selected");
+    } else {
+      var idx = markerPrayers[markerType].indexOf(prayerId);
+      if (idx !== -1) {
+        markerPrayers[markerType].splice(idx, 1);
+      }
+      $item.removeClass("selected");
+    }
 
-  if (!markerSpecificPrayers || markerSpecificPrayers.length === 0) {
-    // Fallback to all available prayers if no specific prayers found
-    markerSpecificPrayers = availablePrayers;
-  }
+    // Save to localStorage
+    savePrayerTreeState();
 
-  // Sort prayers: selected ones first (in saved order), then unselected ones
-  var orderedPrayers = [];
-
-  // First, add selected prayers in their saved order
-  currentPrayers.forEach(function (prayerId) {
+    // Re-render the item to show/hide children
+    var $section = $item.closest(".prayer-tree-section");
+    var markerSpecificPrayers = window.getPrayersForMarker
+      ? window.getPrayersForMarker(markerType)
+      : availablePrayers;
     var prayer = _.find(markerSpecificPrayers, function (p) {
       return p.id === prayerId;
     });
+
     if (prayer) {
-      orderedPrayers.push(prayer);
+      var newHtml = renderPrayerTreeItem(prayer, markerType, isChecked, 1, "");
+      $item.replaceWith(newHtml);
+      // Reinitialize checkboxes for the new element
+      $(".prayer-tree-checkbox").checkbox();
+      $(".prayer-tree-nested-checkbox").checkbox();
     }
-  });
-
-  // Then add unselected prayers
-  markerSpecificPrayers.forEach(function (prayer) {
-    if (currentPrayers.indexOf(prayer.id) === -1) {
-      orderedPrayers.push(prayer);
-    }
-  });
-
-  var modalHtml =
-    '\
-    <div class="ui modal prayer-modal" id="prayer-modal-' +
-    markerType +
-    '">\
-      <div class="header" style="background: #1b1c1d; color: white;">\
-        Select Prayers for ' +
-    displayName +
-    '\
-      </div>\
-      <div class="content" style="background: #1b1c1d;">\
-        <div class="ui prayers-list" id="modal-prayers-list-' +
-    markerType +
-    '">' +
-    _(orderedPrayers)
-      .map(function (prayer) {
-        var isSelected = currentPrayers.indexOf(prayer.id) !== -1;
-        return (
-          '\
-            <div class="ui prayer-item" data-id="' +
-          prayer.id +
-          '" draggable="true">\
-              <div class="prayer-checkbox">\
-                <input type="checkbox" id="modal-prayer-' +
-          markerType +
-          "-" +
-          prayer.id +
-          '"' +
-          (isSelected ? " checked" : "") +
-          ' />\
-                <label for="modal-prayer-' +
-          markerType +
-          "-" +
-          prayer.id +
-          '">' +
-          prayer.name +
-          '</label>\
-              </div>\
-              <div class="prayer-handle">☰</div>\
-            </div>\
-          '
-        );
-      })
-      .join("") +
-    '\
-        </div>\
-      </div>\
-      <div class="actions" style="background: #1b1c1d;">\
-        <button class="ui button" id="modal-cancel">Cancel</button>\
-        <button class="ui primary button" id="modal-save" data-marker-type="' +
-    markerType +
-    '">Save</button>\
-      </div>\
-    </div>\
-  ';
-
-  // Remove any existing modal
-  $(".prayer-modal").remove();
-
-  // Add modal to page
-  $("body").append(modalHtml);
-
-  // Initialize Semantic UI modal
-  $("#prayer-modal-" + markerType)
-    .modal({
-      closable: true,
-      onHidden: function () {
-        $(this).remove();
-      },
-    })
-    .modal("show");
-
-  // Initialize drag and drop for modal
-  initializeModalPrayerDragAndDrop(markerType);
-};
-
-// Save prayers from modal
-$(document).on("click", "#modal-save", function (event) {
-  var markerType = $(event.currentTarget).data("marker-type");
-  var modalId = "#prayer-modal-" + markerType;
-
-  // Collect selected prayers in order
-  var selectedPrayerIds = [];
-  $(modalId + " .prayer-item").each(function () {
-    var prayerId = $(this).data("id");
-    var isChecked = $(this).find("input[type=checkbox]").is(":checked");
-    if (isChecked) {
-      selectedPrayerIds.push(prayerId);
-    }
-  });
-
-  markerPrayers[markerType] = selectedPrayerIds;
-  // Save marker prayers to localStorage (per-text)
-  var textId = localStorage[appName + ".textId"];
-  if (textId) {
-    localStorage[appName + ".marker-prayers." + textId] =
-      JSON.stringify(markerPrayers);
-  }
-
-  // Update button text
-  var prayerCount = selectedPrayerIds.length;
-  var displayName = markerType.charAt(0) + markerType.slice(1).toLowerCase();
-  $('.marker-button[data-marker-type="' + markerType + '"]').html(
-    '<i class="list icon"></i> ' +
-      displayName +
-      " (" +
-      prayerCount +
-      " prayer" +
-      (prayerCount !== 1 ? "s" : "") +
-      ")"
-  );
-
-  $(modalId).modal("hide");
-});
-
-// Cancel modal
-$(document).on("click", "#modal-cancel", function (event) {
-  $(".prayer-modal").modal("hide");
-});
-
-// Prayer checkbox handling in modal
-$(document).on(
-  "change",
-  ".prayer-modal .prayer-item input[type=checkbox]",
-  function (event) {
-    // No need to save here, will save when modal is closed with Save button
   }
 );
 
-// Drag and drop for prayer reordering in modal
-var draggedPrayerElement = null;
-var draggedPrayerId = null;
+// Prayer tree: Level 2 checkbox toggle (nested prayers in insertion points)
+$(document).on(
+  "change",
+  ".prayer-tree-nested-item .prayer-tree-nested-checkbox input",
+  function (event) {
+    var $checkbox = $(event.currentTarget);
+    var $item = $checkbox.closest(".prayer-tree-nested-item");
+    var $insertionPoint = $item.closest(".prayer-tree-insertion-point");
+    var sectionPath = $insertionPoint.data("path");
+    var prayerId = $checkbox.data("id");
+    var isChecked = $checkbox.is(":checked");
 
-var initializeModalPrayerDragAndDrop = function (markerType) {
-  var selector = "#prayer-modal-" + markerType + " .prayer-item";
+    // Get current state
+    var savedState = getInsertionPointState(sectionPath);
+    var selectedIds =
+      savedState && savedState.selectedIds
+        ? savedState.selectedIds.slice()
+        : [];
 
-  $(selector).on("dragstart", function (e) {
-    draggedPrayerElement = this;
-    draggedPrayerId = $(this).data("id");
-    e.originalEvent.dataTransfer.effectAllowed = "move";
-    $(this).addClass("dragging");
-  });
-
-  $(selector).on("dragend", function (e) {
-    $(this).removeClass("dragging");
-    draggedPrayerElement = null;
-    draggedPrayerId = null;
-  });
-
-  $(selector).on("dragover", function (e) {
-    if (e.preventDefault) {
-      e.preventDefault();
-    }
-    e.originalEvent.dataTransfer.dropEffect = "move";
-    return false;
-  });
-
-  $(selector).on("dragenter", function (e) {
-    if (draggedPrayerElement !== this) {
-      $(this).addClass("drag-over");
-    }
-  });
-
-  $(selector).on("dragleave", function (e) {
-    $(this).removeClass("drag-over");
-  });
-
-  $(selector).on("drop", function (e) {
-    if (e.stopPropagation) {
-      e.stopPropagation();
-    }
-    $(this).removeClass("drag-over");
-
-    if (draggedPrayerElement !== this) {
-      // Reorder the visual elements
-      var $draggedElement = $(draggedPrayerElement);
-      var $targetElement = $(this);
-
-      // Insert dragged element before or after target based on position
-      var draggedRect = draggedPrayerElement.getBoundingClientRect();
-      var targetRect = this.getBoundingClientRect();
-
-      if (draggedRect.top < targetRect.top) {
-        // Dragging down - insert after target
-        $targetElement.after($draggedElement);
-      } else {
-        // Dragging up - insert before target
-        $targetElement.before($draggedElement);
+    if (isChecked) {
+      if (selectedIds.indexOf(prayerId) === -1) {
+        selectedIds.push(prayerId);
       }
+      $item.addClass("selected");
+    } else {
+      var idx = selectedIds.indexOf(prayerId);
+      if (idx !== -1) {
+        selectedIds.splice(idx, 1);
+      }
+      $item.removeClass("selected");
     }
 
-    return false;
+    // Save state
+    saveInsertionPointState(sectionPath, selectedIds);
+  }
+);
+
+// Save prayer tree state to localStorage
+var savePrayerTreeState = function () {
+  var textId = localStorage[appName + ".textId"];
+  if (!textId) return;
+
+  // Collect selected prayers in order for each marker
+  $(".prayer-tree-section").each(function () {
+    var $section = $(this);
+    var markerType = $section.data("marker");
+    var selectedIds = [];
+
+    $section.find(".prayer-tree-list > .prayer-tree-item").each(function () {
+      var $item = $(this);
+      var prayerId = $item.data("id");
+      var isChecked = $item
+        .find("> .prayer-tree-row .prayer-tree-checkbox input")
+        .is(":checked");
+      if (isChecked) {
+        selectedIds.push(prayerId);
+      }
+    });
+
+    markerPrayers[markerType] = selectedIds;
   });
+
+  localStorage[appName + ".marker-prayers." + textId] =
+    JSON.stringify(markerPrayers);
 };
+
+// Initialize Semantic UI checkboxes for prayer tree after rendering
+var initializePrayerTreeCheckboxes = function () {
+  $(".prayer-tree-checkbox").checkbox();
+  $(".prayer-tree-nested-checkbox").checkbox();
+};
+
+// Save nested prayer state for insertion points
+var saveNestedPrayerState = function ($insertionPoint) {
+  var sectionPath = $insertionPoint.data("path");
+  var selectedIds = [];
+
+  $insertionPoint.find(".prayer-tree-nested-item").each(function () {
+    var $item = $(this);
+    var prayerId = $item.data("id");
+    var isChecked = $item.find(".prayer-tree-checkbox input").is(":checked");
+    if (isChecked) {
+      selectedIds.push(prayerId);
+    }
+  });
+
+  saveInsertionPointState(sectionPath, selectedIds);
+};
+
+// Drag and drop for prayer tree (level 1)
+var draggedTreeItem = null;
+
+$(document).on("dragstart", ".prayer-tree-item", function (event) {
+  // Only allow dragging from the handle or the row itself, not from children
+  if ($(event.target).closest(".prayer-tree-children").length > 0) {
+    event.preventDefault();
+    return;
+  }
+  draggedTreeItem = this;
+  $(this).addClass("dragging");
+  event.originalEvent.dataTransfer.effectAllowed = "move";
+});
+
+$(document).on("dragend", ".prayer-tree-item", function (event) {
+  $(this).removeClass("dragging");
+  $(".prayer-tree-item").removeClass("drag-over");
+  draggedTreeItem = null;
+  savePrayerTreeState();
+});
+
+$(document).on("dragover", ".prayer-tree-item", function (event) {
+  if (!draggedTreeItem) return;
+  // Only allow drop on same-level items
+  if ($(draggedTreeItem).data("marker") !== $(this).data("marker")) return;
+  if ($(this).closest(".prayer-tree-children").length > 0) return;
+
+  event.preventDefault();
+  event.originalEvent.dataTransfer.dropEffect = "move";
+});
+
+$(document).on("dragenter", ".prayer-tree-item", function (event) {
+  if (!draggedTreeItem) return;
+  if ($(draggedTreeItem).data("marker") !== $(this).data("marker")) return;
+  if ($(this).closest(".prayer-tree-children").length > 0) return;
+  if (this !== draggedTreeItem) {
+    $(this).addClass("drag-over");
+  }
+});
+
+$(document).on("dragleave", ".prayer-tree-item", function (event) {
+  $(this).removeClass("drag-over");
+});
+
+$(document).on("drop", ".prayer-tree-item", function (event) {
+  if (!draggedTreeItem) return;
+  if ($(draggedTreeItem).data("marker") !== $(this).data("marker")) return;
+  if ($(this).closest(".prayer-tree-children").length > 0) return;
+
+  event.preventDefault();
+  $(this).removeClass("drag-over");
+
+  if (draggedTreeItem && this !== draggedTreeItem) {
+    var $draggedItem = $(draggedTreeItem);
+    var $targetItem = $(this);
+
+    var targetRect = this.getBoundingClientRect();
+    var mouseY = event.originalEvent.clientY;
+    var insertBefore = mouseY < targetRect.top + targetRect.height / 2;
+
+    if (insertBefore) {
+      $draggedItem.insertBefore($targetItem);
+    } else {
+      $draggedItem.insertAfter($targetItem);
+    }
+  }
+});
+
+// Drag and drop for nested prayers (level 2)
+var draggedNestedItem = null;
+
+$(document).on("dragstart", ".prayer-tree-nested-item", function (event) {
+  event.stopPropagation();
+  draggedNestedItem = this;
+  $(this).addClass("dragging");
+  event.originalEvent.dataTransfer.effectAllowed = "move";
+});
+
+$(document).on("dragend", ".prayer-tree-nested-item", function (event) {
+  $(this).removeClass("dragging");
+  $(".prayer-tree-nested-item").removeClass("drag-over");
+  if (draggedNestedItem) {
+    var $insertionPoint = $(draggedNestedItem).closest(
+      ".prayer-tree-insertion-point"
+    );
+    saveNestedPrayerState($insertionPoint);
+  }
+  draggedNestedItem = null;
+});
+
+$(document).on("dragover", ".prayer-tree-nested-item", function (event) {
+  if (!draggedNestedItem) return;
+  // Only allow drop within same insertion point
+  var draggedPath = $(draggedNestedItem)
+    .closest(".prayer-tree-insertion-point")
+    .data("path");
+  var targetPath = $(this).closest(".prayer-tree-insertion-point").data("path");
+  if (draggedPath !== targetPath) return;
+
+  event.preventDefault();
+  event.stopPropagation();
+  event.originalEvent.dataTransfer.dropEffect = "move";
+});
+
+$(document).on("dragenter", ".prayer-tree-nested-item", function (event) {
+  if (!draggedNestedItem) return;
+  var draggedPath = $(draggedNestedItem)
+    .closest(".prayer-tree-insertion-point")
+    .data("path");
+  var targetPath = $(this).closest(".prayer-tree-insertion-point").data("path");
+  if (draggedPath !== targetPath) return;
+  if (this !== draggedNestedItem) {
+    $(this).addClass("drag-over");
+  }
+});
+
+$(document).on("dragleave", ".prayer-tree-nested-item", function (event) {
+  $(this).removeClass("drag-over");
+});
+
+$(document).on("drop", ".prayer-tree-nested-item", function (event) {
+  if (!draggedNestedItem) return;
+  var draggedPath = $(draggedNestedItem)
+    .closest(".prayer-tree-insertion-point")
+    .data("path");
+  var targetPath = $(this).closest(".prayer-tree-insertion-point").data("path");
+  if (draggedPath !== targetPath) return;
+
+  event.preventDefault();
+  event.stopPropagation();
+  $(this).removeClass("drag-over");
+
+  if (draggedNestedItem && this !== draggedNestedItem) {
+    var $draggedItem = $(draggedNestedItem);
+    var $targetItem = $(this);
+
+    var targetRect = this.getBoundingClientRect();
+    var mouseY = event.originalEvent.clientY;
+    var insertBefore = mouseY < targetRect.top + targetRect.height / 2;
+
+    if (insertBefore) {
+      $draggedItem.insertBefore($targetItem);
+    } else {
+      $draggedItem.insertAfter($targetItem);
+    }
+  }
+});
 
 window.selectedLanguage = getDefaultLanguage();
 window.selectedExtraTexts = undefined;

@@ -15,7 +15,9 @@ import {
   getAvailablePrayers,
   getBeginningPrayers,
   getConclusionPrayers,
+  getInsertionPointsFromPrayer,
   getPrayerById,
+  getPrayersForCategory,
   getPrayersForMarker,
 } from "./prayers/loader.js";
 
@@ -133,6 +135,10 @@ window.conclusionPrayersList = getConclusionPrayers().map((p) => ({
 
 // Expose getPrayersForMarker globally for marker-specific prayer lists
 window.getPrayersForMarker = getPrayersForMarker;
+
+// Expose new functions for insertion points
+window.getInsertionPointsFromPrayer = getInsertionPointsFromPrayer;
+window.getPrayersForCategory = getPrayersForCategory;
 
 // Import all JavaScript modules dynamically
 // Using await import() ensures globals are set up first (static imports are hoisted)

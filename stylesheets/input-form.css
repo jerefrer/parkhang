@@ -688,6 +688,174 @@
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
 }
 
+/* ==================== PRAYER TREE STYLES ==================== */
+.prayer-tree-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.prayer-tree-section {
+  background: linear-gradient(145deg, #1a1a1a, #141414);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.prayer-tree-header {
+  padding: 14px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  background: linear-gradient(145deg, #222, #1a1a1a);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.prayer-tree-list {
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.prayer-tree-item {
+  border-radius: 10px;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.prayer-tree-item > .prayer-tree-row {
+  display: flex;
+  align-items: center;
+  padding: 14px 16px;
+  background: linear-gradient(145deg, #1a1a1a, #141414);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  opacity: 0.5;
+}
+
+.prayer-tree-item > .prayer-tree-row:hover {
+  background: linear-gradient(145deg, #1e1e1e, #181818);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.prayer-tree-item.selected > .prayer-tree-row {
+  opacity: 1;
+  border-color: rgba(59, 130, 246, 0.4);
+  background: linear-gradient(145deg, #1a2035, #141825);
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
+}
+
+.prayer-tree-item.dragging > .prayer-tree-row {
+  opacity: 0.4;
+  background: #252525;
+  transform: scale(1.02);
+}
+
+.prayer-tree-item.drag-over > .prayer-tree-row {
+  border: 2px dashed #3b82f6;
+  background: rgba(59, 130, 246, 0.1);
+}
+
+/* Prayer tree row layout - matches intro/conclusion style */
+.prayer-tree-item .drag-handle,
+.prayer-tree-nested-item .drag-handle {
+  cursor: grab;
+  padding: 0 12px 0 0;
+  color: rgba(255, 255, 255, 0.25);
+  transition: color 0.2s ease;
+}
+
+.prayer-tree-item .drag-handle:hover,
+.prayer-tree-nested-item .drag-handle:hover {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.prayer-tree-item .prayer-name,
+.prayer-tree-nested-item .prayer-name {
+  flex: 1;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 13px;
+  font-weight: 450;
+}
+
+.prayer-tree-item .prayer-toggle,
+.prayer-tree-nested-item .prayer-toggle {
+  margin-left: 16px;
+}
+
+/* Children / Insertion points */
+.prayer-tree-children {
+  margin-left: 24px;
+  margin-top: 8px;
+  padding-left: 16px;
+  border-left: 2px solid rgba(59, 130, 246, 0.2);
+}
+
+.prayer-tree-insertion-point {
+  margin-bottom: 12px;
+}
+
+.prayer-tree-insertion-header {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(59, 130, 246, 0.8);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 8px 0 6px 0;
+}
+
+.prayer-tree-insertion-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Nested prayer items (level 2) */
+.prayer-tree-nested-item {
+  border-radius: 10px;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.prayer-tree-nested-item .prayer-tree-row {
+  display: flex;
+  align-items: center;
+  padding: 14px 16px;
+  background: linear-gradient(145deg, #1a1a1a, #141414);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  opacity: 0.5;
+}
+
+.prayer-tree-nested-item .prayer-tree-row:hover {
+  background: linear-gradient(145deg, #1e1e1e, #181818);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.prayer-tree-nested-item.selected .prayer-tree-row {
+  opacity: 1;
+  border-color: rgba(59, 130, 246, 0.4);
+  background: linear-gradient(145deg, #1a2035, #141825);
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
+}
+
+.prayer-tree-nested-item.dragging .prayer-tree-row {
+  opacity: 0.4;
+  background: #252525;
+  transform: scale(1.02);
+}
+
+.prayer-tree-nested-item.drag-over .prayer-tree-row {
+  border: 2px dashed #3b82f6;
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.prayer-tree-nested-item .prayer-name {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.75);
+}
+
 /* ==================== LIGHT THEME ==================== */
 body.theme-light {
   background: #f0f2f5 !important;
@@ -992,6 +1160,76 @@ body.theme-light .prayer-modal .prayer-item .prayer-handle {
   color: rgba(0, 0, 0, 0.3);
 }
 
+/* Light theme - Prayer tree */
+body.theme-light .prayer-tree-section {
+  background: linear-gradient(145deg, #ffffff, #f8f9fa);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+body.theme-light .prayer-tree-header {
+  background: linear-gradient(145deg, #f3f4f6, #e5e7eb);
+  color: #1f2937;
+  border-bottom-color: rgba(0, 0, 0, 0.08);
+}
+
+body.theme-light .prayer-tree-item > .prayer-tree-row {
+  background: linear-gradient(145deg, #ffffff, #f8f9fa);
+  border-color: rgba(0, 0, 0, 0.06);
+}
+
+body.theme-light .prayer-tree-item > .prayer-tree-row:hover {
+  background: linear-gradient(145deg, #f8f9fa, #f0f2f5);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+body.theme-light .prayer-tree-item.selected > .prayer-tree-row,
+body.theme-light
+  .prayer-tree-item:has(> .prayer-tree-row input:checked)
+  > .prayer-tree-row {
+  border-color: rgba(59, 130, 246, 0.4);
+  background: linear-gradient(145deg, #eff6ff, #dbeafe);
+}
+
+body.theme-light .prayer-tree-checkbox label {
+  color: #374151;
+}
+
+body.theme-light .prayer-tree-handle {
+  color: rgba(0, 0, 0, 0.25);
+}
+
+body.theme-light .prayer-tree-handle:hover {
+  color: rgba(0, 0, 0, 0.5);
+}
+
+body.theme-light .prayer-tree-children {
+  border-left-color: rgba(59, 130, 246, 0.3);
+}
+
+body.theme-light .prayer-tree-insertion-header {
+  color: #3b82f6;
+}
+
+body.theme-light .prayer-tree-nested-item .prayer-tree-row {
+  background: linear-gradient(145deg, #f8f9fa, #f0f2f5);
+  border-color: rgba(0, 0, 0, 0.04);
+}
+
+body.theme-light .prayer-tree-nested-item .prayer-tree-row:hover {
+  background: linear-gradient(145deg, #f0f2f5, #e8eaed);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+body.theme-light .prayer-tree-nested-item.selected .prayer-tree-row,
+body.theme-light .prayer-tree-nested-item:has(input:checked) .prayer-tree-row {
+  border-color: rgba(59, 130, 246, 0.3);
+  background: linear-gradient(145deg, #eff6ff, #dbeafe);
+}
+
+body.theme-light .prayer-tree-nested-item .prayer-tree-checkbox label {
+  color: #4b5563;
+}
+
 /* ==================== LAPIS LAZULI THEME ==================== */
 body.theme-lapis {
   background-image: url(images/pattern.jpg);
@@ -1285,6 +1523,80 @@ body.theme-lapis .prayer-modal .prayer-item .prayer-checkbox label {
 
 body.theme-lapis .prayer-modal .prayer-item .prayer-handle {
   color: rgba(169, 143, 0, 0.4);
+}
+
+/* Lapis theme - Prayer tree */
+body.theme-lapis .prayer-tree-section {
+  background: linear-gradient(145deg, #1a1a3a, #0a0a2a);
+  border-color: rgba(169, 143, 0, 0.3);
+}
+
+body.theme-lapis .prayer-tree-header {
+  background: linear-gradient(145deg, #0a0a2a, #050515);
+  color: #a98f00;
+  border-bottom-color: rgba(169, 143, 0, 0.3);
+}
+
+body.theme-lapis .prayer-tree-item > .prayer-tree-row {
+  background: linear-gradient(145deg, #1a1a3a, #0a0a2a);
+  border-color: rgba(169, 143, 0, 0.2);
+}
+
+body.theme-lapis .prayer-tree-item > .prayer-tree-row:hover {
+  background: linear-gradient(145deg, #2a2a4a, #1a1a3a);
+  border-color: rgba(169, 143, 0, 0.4);
+}
+
+body.theme-lapis .prayer-tree-item.selected > .prayer-tree-row,
+body.theme-lapis
+  .prayer-tree-item:has(> .prayer-tree-row input:checked)
+  > .prayer-tree-row {
+  border-color: #ac9100;
+  background: linear-gradient(145deg, #2a2a4a, #1a1a3a);
+}
+
+body.theme-lapis .prayer-tree-checkbox label {
+  color: #a98f00;
+}
+
+body.theme-lapis .prayer-tree-checkbox input[type="checkbox"] {
+  accent-color: #ac9100;
+}
+
+body.theme-lapis .prayer-tree-handle {
+  color: rgba(169, 143, 0, 0.3);
+}
+
+body.theme-lapis .prayer-tree-handle:hover {
+  color: rgba(169, 143, 0, 0.6);
+}
+
+body.theme-lapis .prayer-tree-children {
+  border-left-color: rgba(169, 143, 0, 0.3);
+}
+
+body.theme-lapis .prayer-tree-insertion-header {
+  color: #ac9100;
+}
+
+body.theme-lapis .prayer-tree-nested-item .prayer-tree-row {
+  background: linear-gradient(145deg, #0a0a2a, #050515);
+  border-color: rgba(169, 143, 0, 0.15);
+}
+
+body.theme-lapis .prayer-tree-nested-item .prayer-tree-row:hover {
+  background: linear-gradient(145deg, #1a1a3a, #0a0a2a);
+  border-color: rgba(169, 143, 0, 0.3);
+}
+
+body.theme-lapis .prayer-tree-nested-item.selected .prayer-tree-row,
+body.theme-lapis .prayer-tree-nested-item:has(input:checked) .prayer-tree-row {
+  border-color: rgba(169, 143, 0, 0.5);
+  background: linear-gradient(145deg, #1a1a3a, #0a0a2a);
+}
+
+body.theme-lapis .prayer-tree-nested-item .prayer-tree-checkbox label {
+  color: rgba(169, 143, 0, 0.8);
 }
 
 /* Lapis theme - Form buttons fix (dark background with gold text) */
