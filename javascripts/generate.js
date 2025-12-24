@@ -113,18 +113,6 @@ var continueGeneration = function () {
         convertedGroups.push(convertedGroup);
         i++;
       }
-
-      // Add yigo prefix for prayers after the first one (or for split/classic pages)
-      if (index > 0 || isASplitPage() || isAClassicPage()) {
-        addedGroups = addedGroups.concat({
-          tibetan: "༄༅།",
-          smallWritings: true,
-          mergeNext: true,
-        });
-        if (convertedGroups.length > 0) {
-          convertedGroups[0].tibetan = "།" + (convertedGroups[0].tibetan || "");
-        }
-      }
       addedGroups = addedGroups.concat(convertedGroups);
     });
     pecha.groups = addedGroups
