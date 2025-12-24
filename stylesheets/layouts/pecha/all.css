@@ -13,10 +13,13 @@
   color: rgba(255, 255, 255, 0.5);
 }
 .line .tibetan td {
+  position: relative;
   font-family: Tibetan;
   line-height: 1em;
   white-space: nowrap;
   vertical-align: top;
+  text-shadow: 0 0 1px black, 0 0 1px black, 0 0 1px black, 0 0 1px black;
+  z-index: 1;
 }
 .line .tibetan td.page-beginning {
   white-space: pre !important;
@@ -56,4 +59,8 @@
   height: 100%;
   font-family: Tibetan;
   writing-mode: vertical-lr;
+}
+
+.pecha-page-container {
+  border-color: transparent !important;
 }
