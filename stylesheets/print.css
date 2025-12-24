@@ -16,7 +16,7 @@
   }
 
   .pecha-page-container .line .tibetan td {
-    text-shadow: 0 0 1px white !important;
+    text-shadow: 0 0 1px white, 0 0 1px white, 0 0 1px white, 0 0 1px white !important;
   }
 
   * {

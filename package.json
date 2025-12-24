@@ -3,25 +3,33 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "concurrently \"vite\" \"node server/index.js\"",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "server": "node server/index.js",
+    "db:setup": "psql -d parkhang -f server/db/schema.sql",
+    "db:create": "createdb parkhang"
   },
   "dependencies": {
     "clipboard": "^2.0.11",
+    "cors": "^2.8.5",
+    "express": "^5.2.1",
+    "fomantic-ui-css": "^2.9.3",
     "howler": "^2.2.4",
     "jquery": "^3.7.1",
     "jquery.scrollto": "^2.1.3",
     "lodash": "^4.17.21",
-    "mammoth": "^1.6.0",
+    "mammoth": "^1.8.0",
     "moment": "^2.30.1",
     "nanoid": "^5.0.4",
     "papaparse": "^5.4.1",
-    "fomantic-ui-css": "^2.9.3",
+    "pdf-lib": "^1.17.1",
+    "pg": "^8.16.3",
     "sugar": "^2.0.6",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
+    "concurrently": "^9.1.0",
     "vite": "^5.4.0"
   }
 }

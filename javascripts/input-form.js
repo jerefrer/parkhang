@@ -690,14 +690,16 @@ var prayersSelect = function () {
   );
 };
 
-var savedProjectsSection = function () {
-  var projects = ProjectManager.getProjectsList();
+var savedProjectsSection = function (projects) {
   if (!projects || projects.length === 0) return "";
 
   var projectCards = projects
     .map(function (project) {
-      var date = new Date(project.updatedAt);
-      var dateStr = date.toLocaleDateString();
+      var date = new Date(project.updated_at || project.updatedAt);
+      var dateStr =
+        date.toLocaleDateString() +
+        " " +
+        date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
       var layoutName = project.layout
         ? project.layout.replace("-", " ").replace(/\b\w/g, function (l) {
             return l.toUpperCase();
@@ -770,16 +772,30 @@ var renderInputForm = function () {
   );
 
   // Layout wrapper with sidebar and main content
-  var sidebarHtml = savedProjectsSection();
-  var hasSidebar = sidebarHtml && sidebarHtml.length > 0;
-  var layoutWrapper = $(
-    '<div class="form-layout-wrapper' + (hasSidebar ? "" : " no-sidebar") + '">'
-  );
+  // Start with no-sidebar, will update when projects load
+  var layoutWrapper = $('<div class="form-layout-wrapper no-sidebar">');
 
-  // Sidebar for saved projects
-  if (hasSidebar) {
-    layoutWrapper.append(sidebarHtml);
-  }
+  // Placeholder for sidebar - will be populated async
+  var sidebarPlaceholder = $(
+    '<div id="saved-projects-sidebar-placeholder"></div>'
+  );
+  layoutWrapper.prepend(sidebarPlaceholder);
+
+  // Load projects from API asynchronously
+  ProjectManager.getProjectsList()
+    .then(function (projects) {
+      var sidebarHtml = savedProjectsSection(projects);
+      if (sidebarHtml && sidebarHtml.length > 0) {
+        sidebarPlaceholder.replaceWith(sidebarHtml);
+        layoutWrapper.removeClass("no-sidebar");
+      } else {
+        sidebarPlaceholder.remove();
+      }
+    })
+    .catch(function (error) {
+      console.warn("Could not load projects from API:", error.message);
+      sidebarPlaceholder.remove();
+    });
 
   // Main single-column content
   var content = $('<div class="form-content">');

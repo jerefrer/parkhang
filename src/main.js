@@ -78,7 +78,7 @@ window.generateSplitPages = generateSplit.generateSplitPages;
 const printing = await import("../javascripts/printing.js");
 window.prepareAndPrint = printing.prepareAndPrint;
 
-const projectManager = await import("../javascripts/project-manager.js");
+const projectManager = await import("../javascripts/project-manager-api.js");
 window.ProjectManager = projectManager.ProjectManager;
 
 // Import remaining modules (they just set up event handlers)
@@ -153,8 +153,10 @@ await import("../javascripts/input-form.js");
 await import("../javascripts/navigation.js");
 await import("../javascripts/prayers.js");
 await import("../javascripts/printing.js");
-await import("../javascripts/project-manager.js");
+await import("../javascripts/project-manager-api.js");
 await import("../javascripts/tibetan-page-numbers.js");
+await import("../javascripts/pdf-crop-modal.js");
+await import("../javascripts/migrate-to-database.js");
 
 console.log("Parkhang app initialized");
 console.log("Loaded prayers:", {
